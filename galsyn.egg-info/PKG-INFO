@@ -27,6 +27,7 @@ Requires-Dist: joblib
 Requires-Dist: tqdm
 Requires-Dist: tqdm_joblib
 Requires-Dist: psutil
+Requires-Dist: ipywidgets
 Dynamic: author
 Dynamic: author-email
 Dynamic: classifier

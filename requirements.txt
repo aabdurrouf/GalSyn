@@ -4,3 +4,4 @@ matplotlib
 illustris_python
 tqdm_joblib
 joblib
+ipywidgets

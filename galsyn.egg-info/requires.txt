@@ -7,3 +7,4 @@ joblib
 tqdm
 tqdm_joblib
 psutil
+ipywidgets

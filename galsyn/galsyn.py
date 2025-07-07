@@ -474,7 +474,7 @@ def generate_images_parallel(hdf5_file, snap_number, subhalo_id, filters, filter
     pix_kpc = angular_to_physical(snap_z, pix_arcsec)
 
     pix_area_kpc2 = pix_kpc*pix_kpc
-    print ('pixel size: %lf arcsec / %lf kpc' % (pix_arcsec,pix_kpc))
+    print ('pixel size: %lf arcsec or %lf kpc' % (pix_arcsec,pix_kpc))
 
     f = h5py.File(hdf5_file,'r')
 
@@ -593,8 +593,8 @@ def generate_images_parallel(hdf5_file, snap_number, subhalo_id, filters, filter
         cent_x, cent_y = (0.5*(xedges_initial[pix_cols[idx0]] + xedges_initial[pix_cols[idx0]+1]),
                           0.5*(yedges_initial[pix_rows[idx0]] + yedges_initial[pix_rows[idx0]+1]))
     
-    print ('Central coordinate: x=%lf y=%lf' % (cent_x,cent_y))
-    print ('Cutout size: %d x %d kpc' % (dim_kpc,dim_kpc))
+    #print ('Central coordinate: x=%lf y=%lf' % (cent_x,cent_y))
+    print ('Cutout size: %d x %d pix or %d x %d kpc' % (nbins_x,nbins_y,dim_kpc,dim_kpc))
 
     # calculate maps with the new defined cutout size
     xmin, xmax, ymin, ymax = cent_x-0.5*dim_kpc, cent_x+0.5*dim_kpc, cent_y-0.5*dim_kpc, cent_y+0.5*dim_kpc
@@ -621,7 +621,7 @@ def generate_images_parallel(hdf5_file, snap_number, subhalo_id, filters, filter
     mean_AV_unres = -2.5*np.log10(np.exp(-2.0*mean_tauV_res))          # assumed twice of average tauV resolved (Vogelsberger+20)
     if np.isnan(mean_tauV_res)==True or np.isinf(mean_tauV_res)==True:
         mean_tauV_res, mean_AV_unres = 0.0, 0.0
-    print ('mean_tauV_res=%lf mean_AV_unres=%lf' % (mean_tauV_res,mean_AV_unres))
+    #print ('mean_tauV_res=%lf mean_AV_unres=%lf' % (mean_tauV_res,mean_AV_unres))
 
     nbands = len(filters)
 

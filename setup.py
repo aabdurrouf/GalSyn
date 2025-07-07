@@ -43,6 +43,7 @@ setup(
         #'mpi4py',           # For MPI-based parallel processing (requires MPI installation)
         #'importlib_metadata', # Explicitly added due to previous traceback, though often a transitive dep
         'psutil',           # If you use it for memory monitoring/debugging
+        'ipywidgets',
         # 'illustris_python', # NOTE: This package is typically installed directly from its GitHub repository
                               # as it's not available on PyPI. If your code strictly depends on it,
                               # users will need to install it separately, e.g.:
