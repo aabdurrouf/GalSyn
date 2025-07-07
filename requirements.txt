@@ -1,0 +1,6 @@
+astropy
+scipy
+matplotlib
+illustris_python
+tqdm_joblib
+joblib
