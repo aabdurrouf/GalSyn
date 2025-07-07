@@ -13,16 +13,12 @@ import multiprocessing
 from tqdm.auto import tqdm # Import tqdm for general use
 from tqdm_joblib import tqdm_joblib # Specific tqdm integration for joblib
 
-# Define a global variable to hold the FSPS instance for each worker
-sp = None
+import fsps
+sp_instance = None  # Global variable to avoid reloading fsps per model
 
-def generate_images(hdf5_file, snap_number, subhalo_id, filters, projection='yxz', z=None, dim_kpc=None, 
-                    pix_arcsec=0.02, pix_kpc=None, sp=None, cosmo=None, h=0.704, imf_type=1, 
-                    add_neb_emission=True, name_out_props=None, name_out_img=None):
-
-    if sp is None:
-        import fsps
-        sp = fsps.StellarPopulation(zcontinuous=1, imf_type=imf_type, add_neb_emission=add_neb_emission)
+def generate_images_single_cpu(hdf5_file, snap_number, subhalo_id, filters, filter_transmission={}, filter_wave_eff={}, projection='yxz', z=None, dim_kpc=None, 
+                    pix_arcsec=0.02, flux_unit='MJy/sr', cosmo=None, h=0.704, imf_type=1, add_neb_emission=True, name_out_props=None, name_out_img=None):
+    # filter_transmission: [filter string]['wave' or 'trans']
 
     if cosmo is None:
         from astropy.cosmology import Planck15 as cosmo
@@ -34,16 +30,10 @@ def generate_images(hdf5_file, snap_number, subhalo_id, filters, projection='yxz
     snap_a = 1.0/(1.0 + snap_z)
     print ('Redshift: %lf' % snap_z)
 
-    if pix_kpc is None:
-        if pix_arcsec is None:
-            print ('Both pix_kpc and pix_arcsec cannot be None!')
-            sys.exit()
-        else:
-            pix_kpc = kpc_per_pixel(snap_z, pix_arcsec)
+    pix_kpc = angular_to_physical(snap_z, pix_arcsec)
 
     pix_area_kpc2 = pix_kpc*pix_kpc
     print ('pixel size: %lf kpc' % pix_kpc)
-
 
     f = h5py.File(hdf5_file,'r')
 
@@ -170,6 +160,18 @@ def generate_images(hdf5_file, snap_number, subhalo_id, filters, projection='yxz
         mean_tauV_res, mean_AV_unres = 0.0, 0.0
     print ('mean_tauV_res=%lf mean_AV_unres=%lf' % (mean_tauV_res,mean_AV_unres))
 
+    # initialize FSPS
+    sp = fsps.StellarPopulation(zcontinuous=1, imf_type=imf_type, add_neb_emission=add_neb_emission)
+    sp.params['imf_type'] = imf_type
+    sp.params["add_dust_emission"] = False
+    sp.params["add_neb_emission"] = add_neb_emission
+    sp.params['gas_logu'] = -2.0
+    sp.params["fagn"] = 0
+    sp.params["sfh"] = 0   # SSP
+    sp.params["dust_type"] = 2
+    sp.params["dust1"] = 0.0
+    sp.params["dust2"] = 0.0   # optical depth
+
     nbands = len(filters)
 
     map_mw_age = np.zeros((nbins_y,nbins_x))
@@ -185,22 +187,9 @@ def generate_images(hdf5_file, snap_number, subhalo_id, filters, projection='yxz
 
     map_dust_mean_tauV = np.zeros((nbins_y,nbins_x))
     map_dust_mean_AV = np.zeros((nbins_y,nbins_x))
-    map_dust_eff_AV = np.zeros((nbins_y,nbins_x))
-
-    map_lbt25 = np.zeros((nbins_y,nbins_x))
-    map_lbt50 = np.zeros((nbins_y,nbins_x))
-    map_lbt75 = np.zeros((nbins_y,nbins_x))
 
     map_flux = np.zeros((nbins_y,nbins_x,nbands))
     map_flux_dust = np.zeros((nbins_y,nbins_x,nbands))
-
-    map_rest_U = np.zeros((nbins_y,nbins_x))
-    map_rest_V = np.zeros((nbins_y,nbins_x))
-    map_rest_J = np.zeros((nbins_y,nbins_x))
-
-    map_rest_U_dust = np.zeros((nbins_y,nbins_x))
-    map_rest_V_dust = np.zeros((nbins_y,nbins_x))
-    map_rest_J_dust = np.zeros((nbins_y,nbins_x))
 
     dust_index_bc = -0.7 
 
@@ -241,40 +230,29 @@ def generate_images(hdf5_file, snap_number, subhalo_id, filters, projection='yxz
             ##=> get fluxes
             if len(idxs) > 0:
 
-                sfh, sfh_ladder = construct_SFH_TNG(stars_age[idxs], stars_init_mass[idxs], del_t=0.2)
-                if len(sfh) > 2:
-                    f = interp1d(sfh['smgh'], sfh['lbt'], fill_value="extrapolate")
-                    map_lbt25[ii][jj] = f(0.25*sfh['smgh'][0])
-                    map_lbt50[ii][jj] = f(0.50*sfh['smgh'][0])
-                    map_lbt75[ii][jj] = f(0.75*sfh['smgh'][0])
-
                 dust_index = 0.0
-                redshift_flux, redshift_flux_dust, rest_flux_UVJ, rest_flux_UVJ_dust, mean_AV, mean_tauV, eff_AV = calc_csp_fluxes_modified_Cal20_with_unresbc_detailed(sp=sp, z=snap_z, 
+                redshift_flux, redshift_flux_dust, mean_AV, mean_tauV = calc_csp_fluxes_modified_Cal20_with_unresbc_detailed(sp=sp, z=snap_z, 
                                                     filters=filters, pix_area_kpc2=pix_area_kpc2, stars_age=stars_age[idxs], stars_zsol=stars_zsol[idxs], stars_mass=stars_mass[idxs], 
                                                     stars_coords_z=coords_z[idxs], gas_mass_H=gas_mass_H[idxg], gas_coords_z=gas_coords_z[idxg], gas_mass=gas_mass[idxg], 
                                                     gas_zsol=gas_zsol[idxg], imf_type=imf_type, add_neb_emission=add_neb_emission, mean_dust_AV_unres=mean_AV_unres, 
-                                                    dust_index=dust_index, dust_index_bc=dust_index_bc)
+                                                    dust_index=dust_index, dust_index_bc=dust_index_bc, cosmo=cosmo, filter_transmission=filter_transmission)
 
                 if len(redshift_flux) > 0:
                     map_flux[ii][jj] = redshift_flux
                     map_flux_dust[ii][jj] = redshift_flux_dust
 
-                    map_rest_U[ii][jj] = rest_flux_UVJ[0]
-                    map_rest_V[ii][jj] = rest_flux_UVJ[1]
-                    map_rest_J[ii][jj] = rest_flux_UVJ[2]
-
-                    map_rest_U_dust[ii][jj] = rest_flux_UVJ_dust[0]
-                    map_rest_V_dust[ii][jj] = rest_flux_UVJ_dust[1]
-                    map_rest_J_dust[ii][jj] = rest_flux_UVJ_dust[2]
-
                     map_dust_mean_tauV[ii][jj] = mean_tauV
                     map_dust_mean_AV[ii][jj] = mean_AV
-                    map_dust_eff_AV[ii][jj] = eff_AV
 
             sys.stdout.write('\r')
             sys.stdout.write('progress: x (%d of %d) and y (%d of %d)' % (jj,len(xedges)-1,ii,len(yedges)-1))
             sys.stdout.flush()
 
+    # convert flux units
+    for i_band in range(nbands):
+        map_flux[:,:,i_band] = convert_flux_map(map_flux[:,:,i_band], filter_wave_eff[filters[i_band]], to_unit=flux_unit, pixel_scale_arcsec=pix_arcsec)
+        map_flux_dust[:,:,i_band] = convert_flux_map(map_flux_dust[:,:,i_band], filter_wave_eff[filters[i_band]], to_unit=flux_unit, pixel_scale_arcsec=pix_arcsec)
+    
     ## save results into FITS file
     # properties
     hdul = fits.HDUList()
@@ -295,13 +273,9 @@ def generate_images(hdf5_file, snap_number, subhalo_id, filters, projection='yxz
     hdul.append(fits.ImageHDU(data=map_sfr_inst, name='sfr_inst'))
     hdul.append(fits.ImageHDU(data=map_dust_mean_tauV, name='mean_tauV'))
     hdul.append(fits.ImageHDU(data=map_dust_mean_AV, name='mean_AV'))
-    hdul.append(fits.ImageHDU(data=map_dust_eff_AV, name='eff_AV'))
     hdul.append(fits.ImageHDU(data=map_sfr_10, name='sfr10'))
     hdul.append(fits.ImageHDU(data=map_sfr_30, name='sfr30'))
     hdul.append(fits.ImageHDU(data=map_sfr_100, name='sfr100'))
-    hdul.append(fits.ImageHDU(data=map_lbt25, name='lbt25'))
-    hdul.append(fits.ImageHDU(data=map_lbt50, name='lbt50'))
-    hdul.append(fits.ImageHDU(data=map_lbt75, name='lbt75'))
 
     if name_out_props is None:
         name_out_props='maps_props.fits'
@@ -329,42 +303,38 @@ def generate_images(hdf5_file, snap_number, subhalo_id, filters, projection='yxz
         hdul.append(fits.ImageHDU(data=map_flux_trans[bb], name='nodust_'+filters[bb]))
         hdul.append(fits.ImageHDU(data=map_flux_dust_trans[bb], name='dust_'+filters[bb]))
 
-    # rest-frame UVJ fluxes
-    hdul.append(fits.ImageHDU(data=map_rest_U, name='nodust_rest_U'))
-    hdul.append(fits.ImageHDU(data=map_rest_V, name='nodust_rest_V'))
-    hdul.append(fits.ImageHDU(data=map_rest_J, name='nodust_rest_J'))
-
-    hdul.append(fits.ImageHDU(data=map_rest_U_dust, name='dust_rest_U'))
-    hdul.append(fits.ImageHDU(data=map_rest_V_dust, name='dust_rest_V'))
-    hdul.append(fits.ImageHDU(data=map_rest_J_dust, name='dust_rest_J'))
-
     if name_out_img is None:
         name_out_img='maps_images.fits'
     hdul.writeto(name_out_img, overwrite=True)
 
 
-
-# It's crucial for the worker function to be defined at the top level
-# of your script/module when using multiprocessing (which joblib uses by default).
+def init_worker():
+    global sp_instance
+    sp_instance = fsps.StellarPopulation(zcontinuous=1, add_neb_emission=1)
 
 def _process_pixel_data(ii, jj, xedges, yedges, coords_x, coords_y, stars_mass,
                         stars_age, stars_zsol, stars_init_mass, coords_z,
                         gas_coords_x, gas_coords_y, gas_mass, gas_sfr_inst,
-                        gas_zsol, gas_log_temp, gas_mass_H, gas_coords_z, # <--- ADDED gas_coords_z HERE
+                        gas_zsol, gas_log_temp, gas_mass_H, gas_coords_z, 
                         pix_area_kpc2, mean_AV_unres, filters, imf_type,
-                        snap_z, dust_index_bc, add_neb_emission):
+                        snap_z, dust_index_bc, add_neb_emission, cosmo, 
+                        filter_transmission):
     """
     Worker function to process calculations for a single pixel (ii, jj).
     This function will be executed in parallel for each pixel.
     """
 
-    global sp # Declare that we're using the global variable
+    global sp_instance # Declare that we're using the global variable
 
-    if sp is None:
-        import fsps # Import fsps inside the worker function
-        sp = fsps.StellarPopulation(zcontinuous=1, imf_type=imf_type, add_neb_emission=add_neb_emission)
-        # You might also want to set other FSPS parameters here that are common for all calls
-        # For example, if you consistently use a certain dust model or IMF.
+    sp_instance.params['imf_type'] = imf_type
+    sp_instance.params["add_dust_emission"] = False
+    sp_instance.params["add_neb_emission"] = add_neb_emission
+    sp_instance.params['gas_logu'] = -2.0
+    sp_instance.params["fagn"] = 0
+    sp_instance.params["sfh"] = 0   # SSP
+    sp_instance.params["dust_type"] = 2
+    sp_instance.params["dust1"] = 0.0
+    sp_instance.params["dust2"] = 0.0   # optical depth
 
     # Initialize a dictionary to store results for this pixel
     pixel_results = {
@@ -379,18 +349,8 @@ def _process_pixel_data(ii, jj, xedges, yedges, coords_x, coords_y, stars_mass,
         'map_gas_mw_zsol': 0.0,
         'map_dust_mean_tauV': 0.0,
         'map_dust_mean_AV': 0.0,
-        'map_dust_eff_AV': 0.0,
-        'map_lbt25': 0.0,
-        'map_lbt50': 0.0,
-        'map_lbt75': 0.0,
         'map_flux': np.zeros(len(filters)),
-        'map_flux_dust': np.zeros(len(filters)),
-        'map_rest_U': 0.0,
-        'map_rest_V': 0.0,
-        'map_rest_J': 0.0,
-        'map_rest_U_dust': 0.0,
-        'map_rest_V_dust': 0.0,
-        'map_rest_J_dust': 0.0,
+        'map_flux_dust': np.zeros(len(filters))
     }
 
     ##=> stellar particles
@@ -440,16 +400,10 @@ def _process_pixel_data(ii, jj, xedges, yedges, coords_x, coords_y, stars_mass,
 
     ##=> get fluxes
     if len(idxs) > 0:
-        sfh, sfh_ladder = construct_SFH_TNG(stars_age[idxs], stars_init_mass[idxs], del_t=0.2)
-        if len(sfh) > 2 and len(sfh['smgh']) > 0:
-            f = interp1d(sfh['smgh'], sfh['lbt'], fill_value="extrapolate")
-            pixel_results['map_lbt25'] = f(0.25 * sfh['smgh'][0])
-            pixel_results['map_lbt50'] = f(0.50 * sfh['smgh'][0])
-            pixel_results['map_lbt75'] = f(0.75 * sfh['smgh'][0])
 
         dust_index = 0.0
-        redshift_flux, redshift_flux_dust, rest_flux_UVJ, rest_flux_UVJ_dust, mean_AV, mean_tauV, eff_AV = \
-            calc_csp_fluxes_modified_Cal20_with_unresbc_detailed(sp=sp, z=snap_z, filters=filters, # <--- Use sp_instance here
+        redshift_flux, redshift_flux_dust, mean_AV, mean_tauV = \
+            calc_csp_fluxes_modified_Cal20_with_unresbc_detailed(sp=sp_instance, z=snap_z, filters=filters,
                                                                  pix_area_kpc2=pix_area_kpc2,
                                                                  stars_age=stars_age[idxs],
                                                                  stars_zsol=stars_zsol[idxs],
@@ -462,30 +416,23 @@ def _process_pixel_data(ii, jj, xedges, yedges, coords_x, coords_y, stars_mass,
                                                                  imf_type=imf_type,
                                                                  mean_dust_AV_unres=mean_AV_unres,
                                                                  dust_index=dust_index,
-                                                                 dust_index_bc=dust_index_bc)
+                                                                 dust_index_bc=dust_index_bc,
+                                                                 cosmo=cosmo, 
+                                                                 filter_transmission=filter_transmission)
 
         if len(redshift_flux) > 0:
             pixel_results['map_flux'] = redshift_flux
             pixel_results['map_flux_dust'] = redshift_flux_dust
 
-            pixel_results['map_rest_U'] = rest_flux_UVJ[0]
-            pixel_results['map_rest_V'] = rest_flux_UVJ[1]
-            pixel_results['map_rest_J'] = rest_flux_UVJ[2]
-
-            pixel_results['map_rest_U_dust'] = rest_flux_UVJ_dust[0]
-            pixel_results['map_rest_V_dust'] = rest_flux_UVJ_dust[1]
-            pixel_results['map_rest_J_dust'] = rest_flux_UVJ[2]
-
             pixel_results['map_dust_mean_tauV'] = mean_tauV
             pixel_results['map_dust_mean_AV'] = mean_AV
-            pixel_results['map_dust_eff_AV'] = eff_AV
 
     return ii, jj, pixel_results
 
 
-def generate_images_parallel(hdf5_file, snap_number, subhalo_id, filters, projection='yxz', z=None, dim_kpc=None, 
-                    pix_arcsec=0.02, pix_kpc=None, sp=None, cosmo=None, h=0.704, imf_type=1, 
-                    add_neb_emission=True, name_out_props=None, name_out_img=None, n_jobs=-1):
+def generate_images_parallel(hdf5_file, snap_number, subhalo_id, filters, filter_transmission={}, filter_wave_eff={}, 
+                            projection='yxz', z=None, dim_kpc=None, pix_arcsec=0.02, flux_unit='MJy/sr', cosmo=None, h=0.704, 
+                            imf_type=1, add_neb_emission=True, name_out_img=None, n_jobs=-1):
     """
     Generates astrophysical images from HDF5 simulation data with parallelized pixel calculations.
 
@@ -494,31 +441,23 @@ def generate_images_parallel(hdf5_file, snap_number, subhalo_id, filters, projec
         snap_number (int): Snapshot number.
         subhalo_id (int): Subhalo ID.
         filters (list): List of photometric filters.
+        filter_transmission: [filter string]['wave' or 'trans']
+        filter_wave_eff: [filter string]
         projection (str, optional): Projection axis ('yxz', 'xyz', 'zyx', 'yzx'). Defaults to 'yxz'.
         z (float, optional): Redshift. If None, derived from snap_number. Defaults to None.
         dim_kpc (float, optional): Dimension of the image in kpc. If None, assigned automatically. Defaults to None.
         pix_arcsec (float, optional): Pixel size in arcseconds. Defaults to 0.02.
-        pix_kpc (float, optional): Pixel size in kpc. If None, calculated from pix_arcsec. Defaults to None.
-        sp (fsps.StellarPopulation, optional): FSPS StellarPopulation object. If None, initialized. Defaults to None.
+        flux_unit (string, optional): Desired flux unit for the generated images. Options are: 'MJy/sr', 'nJy', 'AB magnitude', or 'erg/s/cm2/A'. Default to 'MJy/sr'.
         cosmo (astropy.cosmology, optional): Astropy Cosmology object. If None, Planck15 is used. Defaults to None.
         h (float, optional): Hubble constant in units of 100 km/s/Mpc. Defaults to 0.704.
         imf_type (int, optional): IMF type for FSPS. Defaults to 1.
         add_neb_emission (bool, optional): Whether to add nebular emission in FSPS. Defaults to True.
-        name_out_props (str, optional): Output file name for properties. Defaults to None.
         name_out_img (str, optional): Output file name for images. Defaults to None.
         n_jobs (int, optional): Number of CPU cores to use for parallel processing. 
                                 -1 means use all available cores. Defaults to -1.
     """
-    #if sp is not None:
-    #    global sp
-    
-    # Imports that might be re-initialized if sp or cosmo are None
-    #if sp is None:
-    #    import fsps
-    #    # This is where FSPS is called ONLY ONCE
-    #    sp_instance = fsps.StellarPopulation(zcontinuous=1, imf_type=imf_type, add_neb_emission=add_neb_emission)
-    #else:
-    #    sp_instance = sp # If an SP object was passed in, use that
+
+    sp_instance = fsps.StellarPopulation(zcontinuous=1, imf_type=imf_type, add_neb_emission=add_neb_emission)
 
     if cosmo is None:
         from astropy.cosmology import Planck15 as cosmo
@@ -532,15 +471,10 @@ def generate_images_parallel(hdf5_file, snap_number, subhalo_id, filters, projec
     snap_a = 1.0/(1.0 + snap_z)
     print ('Redshift: %lf' % snap_z)
 
-    if pix_kpc is None:
-        if pix_arcsec is None:
-            print ('Both pix_kpc and pix_arcsec cannot be None!')
-            sys.exit()
-        else:
-            pix_kpc = kpc_per_pixel(snap_z, pix_arcsec)
+    pix_kpc = angular_to_physical(snap_z, pix_arcsec)
 
     pix_area_kpc2 = pix_kpc*pix_kpc
-    print ('pixel size: %lf kpc' % pix_kpc)
+    print ('pixel size: %lf arcsec / %lf kpc' % (pix_arcsec,pix_kpc))
 
     f = h5py.File(hdf5_file,'r')
 
@@ -705,22 +639,9 @@ def generate_images_parallel(hdf5_file, snap_number, subhalo_id, filters, projec
 
     map_dust_mean_tauV = np.zeros((nbins_y,nbins_x))
     map_dust_mean_AV = np.zeros((nbins_y,nbins_x))
-    map_dust_eff_AV = np.zeros((nbins_y,nbins_x))
-
-    map_lbt25 = np.zeros((nbins_y,nbins_x))
-    map_lbt50 = np.zeros((nbins_y,nbins_x))
-    map_lbt75 = np.zeros((nbins_y,nbins_x))
 
     map_flux = np.zeros((nbins_y,nbins_x,nbands))
     map_flux_dust = np.zeros((nbins_y,nbins_x,nbands))
-
-    map_rest_U = np.zeros((nbins_y,nbins_x))
-    map_rest_V = np.zeros((nbins_y,nbins_x))
-    map_rest_J = np.zeros((nbins_y,nbins_x))
-
-    map_rest_U_dust = np.zeros((nbins_y,nbins_x))
-    map_rest_V_dust = np.zeros((nbins_y,nbins_x))
-    map_rest_J_dust = np.zeros((nbins_y,nbins_x))
 
     dust_index_bc = -0.7 
 
@@ -733,20 +654,20 @@ def generate_images_parallel(hdf5_file, snap_number, subhalo_id, filters, projec
                           gas_coords_x, gas_coords_y, gas_mass, gas_sfr_inst,
                           gas_zsol, gas_log_temp, gas_mass_H, gas_coords_z,
                           pix_area_kpc2, mean_AV_unres, filters, imf_type,
-                          snap_z, dust_index_bc, add_neb_emission))
+                          snap_z, dust_index_bc, add_neb_emission, cosmo, filter_transmission))
 
     # Determine the number of CPU cores to use
     num_cores = n_jobs
     if num_cores == -1:
         num_cores = multiprocessing.cpu_count() # Use all available cores
 
-    print(f"\nStarting parallel pixel processing on {num_cores} cores...")
+    #print(f"\nStarting parallel pixel processing on {num_cores} cores...")
 
     with tqdm_joblib(total=len(tasks), desc="Processing pixels") as progress_bar:
-        results = Parallel(n_jobs=num_cores, verbose=0)(
+        results = Parallel(n_jobs=num_cores, verbose=0, initializer=init_worker)(
             delayed(_process_pixel_data)(*task_args) for task_args in tasks
         )
-    print("\nFinished parallel pixel processing.")
+    #print("\nFinished parallel pixel processing.")
 
     # --- Aggregate Results (Sequential) ---
     # Populate the pre-initialized maps with results from parallel processing
@@ -764,24 +685,17 @@ def generate_images_parallel(hdf5_file, snap_number, subhalo_id, filters, projec
 
         map_dust_mean_tauV[ii][jj] = pixel_data['map_dust_mean_tauV']
         map_dust_mean_AV[ii][jj] = pixel_data['map_dust_mean_AV']
-        map_dust_eff_AV[ii][jj] = pixel_data['map_dust_eff_AV']
-
-        map_lbt25[ii][jj] = pixel_data['map_lbt25']
-        map_lbt50[ii][jj] = pixel_data['map_lbt50'] # Corrected variable name here (was `pixel_lbt50`)
-        map_lbt75[ii][jj] = pixel_data['map_lbt75']
 
         map_flux[ii][jj] = pixel_data['map_flux']
         map_flux_dust[ii][jj] = pixel_data['map_flux_dust']
 
-        map_rest_U[ii][jj] = pixel_data['map_rest_U']
-        map_rest_V[ii][jj] = pixel_data['map_rest_V']
-        map_rest_J[ii][jj] = pixel_data['map_rest_J']
+    #print("All calculations complete. Maps populated.")
 
-        map_rest_U_dust[ii][jj] = pixel_data['map_rest_U_dust']
-        map_rest_V_dust[ii][jj] = pixel_data['map_rest_V_dust']
-        map_rest_J_dust[ii][jj] = pixel_data['map_rest_J_dust']
+    # convert flux units
+    for i_band in range(nbands):
+        map_flux[:,:,i_band] = convert_flux_map(map_flux[:,:,i_band], filter_wave_eff[filters[i_band]], to_unit=flux_unit, pixel_scale_arcsec=pix_arcsec)
+        map_flux_dust[:,:,i_band] = convert_flux_map(map_flux_dust[:,:,i_band], filter_wave_eff[filters[i_band]], to_unit=flux_unit, pixel_scale_arcsec=pix_arcsec)
 
-    print("All calculations complete. Maps populated.")
 
     # --- Save results to FITS file (New Block) ---
     if name_out_img is not None:
@@ -794,7 +708,6 @@ def generate_images_parallel(hdf5_file, snap_number, subhalo_id, filters, projec
                 primary_data = map_flux[:, :, 0] # First band for primary
                 prihdr = fits.Header()
                 prihdr['COMMENT'] = 'Primary Image: First band (no dust)'
-                # Add WCS information if available (example, assuming linear pixel scale)
                 prihdr['CRPIX1'] = nbins_x / 2.0 + 0.5 # Reference pixel X (center)
                 prihdr['CRPIX2'] = nbins_y / 2.0 + 0.5 # Reference pixel Y (center)
                 prihdr['CDELT1'] = pix_kpc # Pixel scale X (kpc/pixel)
@@ -810,6 +723,8 @@ def generate_images_parallel(hdf5_file, snap_number, subhalo_id, filters, projec
                 prihdr['PROJ'] = projection
                 prihdr['DIM_KPC'] = dim_kpc
                 prihdr['PIX_KPC'] = pix_kpc
+                prihdr['PIXSIZE'] = pix_arcsec
+                prihdr['BUNIT'] = flux_unit
 
                 primary_hdu = fits.PrimaryHDU(data=primary_data, header=prihdr)
                 hdul.append(primary_hdu)
@@ -817,8 +732,10 @@ def generate_images_parallel(hdf5_file, snap_number, subhalo_id, filters, projec
                 # Add extensions for other bands (no dust)
                 for i_band in range(nbands):
                     ext_hdr = fits.Header()
-                    ext_hdr['EXTNAME'] = f'FLUX_BAND_{i_band:02d}'
-                    ext_hdr['FILTER'] = filters[i_band] if i_band < len(filters) else 'N/A'
+                    #ext_hdr['EXTNAME'] = f'FLUX_BAND_{i_band:02d}'
+                    ext_hdr['EXTNAME'] = 'NODUST_'+filters[i_band].upper()
+                    #ext_hdr['FILTER'] = filters[i_band] if i_band < len(filters) else 'N/A'
+                    ext_hdr['FILTER'] = filters[i_band]
                     ext_hdr['COMMENT'] = f'Flux for filter: {filters[i_band]}'
                     ext_hdu = fits.ImageHDU(data=map_flux[:, :, i_band], header=ext_hdr)
                     hdul.append(ext_hdu)
@@ -826,15 +743,16 @@ def generate_images_parallel(hdf5_file, snap_number, subhalo_id, filters, projec
                 # Add extensions for other bands (with dust)
                 for i_band in range(nbands):
                     ext_hdr = fits.Header()
-                    ext_hdr['EXTNAME'] = f'FLUX_DUST_BAND_{i_band:02d}'
-                    ext_hdr['FILTER'] = filters[i_band] if i_band < len(filters) else 'N/A'
+                    #ext_hdr['EXTNAME'] = f'FLUX_DUST_BAND_{i_band:02d}'
+                    ext_hdr['EXTNAME'] = 'DUST_'+filters[i_band].upper()
+                    #ext_hdr['FILTER'] = filters[i_band] if i_band < len(filters) else 'N/A'
+                    ext_hdr['FILTER'] = filters[i_band]
                     ext_hdr['COMMENT'] = f'Flux (with dust) for filter: {filters[i_band]}'
                     ext_hdu = fits.ImageHDU(data=map_flux_dust[:, :, i_band], header=ext_hdr)
                     hdul.append(ext_hdu)
             else:
                 # If no flux bands, create an empty primary HDU
                 hdul.append(fits.PrimaryHDU())
-
 
             # Add other maps as ImageHDU extensions
             map_data_to_save = {
@@ -849,16 +767,6 @@ def generate_images_parallel(hdf5_file, snap_number, subhalo_id, filters, projec
                 'GAS_MW_ZSOL': map_gas_mw_zsol,
                 'DUST_MEAN_TAUV': map_dust_mean_tauV,
                 'DUST_MEAN_AV': map_dust_mean_AV,
-                'DUST_EFF_AV': map_dust_eff_AV,
-                'LBT25': map_lbt25,
-                'LBT50': map_lbt50,
-                'LBT75': map_lbt75,
-                'REST_U': map_rest_U,
-                'REST_V': map_rest_V,
-                'REST_J': map_rest_J,
-                'REST_U_DUST': map_rest_U_dust,
-                'REST_V_DUST': map_rest_V_dust,
-                'REST_J_DUST': map_rest_J_dust,
             }
 
             for map_name, data_array in map_data_to_save.items():
@@ -879,19 +787,4 @@ def generate_images_parallel(hdf5_file, snap_number, subhalo_id, filters, projec
 
         except Exception as e:
             print(f"Error saving FITS file {name_out_img}: {e}")
-
-    # You can also save properties to a separate file if name_out_props is provided
-    if name_out_props is not None:
-        try:
-            with open(name_out_props, 'w') as f_props:
-                f_props.write(f"Snapshot Redshift: {snap_z}\n")
-                f_props.write(f"Central X (kpc): {cent_x}\n")
-                f_props.write(f"Central Y (kpc): {cent_y}\n")
-                f_props.write(f"Image Dimension (kpc): {dim_kpc}\n")
-                f_props.write(f"Pixel Size (kpc): {pix_kpc}\n")
-                f_props.write(f"Mean Dust Tau_V (resolved): {mean_tauV_res}\n")
-                f_props.write(f"Mean Dust A_V (unresolved): {mean_AV_unres}\n")
-            print(f"Properties saved to: {name_out_props}")
-        except Exception as e:
-            print(f"Error saving properties to {name_out_props}: {e}")
 

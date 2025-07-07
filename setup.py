@@ -39,13 +39,10 @@ setup(
         'joblib',           # For CPU-based parallel processing
         'tqdm',             # For progress bars (includes tqdm.joblib)
         'tqdm_joblib',
-        'fsps',             # For Flexible Stellar Population Synthesis (requires setup, see notes below)
-        'mpi4py',           # For MPI-based parallel processing (requires MPI installation)
-        'importlib_metadata', # Explicitly added due to previous traceback, though often a transitive dep
+        #'fsps',             # For Flexible Stellar Population Synthesis (requires setup, see notes below)
+        #'mpi4py',           # For MPI-based parallel processing (requires MPI installation)
+        #'importlib_metadata', # Explicitly added due to previous traceback, though often a transitive dep
         'psutil',           # If you use it for memory monitoring/debugging
-        #'reproject',        # From previous tracebacks (dependency of piXedfit)
-        #'dask',             # From previous tracebacks (dependency of reproject)
-        #'piXedfit',         # If your code directly uses piXedfit (from tracebacks)
         # 'illustris_python', # NOTE: This package is typically installed directly from its GitHub repository
                               # as it's not available on PyPI. If your code strictly depends on it,
                               # users will need to install it separately, e.g.:

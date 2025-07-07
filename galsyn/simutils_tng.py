@@ -281,27 +281,8 @@ def unresolved_dust_birth_cloud(AV, wave, dust_index_bc=-0.7):
 
 def calc_csp_fluxes_modified_Cal20_with_unresbc_detailed(sp=None, z=0.001, filters=[], pix_area_kpc2=1.0, stars_age=[], stars_zsol=[], stars_mass=[], 
     stars_coords_z=[], gas_mass_H=[], gas_coords_z=[], gas_mass=[], gas_zsol=[], imf_type=1, add_neb_emission=True, 
-    mean_dust_AV_unres=0.3, dust_index=0.0, dust_index_bc=-0.7): 
-
-    from piXedfit.utils.redshifting import cosmo_redshifting
-    from piXedfit.utils.igm_absorption import igm_att_madau
-    from piXedfit.utils.filtering import filtering
-
-    # IMF:
-    sp.params['imf_type'] = imf_type
-    # dust emission switch:
-    sp.params["add_dust_emission"] = False
-    # nebular emission switch:
-    sp.params["add_neb_emission"] = add_neb_emission
-    sp.params['gas_logu'] = -2.0
-    # AGN switch:
-    sp.params["fagn"] = 0
-    # SSP:
-    sp.params["sfh"] = 0
-    # dust attenuation:
-    sp.params["dust_type"] = 2
-    sp.params["dust1"] = 0.0
-    sp.params["dust2"] = 0.0   # optical depth
+    mean_dust_AV_unres=0.3, dust_index=0.0, dust_index_bc=-0.7, cosmo=None, filter_transmission={}): 
+    # filter_transmission: [filter string]['wave' or 'trans']
 
     array_spec = []
     array_spec_dust = []
@@ -351,32 +332,26 @@ def calc_csp_fluxes_modified_Cal20_with_unresbc_detailed(sp=None, z=0.001, filte
     mean_AV = np.nanmean(np.asarray(array_AV))
     mean_tauV = np.nanmean(np.asarray(array_tauV))
 
-    redshift_flux, redshift_flux_dust, rest_flux_UVJ, rest_flux_UVJ_dust, eff_AV = [], [], [], [], 0.0
+    redshift_flux, redshift_flux_dust = [], []
     
     if len(array_spec) > 0:
         spec_lum = np.nansum(array_spec, axis=0)
         spec_lum_dust = np.nansum(array_spec_dust, axis=0)
 
-        # calculate rest-frame UVJ fluxes and effective AV:
-        # rest-frame spectrum in erg/s/cm^2/A
-        DL = 3.086e+19  # 10 pc in cm
-        rest_spec_flux = spec_lum*3.826e+33/4.0/np.pi/DL/DL    # in erg/s/cm^2/Ang.
-        rest_spec_flux_dust = spec_lum_dust*3.826e+33/4.0/np.pi/DL/DL    # in erg/s/cm^2/Ang.
-
-        rest_flux_UVJ = filtering(wave, rest_spec_flux, ['johnson_cousins_U', 'johnson_cousins_V', '2mass_j'])
-        rest_flux_UVJ_dust = filtering(wave, rest_spec_flux_dust, ['johnson_cousins_U', 'johnson_cousins_V', '2mass_j'])
-
-        eff_AV = -2.5*np.log10(rest_flux_UVJ_dust[1]/rest_flux_UVJ[1])
-
         # redshifting:
-        spec_wave, spec_flux = cosmo_redshifting(z=z, wave=wave, spec=spec_lum)    # in erg/s/cm^2/Ang.
-        spec_wave, spec_flux_dust = cosmo_redshifting(z=z, wave=wave, spec=spec_lum_dust)    # in erg/s/cm^2/Ang.
+        spec_wave, spec_flux = cosmo_redshifting(wave, spec_lum, z, cosmo=None)   # in erg/s/cm^2/Ang.
+        spec_wave, spec_flux_dust = cosmo_redshifting(wave, spec_lum_dust, z, cosmo=None)    # in erg/s/cm^2/Ang.
 
         # IGM absorption:
         trans = igm_att_madau(spec_wave, z)
 
         # filtering
-        redshift_flux = filtering(spec_wave, spec_flux*trans, filters)
-        redshift_flux_dust = filtering(spec_wave, spec_flux_dust*trans, filters)
+        nbands = len(filters)
+        redshift_flux = np.zeros(nbands)
+        redshift_flux_dust = np.zeros(nbands)
 
-    return redshift_flux, redshift_flux_dust, rest_flux_UVJ, rest_flux_UVJ_dust, mean_AV, mean_tauV, eff_AV
+        for i_band in range(nbands):
+            redshift_flux[i_band] = filtering(spec_wave, spec_flux*trans, filter_transmission[filters[i_band]]['wave'], filter_transmission[filters[i_band]]['trans'])
+            redshift_flux_dust[i_band] = filtering(spec_wave, spec_flux_dust*trans, filter_transmission[filters[i_band]]['wave'], filter_transmission[filters[i_band]]['trans'])
+
+    return redshift_flux, redshift_flux_dust, mean_AV, mean_tauV

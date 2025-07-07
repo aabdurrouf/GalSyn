@@ -1,0 +1,9 @@
+numpy
+astropy
+scipy
+matplotlib
+h5py
+joblib
+tqdm
+tqdm_joblib
+psutil
