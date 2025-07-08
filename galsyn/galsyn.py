@@ -13,15 +13,18 @@ import multiprocessing
 from tqdm.auto import tqdm # Import tqdm for general use
 from tqdm_joblib import tqdm_joblib # Specific tqdm integration for joblib
 
+global cosmo
+cosmo, cosmo_h = define_cosmo()
+
+global imf_type, add_neb_emission, add_igm_absorption, igm_type
+imf_type, add_neb_emission, add_igm_absorption, igm_type = fsps_setup()
+
 import fsps
 sp_instance = None  # Global variable to avoid reloading fsps per model
 
 def generate_images_single_cpu(hdf5_file, snap_number, subhalo_id, filters, filter_transmission={}, filter_wave_eff={}, projection='yxz', z=None, dim_kpc=None, 
-                    pix_arcsec=0.02, flux_unit='MJy/sr', cosmo=None, h=0.704, imf_type=1, add_neb_emission=True, name_out_props=None, name_out_img=None):
+                    pix_arcsec=0.02, flux_unit='MJy/sr', name_out_props=None, name_out_img=None):
     # filter_transmission: [filter string]['wave' or 'trans']
-
-    if cosmo is None:
-        from astropy.cosmology import Planck15 as cosmo
 
     snap_z = get_snap_z(snap_number)
     if z is not None:
@@ -40,14 +43,14 @@ def generate_images_single_cpu(hdf5_file, snap_number, subhalo_id, filters, filt
     stars_form_a = f['PartType4']['GFM_StellarFormationTime'][:]
     stars_form_z = (1.0/stars_form_a) - 1.0
 
-    stars_init_mass = f['PartType4']['GFM_InitialMass'][:]*1e+10/h
-    stars_mass = f['PartType4']['Masses'][:]*1e+10/h
+    stars_init_mass = f['PartType4']['GFM_InitialMass'][:]*1e+10/cosmo_h
+    stars_mass = f['PartType4']['Masses'][:]*1e+10/cosmo_h
     stars_zsol = f['PartType4']['GFM_Metallicity'][:]/0.0127         # in solar metallicity
 
     coords = f['PartType4']['Coordinates'][:]
-    coords_x = coords[:,0]*snap_a/h             # x in kpc
-    coords_y = coords[:,1]*snap_a/h             # y in kpc
-    coords_z = coords[:,2]*snap_a/h             # z in kpc
+    coords_x = coords[:,0]*snap_a/cosmo_h             # x in kpc
+    coords_y = coords[:,1]*snap_a/cosmo_h             # y in kpc
+    coords_z = coords[:,2]*snap_a/cosmo_h             # z in kpc
 
     snap_univ_age = cosmo.age(snap_z).value
     stars_form_age_univ = interp_age_univ_from_z(stars_form_z)
@@ -65,12 +68,12 @@ def generate_images_single_cpu(hdf5_file, snap_number, subhalo_id, filters, filt
     stars_age = stars_age[idx]
 
     # read gas particles data
-    gas_mass = f['PartType0']['Masses'][:]*1e+10/h
+    gas_mass = f['PartType0']['Masses'][:]*1e+10/cosmo_h
     gas_zsol = f['PartType0']['GFM_Metallicity'][:]/0.0127  # in solar metallicity
     gas_coords = f['PartType0']['Coordinates'][:]
-    gas_coords_x0 = gas_coords[:,0]*snap_a/h                 # in kpc
-    gas_coords_y0 = gas_coords[:,1]*snap_a/h
-    gas_coords_z0 = gas_coords[:,2]*snap_a/h
+    gas_coords_x0 = gas_coords[:,0]*snap_a/cosmo_h                 # in kpc
+    gas_coords_y0 = gas_coords[:,1]*snap_a/cosmo_h
+    gas_coords_z0 = gas_coords[:,2]*snap_a/cosmo_h
     gas_sfr_inst = f['PartType0']['StarFormationRate'][:]   # in Msun/yr
     XH = 0.76                                    # the hydrogen mass fraction  
     gas_mass_H = gas_mass*XH                     # mass of hydrogen 
@@ -234,8 +237,8 @@ def generate_images_single_cpu(hdf5_file, snap_number, subhalo_id, filters, filt
                 redshift_flux, redshift_flux_dust, mean_AV, mean_tauV = calc_csp_fluxes_modified_Cal20_with_unresbc_detailed(sp=sp, z=snap_z, 
                                                     filters=filters, pix_area_kpc2=pix_area_kpc2, stars_age=stars_age[idxs], stars_zsol=stars_zsol[idxs], stars_mass=stars_mass[idxs], 
                                                     stars_coords_z=coords_z[idxs], gas_mass_H=gas_mass_H[idxg], gas_coords_z=gas_coords_z[idxg], gas_mass=gas_mass[idxg], 
-                                                    gas_zsol=gas_zsol[idxg], imf_type=imf_type, add_neb_emission=add_neb_emission, mean_dust_AV_unres=mean_AV_unres, 
-                                                    dust_index=dust_index, dust_index_bc=dust_index_bc, cosmo=cosmo, filter_transmission=filter_transmission)
+                                                    gas_zsol=gas_zsol[idxg], mean_dust_AV_unres=mean_AV_unres, 
+                                                    dust_index=dust_index, dust_index_bc=dust_index_bc, filter_transmission=filter_transmission)
 
                 if len(redshift_flux) > 0:
                     map_flux[ii][jj] = redshift_flux
@@ -316,8 +319,8 @@ def _process_pixel_data(ii, jj, xedges, yedges, coords_x, coords_y, stars_mass,
                         stars_age, stars_zsol, stars_init_mass, coords_z,
                         gas_coords_x, gas_coords_y, gas_mass, gas_sfr_inst,
                         gas_zsol, gas_log_temp, gas_mass_H, gas_coords_z, 
-                        pix_area_kpc2, mean_AV_unres, filters, imf_type,
-                        snap_z, dust_index_bc, add_neb_emission, cosmo, 
+                        pix_area_kpc2, mean_AV_unres, filters, 
+                        snap_z, dust_index_bc,  
                         filter_transmission):
     """
     Worker function to process calculations for a single pixel (ii, jj).
@@ -413,11 +416,9 @@ def _process_pixel_data(ii, jj, xedges, yedges, coords_x, coords_y, stars_mass,
                                                                  gas_coords_z=gas_coords_z[idxg_dust],
                                                                  gas_mass=gas_mass[idxg_dust],
                                                                  gas_zsol=gas_zsol[idxg_dust],
-                                                                 imf_type=imf_type,
                                                                  mean_dust_AV_unres=mean_AV_unres,
                                                                  dust_index=dust_index,
                                                                  dust_index_bc=dust_index_bc,
-                                                                 cosmo=cosmo, 
                                                                  filter_transmission=filter_transmission)
 
         if len(redshift_flux) > 0:
@@ -430,14 +431,14 @@ def _process_pixel_data(ii, jj, xedges, yedges, coords_x, coords_y, stars_mass,
     return ii, jj, pixel_results
 
 
-def generate_images_parallel(hdf5_file, snap_number, subhalo_id, filters, filter_transmission={}, filter_wave_eff={}, 
-                            projection='yxz', z=None, dim_kpc=None, pix_arcsec=0.02, flux_unit='MJy/sr', cosmo=None, h=0.704, 
-                            imf_type=1, add_neb_emission=True, name_out_img=None, n_jobs=-1):
+def generate_images_parallel(sim_file, snap_number, subhalo_id, filters, filter_transmission={}, filter_wave_eff={}, 
+                            projection='yxz', z=None, dim_kpc=None, pix_arcsec=0.02, flux_unit='MJy/sr',
+                            name_out_img=None, n_jobs=-1):
     """
     Generates astrophysical images from HDF5 simulation data with parallelized pixel calculations.
 
     Parameters:
-        hdf5_file (str): Path to the HDF5 simulation file.
+        sim_file (str): Path to the HDF5 simulation file.
         snap_number (int): Snapshot number.
         subhalo_id (int): Subhalo ID.
         filters (list): List of photometric filters.
@@ -448,10 +449,7 @@ def generate_images_parallel(hdf5_file, snap_number, subhalo_id, filters, filter
         dim_kpc (float, optional): Dimension of the image in kpc. If None, assigned automatically. Defaults to None.
         pix_arcsec (float, optional): Pixel size in arcseconds. Defaults to 0.02.
         flux_unit (string, optional): Desired flux unit for the generated images. Options are: 'MJy/sr', 'nJy', 'AB magnitude', or 'erg/s/cm2/A'. Default to 'MJy/sr'.
-        cosmo (astropy.cosmology, optional): Astropy Cosmology object. If None, Planck15 is used. Defaults to None.
         h (float, optional): Hubble constant in units of 100 km/s/Mpc. Defaults to 0.704.
-        imf_type (int, optional): IMF type for FSPS. Defaults to 1.
-        add_neb_emission (bool, optional): Whether to add nebular emission in FSPS. Defaults to True.
         name_out_img (str, optional): Output file name for images. Defaults to None.
         n_jobs (int, optional): Number of CPU cores to use for parallel processing. 
                                 -1 means use all available cores. Defaults to -1.
@@ -459,10 +457,7 @@ def generate_images_parallel(hdf5_file, snap_number, subhalo_id, filters, filter
 
     sp_instance = fsps.StellarPopulation(zcontinuous=1, imf_type=imf_type, add_neb_emission=add_neb_emission)
 
-    if cosmo is None:
-        from astropy.cosmology import Planck15 as cosmo
-
-
+    print ('Processing '+sim_file)
     # --- Data Loading and Initial Calculations (Sequential) ---
     snap_z = get_snap_z(snap_number)
     if z is not None:
@@ -476,19 +471,19 @@ def generate_images_parallel(hdf5_file, snap_number, subhalo_id, filters, filter
     pix_area_kpc2 = pix_kpc*pix_kpc
     print ('pixel size: %lf arcsec or %lf kpc' % (pix_arcsec,pix_kpc))
 
-    f = h5py.File(hdf5_file,'r')
+    f = h5py.File(sim_file,'r')
 
     stars_form_a = f['PartType4']['GFM_StellarFormationTime'][:]
     stars_form_z = (1.0/stars_form_a) - 1.0
 
-    stars_init_mass = f['PartType4']['GFM_InitialMass'][:]*1e+10/h
-    stars_mass = f['PartType4']['Masses'][:]*1e+10/h
+    stars_init_mass = f['PartType4']['GFM_InitialMass'][:]*1e+10/cosmo_h
+    stars_mass = f['PartType4']['Masses'][:]*1e+10/cosmo_h
     stars_zsol = f['PartType4']['GFM_Metallicity'][:]/0.0127         # in solar metallicity
 
     coords = f['PartType4']['Coordinates'][:]
-    coords_x = coords[:,0]*snap_a/h             # x in kpc
-    coords_y = coords[:,1]*snap_a/h             # y in kpc
-    coords_z = coords[:,2]*snap_a/h             # z in kpc
+    coords_x = coords[:,0]*snap_a/cosmo_h             # x in kpc
+    coords_y = coords[:,1]*snap_a/cosmo_h             # y in kpc
+    coords_z = coords[:,2]*snap_a/cosmo_h             # z in kpc
 
     snap_univ_age = cosmo.age(snap_z).value
     stars_form_age_univ = interp_age_univ_from_z(stars_form_z)
@@ -506,12 +501,12 @@ def generate_images_parallel(hdf5_file, snap_number, subhalo_id, filters, filter
     stars_age = stars_age[idx]
 
     # read gas particles data
-    gas_mass = f['PartType0']['Masses'][:]*1e+10/h
+    gas_mass = f['PartType0']['Masses'][:]*1e+10/cosmo_h
     gas_zsol = f['PartType0']['GFM_Metallicity'][:]/0.0127  # in solar metallicity
     gas_coords = f['PartType0']['Coordinates'][:]
-    gas_coords_x0 = gas_coords[:,0]*snap_a/h                 # in kpc
-    gas_coords_y0 = gas_coords[:,1]*snap_a/h
-    gas_coords_z0 = gas_coords[:,2]*snap_a/h
+    gas_coords_x0 = gas_coords[:,0]*snap_a/cosmo_h                 # in kpc
+    gas_coords_y0 = gas_coords[:,1]*snap_a/cosmo_h
+    gas_coords_z0 = gas_coords[:,2]*snap_a/cosmo_h
     gas_sfr_inst = f['PartType0']['StarFormationRate'][:]   # in Msun/yr
     XH = 0.76                                    # the hydrogen mass fraction  
     gas_mass_H = gas_mass*XH                     # mass of hydrogen 
@@ -592,9 +587,6 @@ def generate_images_parallel(hdf5_file, snap_number, subhalo_id, filters, filter
         # central coordinate:
         cent_x, cent_y = (0.5*(xedges_initial[pix_cols[idx0]] + xedges_initial[pix_cols[idx0]+1]),
                           0.5*(yedges_initial[pix_rows[idx0]] + yedges_initial[pix_rows[idx0]+1]))
-    
-    #print ('Central coordinate: x=%lf y=%lf' % (cent_x,cent_y))
-    print ('Cutout size: %d x %d pix or %d x %d kpc' % (nbins_x,nbins_y,dim_kpc,dim_kpc))
 
     # calculate maps with the new defined cutout size
     xmin, xmax, ymin, ymax = cent_x-0.5*dim_kpc, cent_x+0.5*dim_kpc, cent_y-0.5*dim_kpc, cent_y+0.5*dim_kpc
@@ -622,6 +614,9 @@ def generate_images_parallel(hdf5_file, snap_number, subhalo_id, filters, filter
     if np.isnan(mean_tauV_res)==True or np.isinf(mean_tauV_res)==True:
         mean_tauV_res, mean_AV_unres = 0.0, 0.0
     #print ('mean_tauV_res=%lf mean_AV_unres=%lf' % (mean_tauV_res,mean_AV_unres))
+
+    #print ('Central coordinate: x=%lf y=%lf' % (cent_x,cent_y))
+    print ('Cutout size: %d x %d pix or %d x %d kpc' % (nbins_x,nbins_y,dim_kpc,dim_kpc))
 
     nbands = len(filters)
 
@@ -653,8 +648,8 @@ def generate_images_parallel(hdf5_file, snap_number, subhalo_id, filters, filter
                           stars_age, stars_zsol, stars_init_mass, coords_z,
                           gas_coords_x, gas_coords_y, gas_mass, gas_sfr_inst,
                           gas_zsol, gas_log_temp, gas_mass_H, gas_coords_z,
-                          pix_area_kpc2, mean_AV_unres, filters, imf_type,
-                          snap_z, dust_index_bc, add_neb_emission, cosmo, filter_transmission))
+                          pix_area_kpc2, mean_AV_unres, filters,
+                          snap_z, dust_index_bc, filter_transmission))
 
     # Determine the number of CPU cores to use
     num_cores = n_jobs

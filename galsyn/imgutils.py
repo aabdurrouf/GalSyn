@@ -1,12 +1,11 @@
-import os, sys 
 import numpy as np
 import astropy.units as u
 from .utils import *
 
-def angular_to_physical(z, arcsec_per_pix, cosmo=None):
-    if cosmo is None:
-        from astropy.cosmology import Planck15 as cosmo
-		
+global cosmo
+cosmo, cosmo_h = define_cosmo()
+
+def angular_to_physical(z, arcsec_per_pix):
     kpc_per_arcmin = cosmo.kpc_proper_per_arcmin(z)
     kpc_per_pix = kpc_per_arcmin.value*arcsec_per_pix/60.0 
     
@@ -14,9 +13,6 @@ def angular_to_physical(z, arcsec_per_pix, cosmo=None):
 
 
 def physical_to_angular(z, physical_size_kpc):
-    if cosmo is None:
-        from astropy.cosmology import Planck15 as cosmo
-
     # Compute angular diameter distance in kpc
     D_A = cosmo.angular_diameter_distance(z).to(u.kpc)
     

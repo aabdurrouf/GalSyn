@@ -1,12 +1,19 @@
 import os, sys 
 import numpy as np
 from astropy.io import fits 
-from .config import API_KEY
 from .imgutils import *
 from .utils import *
 
-baseUrl_tng = 'http://www.tng-project.org/api/'
+from .config import API_KEY
 headers = {"api-key":API_KEY}
+
+global cosmo
+cosmo, cosmo_h = define_cosmo()
+
+global imf_type, add_neb_emission, add_igm_absorption, igm_type
+imf_type, add_neb_emission, add_igm_absorption, igm_type = fsps_setup()
+
+baseUrl_tng = 'http://www.tng-project.org/api/'
 
 def get(path, params=None):
     import requests
@@ -55,10 +62,7 @@ def get_num_subhalos(snap_number, sim='TNG50-1', snaps_info=None):
         snaps_info = get_tng_snaps_info(sim)
     return snaps_info[int(snap_number)]['num_groups_subfind']
 
-def cosmic_times_snapshots(sim='TNG50-1',cosmo=None, snaps_info=None):
-
-    if cosmo is None:
-        from astropy.cosmology import Planck15 as cosmo
+def cosmic_times_snapshots(sim='TNG50-1',snaps_info=None):
 
     if snaps_info is None:
         snaps_info = get_tng_snaps_info(sim)
@@ -71,10 +75,7 @@ def cosmic_times_snapshots(sim='TNG50-1',cosmo=None, snaps_info=None):
 
     return cosmic_times
 
-def cosmic_times_of_snapshots(snaps, sim='TNG50-1', cosmo=None, snaps_info=None):
-
-    if cosmo is None:
-        from astropy.cosmology import Planck15 as cosmo
+def cosmic_times_of_snapshots(snaps, sim='TNG50-1', snaps_info=None):
 
     if snaps_info is None:
         snaps_info = get_tng_snaps_info(sim)
@@ -140,6 +141,7 @@ def assign_cutout_size(z, log_totmstar):
 
 def tau_dust_given_z(z):
     from scipy.interpolate import interp1d
+    
     # based on Vogelsberger+2020 (Table 3)
     data_z = [0, 2, 3, 4, 5, 6, 7, 8, 12]
     data_tau_dust = [0.46, 0.46, 0.20, 0.13, 0.08, 0.06, 0.04, 0.03, 0.03]
@@ -279,9 +281,9 @@ def unresolved_dust_birth_cloud(AV, wave, dust_index_bc=-0.7):
     return A_lambda
 
 
-def calc_csp_fluxes_modified_Cal20_with_unresbc_detailed(sp=None, z=0.001, filters=[], pix_area_kpc2=1.0, stars_age=[], stars_zsol=[], stars_mass=[], 
-    stars_coords_z=[], gas_mass_H=[], gas_coords_z=[], gas_mass=[], gas_zsol=[], imf_type=1, add_neb_emission=True, 
-    mean_dust_AV_unres=0.3, dust_index=0.0, dust_index_bc=-0.7, cosmo=None, filter_transmission={}): 
+def calc_csp_fluxes_modified_Cal20_with_unresbc_detailed(sp=None, z=0.001, filters=[], pix_area_kpc2=1.0, stars_age=[], 
+    stars_zsol=[], stars_mass=[], stars_coords_z=[], gas_mass_H=[], gas_coords_z=[], gas_mass=[], gas_zsol=[], 
+    mean_dust_AV_unres=0.3, dust_index=0.0, dust_index_bc=-0.7, filter_transmission={}): 
     # filter_transmission: [filter string]['wave' or 'trans']
 
     array_spec = []
@@ -329,8 +331,13 @@ def calc_csp_fluxes_modified_Cal20_with_unresbc_detailed(sp=None, z=0.001, filte
             array_spec_dust.append(spec_dust*norm)
 
     # average AV:
-    mean_AV = np.nanmean(np.asarray(array_AV))
-    mean_tauV = np.nanmean(np.asarray(array_tauV))
+    array_AV, array_tauV = np.asarray(array_AV), np.asarray(array_tauV)
+    if array_AV.size == 0:
+        mean_AV = np.nan
+        mean_tauV = np.nan
+    else:
+        mean_AV = np.nanmean(np.asarray(array_AV))
+        mean_tauV = np.nanmean(np.asarray(array_tauV))
 
     redshift_flux, redshift_flux_dust = [], []
     
@@ -339,11 +346,20 @@ def calc_csp_fluxes_modified_Cal20_with_unresbc_detailed(sp=None, z=0.001, filte
         spec_lum_dust = np.nansum(array_spec_dust, axis=0)
 
         # redshifting:
-        spec_wave, spec_flux = cosmo_redshifting(wave, spec_lum, z, cosmo=None)   # in erg/s/cm^2/Ang.
-        spec_wave, spec_flux_dust = cosmo_redshifting(wave, spec_lum_dust, z, cosmo=None)    # in erg/s/cm^2/Ang.
+        spec_wave, spec_flux = cosmo_redshifting(wave, spec_lum, z)   # in erg/s/cm^2/Ang.
+        spec_wave, spec_flux_dust = cosmo_redshifting(wave, spec_lum_dust, z)    # in erg/s/cm^2/Ang.
 
         # IGM absorption:
-        trans = igm_att_madau(spec_wave, z)
+        if add_igm_absorption == 1:
+            if igm_type == 0:
+                trans = igm_att_madau(spec_wave, z)
+            elif igm_type == 1:
+                trans = igm_att_inoue(spec_wave, z)
+            else:
+                print ('igm_type is not recognized! options are: 1 for Madau+1995 and Inoue+2014')
+                sys.exit()
+        else:
+            trans = 1
 
         # filtering
         nbands = len(filters)
