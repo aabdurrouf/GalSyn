@@ -23,7 +23,7 @@ sp_instance = None  # Global variable to avoid reloading fsps per model
 
 def init_worker():
     global sp_instance
-    sp_instance = fsps.StellarPopulation(zcontinuous=1, add_neb_emission=1)
+    sp_instance = fsps.StellarPopulation(zcontinuous=1)
 
 
 def _process_pixel_data_no_los_binning(ii, jj, star_particle_membership, gas_particle_membership, 
@@ -156,7 +156,7 @@ def _process_pixel_data_no_los_binning(ii, jj, star_particle_membership, gas_par
                 A_lambda = unresolved_dust_birth_cloud(mean_AV_unres, wave, dust_index_bc=dust_index_bc)
                 spec_dust = spec_dust*np.power(10.0, -0.4*A_lambda)
     
-            norm = stars_mass[ii]/sp_instance.stellar_mass
+            norm = stars_mass[star_id]/sp_instance.stellar_mass
 
             if len(np.asarray(spec_dust).shape) == 1:
                 array_spec.append(spec*norm)
@@ -361,11 +361,10 @@ def generate_images_no_los_binning(sim_file, z, filters, filter_transmission, fi
     tasks = []
     for ii in range(dimy): # Iterate over rows (y-axis)
         for jj in range(dimx): # Iterate over columns (x-axis)
-            if len([x[0] for x in star_particle_membership[ii][jj]]) > 0:
-                tasks.append((ii, jj, star_particle_membership, gas_particle_membership, 
-                                stars_mass, stars_age, stars_zsol, stars_init_mass, 
-                                gas_mass, gas_sfr_inst, gas_zsol, gas_log_temp, gas_mass_H, 
-                                filters, filter_transmission, snap_z, pix_area_kpc2, mean_AV_unres))
+            tasks.append((ii, jj, star_particle_membership, gas_particle_membership, 
+                            stars_mass, stars_age, stars_zsol, stars_init_mass, 
+                            gas_mass, gas_sfr_inst, gas_zsol, gas_log_temp, gas_mass_H, 
+                            filters, filter_transmission, snap_z, pix_area_kpc2, mean_AV_unres))
 
     # Determine the number of CPU cores to use
     num_cores = n_jobs

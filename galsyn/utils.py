@@ -127,6 +127,77 @@ def filtering(wave_spec, flux_spec, wave_filter, trans_filter):
 
     return flux_phot
 
+def assign_cutout_size(z, log_totmstar):
+    
+    if z<=0.5:
+        if log_totmstar >= 9.0:
+            dim_kpc = 100 
+        else:
+            dim_kpc = 50
+    elif z<=2.0:
+        if log_totmstar >= 9.0:
+            dim_kpc = 90 
+        else:
+            dim_kpc = 44
+    elif z<=3.0:
+        if log_totmstar >= 9.0:
+            dim_kpc = 80 
+        else:
+            dim_kpc = 40 
+    elif z<=4.0:
+        if log_totmstar >= 9.0:
+            dim_kpc = 50 
+        else:
+            dim_kpc = 24 
+    else:
+        if log_totmstar >= 9.0:
+            dim_kpc = 40 
+        else:
+            dim_kpc = 20 
+
+    return dim_kpc
+
+
+def tau_dust_given_z(z):
+    from scipy.interpolate import interp1d
+    
+    # based on Vogelsberger+2020 (Table 3)
+    data_z = [0, 2, 3, 4, 5, 6, 7, 8, 12]
+    data_tau_dust = [0.46, 0.46, 0.20, 0.13, 0.08, 0.06, 0.04, 0.03, 0.03]
+
+    f = interp1d(data_z, data_tau_dust, fill_value="extrapolate")
+    return f(z)
+
+
+def modified_calzetti_dust_curve(AV, wave, dust_index=0.0):
+    wave = wave/1e+4     # in micron
+    idx = np.where(wave <= 0.63)[0]
+    k_lambda1 = 4.05 + (2.659*(-2.156 + (1.509/wave[idx]) - (0.198/wave[idx]/wave[idx]) + (0.011/wave[idx]/wave[idx]/wave[idx])))
+
+    idx = np.where(wave > 0.63)[0]
+    k_lambda2 = 4.05 + (2.659*(-1.857 + (1.040/wave[idx]))) 
+
+    k_lambda = k_lambda1.tolist() + k_lambda2.tolist()
+    k_lambda = np.asarray(k_lambda)
+
+    wave_V = 0.5477
+    wave_02 = 0.2175*0.2175
+    dwave = 0.0350
+    Eb = 0.85 - 1.9*dust_index
+    top = wave*dwave*wave*dwave
+    low = (wave*wave - wave_02)*(wave*wave - wave_02)
+    D_lambda = Eb*top/(low + top)
+
+    A_lambda = AV*(k_lambda + D_lambda)*np.power(wave/wave_V, dust_index)/4.05
+
+    return A_lambda
+
+def unresolved_dust_birth_cloud(AV, wave, dust_index_bc=-0.7):
+    wave_V = 5477.0
+    A_lambda = AV*np.power(wave/wave_V, dust_index_bc)
+
+    return A_lambda
+
 
 # wave: wavelength in Angstroms
 def igm_att_madau(wave,z):
@@ -302,7 +373,8 @@ def igm_att_inoue(wave,z):
 	return np.exp(-1.0*tau)
 
 
-def get_2d_density_projection_no_los_binning(star_coords, particle_masses, pixel_size, output_dimension, proj_angle_deg=0, projection_mode=None, gas_coords=None, gas_masses=None):
+def get_2d_density_projection_no_los_binning(star_coords, particle_masses, pixel_size, output_dimension, 
+                                             proj_angle_deg=0, projection_mode=None, gas_coords=None, gas_masses=None):
     """
     Calculates the 2D mass density projection of star particles given 3D coordinates,
     their masses, a fixed pixel size, and a desired output dimension (cutout size).
@@ -313,9 +385,9 @@ def get_2d_density_projection_no_los_binning(star_coords, particle_masses, pixel
     If `gas_coords` and `gas_masses` are provided, it also calculates the membership of gas particles
     and their mass density within the *same* projected pixel gridding defined by the star particles.
 
-    The line-of-sight distances for star particles are adjusted so that the closest
-    star particle to the observer (along the line of sight) has a distance of 0,
-    and all other distances are positive. Gas particle LOS distances are similarly adjusted.
+    The line-of-sight distance for each particle (star or gas) is normalized such that the closest
+    particle (considering both stars and gas, if gas is provided) has a line-of-sight
+    distance of 0, and distances increase farther away from this closest point.
 
     If `projection_mode` is specified, it overrides `proj_angle_deg`.
     The `proj_angle_deg` is measured counter-clockwise from the positive Y-axis.
@@ -349,7 +421,8 @@ def get_2d_density_projection_no_los_binning(star_coords, particle_masses, pixel
             - star_particle_membership (list of lists of lists): A 2D list (grid) where
               each element `star_particle_membership[y_idx][x_idx]` is a list of
               tuples `(original_particle_index, line_of_sight_distance)`
-              for star particles that fall into that pixel.
+              for star particles that fall into that pixel. The `line_of_sight_distance`
+              is now relative to the closest particle (0 being the closest).
             - star_mass_density_map (np.ndarray): A 2D NumPy array representing the mass
               density map (sum of masses per pixel) for star particles.
               Its shape is (num_pixels_y, num_pixels_x).
@@ -428,16 +501,21 @@ def get_2d_density_projection_no_los_binning(star_coords, particle_masses, pixel
         if gas_coords is not None:
             rotated_gas_coords = np.dot(gas_coords, rotation_matrix.T)
 
-    # --- Extract projected 2D coordinates and line-of-sight distances for STARS ---
+    # --- Extract projected 2D coordinates and raw line-of-sight distances for STARS ---
     projected_star_2d_coords = rotated_star_coords[:, :2]
-    star_line_of_sight_distances = rotated_star_coords[:, 2]
+    star_line_of_sight_distances_raw = rotated_star_coords[:, 2]
 
-    # --- Adjust LOS distances for STARS to be positive and start from zero ---
-    if star_line_of_sight_distances.size > 0:
-        min_star_los_distance = np.min(star_line_of_sight_distances)
-        star_line_of_sight_distances = star_line_of_sight_distances - min_star_los_distance
-    else:
-        min_star_los_distance = 0.0 # No particles, so min_los_distance is 0
+    # --- Determine the global minimum LOS distance for normalization (from all particles) ---
+    all_los_distances = star_line_of_sight_distances_raw
+    if gas_coords is not None:
+        gas_line_of_sight_distances_raw = rotated_gas_coords[:, 2]
+        all_los_distances = np.concatenate((all_los_distances, gas_line_of_sight_distances_raw))
+
+    # Handle case where all_los_distances might be empty (e.g., if both star_coords and gas_coords are empty after initial check)
+    min_global_los = np.min(all_los_distances) if all_los_distances.size > 0 else 0.0
+
+    # --- Normalize line-of-sight distances for STARS ---
+    star_line_of_sight_distances_normalized = star_line_of_sight_distances_raw - min_global_los
 
     # --- Calculate the extent of the *entire* projected STAR dataset for global map ---
     min_x_full, min_y_full = np.min(projected_star_2d_coords, axis=0)
@@ -509,7 +587,7 @@ def get_2d_density_projection_no_los_binning(star_coords, particle_masses, pixel
 
         # Only include particles that fall within the cutout dimensions
         if 0 <= x_idx_cutout < num_pixels_x_cutout and 0 <= y_idx_cutout < num_pixels_y_cutout:
-            star_particle_membership[y_idx_cutout][x_idx_cutout].append((i, star_line_of_sight_distances[i]))
+            star_particle_membership[y_idx_cutout][x_idx_cutout].append((i, star_line_of_sight_distances_normalized[i])) # Use normalized distance
             star_mass_density_map[y_idx_cutout][x_idx_cutout] += particle_masses[i]
 
     # --- Set central pixel coordinate to the geometric center of the cutout ---
@@ -524,13 +602,8 @@ def get_2d_density_projection_no_los_binning(star_coords, particle_masses, pixel
         gas_particle_membership = [[[] for _ in range(num_pixels_x_cutout)] for _ in range(num_pixels_y_cutout)]
         gas_mass_density_map = np.zeros((num_pixels_y_cutout, num_pixels_x_cutout), dtype=float)
         projected_gas_2d_coords = rotated_gas_coords[:, :2]
-        gas_line_of_sight_distances = rotated_gas_coords[:, 2]
-
-        # Adjust LOS distances for GAS to be positive and start from zero, using the same shift as stars
-        if gas_line_of_sight_distances.size > 0:
-            gas_line_of_sight_distances = gas_line_of_sight_distances - min_star_los_distance # Use star's min LOS for consistency
-        else:
-            pass # Already initialized to 0.0 if empty
+        # gas_line_of_sight_distances_raw was already extracted and used for min_global_los
+        gas_line_of_sight_distances_normalized = gas_line_of_sight_distances_raw - min_global_los # Normalize gas LOS
 
         for i in range(gas_coords.shape[0]):
             x_coord_proj = projected_gas_2d_coords[i, 0]
@@ -540,7 +613,7 @@ def get_2d_density_projection_no_los_binning(star_coords, particle_masses, pixel
             y_idx_cutout = int(np.floor((y_coord_proj - min_y_cutout) / pixel_size))
 
             if 0 <= x_idx_cutout < num_pixels_x_cutout and 0 <= y_idx_cutout < num_pixels_y_cutout:
-                gas_particle_membership[y_idx_cutout][x_idx_cutout].append((i, gas_line_of_sight_distances[i]))
+                gas_particle_membership[y_idx_cutout][x_idx_cutout].append((i, gas_line_of_sight_distances_normalized[i])) # Use normalized distance
                 gas_mass_density_map[y_idx_cutout][x_idx_cutout] += gas_masses[i]
 
     # --- Prepare grid information for output ---
@@ -556,7 +629,9 @@ def get_2d_density_projection_no_los_binning(star_coords, particle_masses, pixel
     return star_particle_membership, star_mass_density_map, central_pixel_coords, grid_info, gas_particle_membership, gas_mass_density_map
 
 
-def get_2d_density_projection_with_los_binning(star_coords, particle_masses, pixel_size, output_dimension, los_bin_size, los_dimension, proj_angle_deg=0, projection_mode=None, gas_coords=None, gas_masses=None):
+
+def get_2d_density_projection_with_los_binning(star_coords, particle_masses, pixel_size, output_dimension, los_bin_size, 
+                                               los_dimension, proj_angle_deg=0, projection_mode=None, gas_coords=None, gas_masses=None):
     """
     Calculates the 3D mass density projection of star particles given 3D coordinates,
     their masses, fixed pixel/bin sizes, and desired output dimensions for all axes.
@@ -571,6 +646,10 @@ def get_2d_density_projection_with_los_binning(star_coords, particle_masses, pix
     If `projection_mode` is specified, it overrides `proj_angle_deg`.
     The `proj_angle_deg` is measured counter-clockwise from the positive Y-axis.
     The line-of-sight distance corresponds to the new Z-coordinate after this transformation.
+
+    The line-of-sight distance for each particle is normalized such that the closest
+    particle (considering both stars and gas, if gas is provided) has a line-of-sight
+    distance of 0, and distances increase farther away from this closest point.
 
     Args:
         star_coords (np.ndarray): A NumPy array of shape (N, 3) representing the
@@ -605,7 +684,8 @@ def get_2d_density_projection_with_los_binning(star_coords, particle_masses, pix
             - star_particle_membership (list of lists of lists of lists): A 3D list (grid) where
               each element `star_particle_membership[y_idx][x_idx][z_idx]` is a list of
               tuples `(original_particle_index, line_of_sight_distance)`
-              for star particles that fall into that specific 3D bin.
+              for star particles that fall into that specific 3D bin. The `line_of_sight_distance`
+              is now relative to the closest particle (0 being the closest).
             - star_mass_density_map (np.ndarray): A 3D NumPy array representing the mass
               density map (sum of masses per 3D bin) for star particles.
               Its shape is (num_pixels_y, num_pixels_x, num_pixels_z).
@@ -626,6 +706,10 @@ def get_2d_density_projection_with_los_binning(star_coords, particle_masses, pix
             - gas_mass_density_map (np.ndarray or None): A 3D NumPy array representing the mass
               density map for gas particles. Its shape is (num_pixels_y, num_pixels_x, num_pixels_z).
               None if `gas_coords` not provided.
+            - gas_particles_in_front_of_grid (list of lists of lists of lists or None): A 3D list (grid) where
+              each element `gas_particles_in_front_of_grid[y_idx][x_idx][z_idx]` is a list of
+              `original_particle_index` for all gas particles in bins *in front* of the current
+              `z_idx` along the line of sight for that (y_idx, x_idx) column. None if `gas_coords` not provided.
 
     Raises:
         ValueError: If star_coords/particle_masses are invalid, pixel_size/los_bin_size are not positive,
@@ -661,7 +745,7 @@ def get_2d_density_projection_with_los_binning(star_coords, particle_masses, pix
         print("Warning: No star particles provided. Returning empty results for LOS binning.")
         return [], np.array([[]]), (0, 0), {'min_x_proj': 0, 'min_y_proj': 0, 'min_z_proj': 0,
                                             'num_pixels_x': 0, 'num_pixels_y': 0, 'num_pixels_z': 0,
-                                            'effective_pixel_size_x': pixel_size, 'effective_pixel_size_y': pixel_size, 'effective_los_bin_size': los_bin_size}, [], np.array([[]])
+                                            'effective_pixel_size_x': pixel_size, 'effective_pixel_size_y': pixel_size, 'effective_los_bin_size': los_bin_size}, [], np.array([[]]), None
 
     # --- Determine transformation based on projection_mode or proj_angle_deg ---
     if projection_mode:
@@ -695,10 +779,25 @@ def get_2d_density_projection_with_los_binning(star_coords, particle_masses, pix
     projected_star_2d_coords = rotated_star_coords[:, :2]
     star_line_of_sight_distances = rotated_star_coords[:, 2]
 
+    # --- Determine the global minimum LOS distance for normalization ---
+    all_los_distances = star_line_of_sight_distances
+    if gas_coords is not None:
+        gas_line_of_sight_distances_raw = rotated_gas_coords[:, 2]
+        all_los_distances = np.concatenate((all_los_distances, gas_line_of_sight_distances_raw))
+
+    min_global_los = np.min(all_los_distances) if all_los_distances.size > 0 else 0.0
+
+    # --- Normalize line-of-sight distances ---
+    star_line_of_sight_distances_normalized = star_line_of_sight_distances - min_global_los
+    if gas_coords is not None:
+        gas_line_of_sight_distances_normalized = gas_line_of_sight_distances_raw - min_global_los
+
     # --- Calculate the extent of the *entire* projected STAR dataset for global map ---
+    # Use normalized LOS distances for min_z_full and max_z_full
     min_x_full, min_y_full = np.min(projected_star_2d_coords, axis=0)
     max_x_full, max_y_full = np.max(projected_star_2d_coords, axis=0)
-    min_z_full, max_z_full = np.min(star_line_of_sight_distances), np.max(star_line_of_sight_distances)
+    min_z_full, max_z_full = np.min(star_line_of_sight_distances_normalized), np.max(star_line_of_sight_distances_normalized)
+
 
     # Define a temporary pixel size for the global map if it's too fine/coarse
     effective_pixel_size_global = pixel_size
@@ -720,7 +819,7 @@ def get_2d_density_projection_with_los_binning(star_coords, particle_masses, pix
     for i in range(star_coords.shape[0]):
         x_coord_proj = projected_star_2d_coords[i, 0]
         y_coord_proj = projected_star_2d_coords[i, 1]
-        z_coord_los = star_line_of_sight_distances[i]
+        z_coord_los = star_line_of_sight_distances_normalized[i] # Use normalized distance
 
         x_idx_global = int(np.floor((x_coord_proj - min_x_full) / effective_pixel_size_global))
         y_idx_global = int(np.floor((y_coord_proj - min_y_full) / effective_pixel_size_global))
@@ -748,7 +847,8 @@ def get_2d_density_projection_with_los_binning(star_coords, particle_masses, pix
     most_massive_pixel_y_coord_global = min_y_full + (most_massive_pixel_y_idx_global + 0.5) * effective_pixel_size_global
 
     # For LOS dimension, we'll center around the median of the full LOS distances of STARS
-    median_z_full = np.median(star_line_of_sight_distances)
+    # Use normalized median for centering
+    median_z_full = np.median(star_line_of_sight_distances_normalized)
 
     # --- Define the cutout grid's extent and dimensions based on most massive STAR pixel and LOS median ---
     num_pixels_x_cutout = int(np.ceil(output_dimension[0] / pixel_size))
@@ -763,6 +863,7 @@ def get_2d_density_projection_with_los_binning(star_coords, particle_masses, pix
     # ensuring its geometric center aligns with the most massive pixel (XY) and LOS median (Z).
     min_x_cutout = most_massive_pixel_x_coord_global - (num_pixels_x_cutout * pixel_size / 2.0)
     min_y_cutout = most_massive_pixel_y_coord_global - (num_pixels_y_cutout * pixel_size / 2.0)
+    # min_z_cutout should now be relative to the normalized LOS distances
     min_z_cutout = median_z_full - (num_pixels_z_cutout * los_bin_size / 2.0)
 
 
@@ -776,7 +877,7 @@ def get_2d_density_projection_with_los_binning(star_coords, particle_masses, pix
     for i in range(star_coords.shape[0]):
         x_coord_proj = projected_star_2d_coords[i, 0]
         y_coord_proj = projected_star_2d_coords[i, 1]
-        z_coord_los = star_line_of_sight_distances[i]
+        z_coord_los = star_line_of_sight_distances_normalized[i] # Use normalized distance
 
         x_idx_cutout = int(np.floor((x_coord_proj - min_x_cutout) / pixel_size))
         y_idx_cutout = int(np.floor((y_coord_proj - min_y_cutout) / pixel_size))
@@ -784,7 +885,7 @@ def get_2d_density_projection_with_los_binning(star_coords, particle_masses, pix
 
         # Only include particles that fall within the cutout dimensions
         if 0 <= x_idx_cutout < num_pixels_x_cutout and 0 <= y_idx_cutout < num_pixels_y_cutout and 0 <= z_idx_cutout < num_pixels_z_cutout:
-            star_particle_membership[y_idx_cutout][x_idx_cutout][z_idx_cutout].append((i, star_line_of_sight_distances[i]))
+            star_particle_membership[y_idx_cutout][x_idx_cutout][z_idx_cutout].append((i, star_line_of_sight_distances_normalized[i]))
             star_mass_density_map[y_idx_cutout][x_idx_cutout][z_idx_cutout] += particle_masses[i]
 
     # --- Set central pixel coordinate to the geometric center of the cutout ---
@@ -795,32 +896,50 @@ def get_2d_density_projection_with_los_binning(star_coords, particle_masses, pix
     # --- Process GAS particles if provided ---
     gas_particle_membership = None
     gas_mass_density_map = None
+    gas_particles_in_front_of_grid = None
+
     if gas_coords is not None:
         gas_particle_membership = [[[[] for _ in range(num_pixels_z_cutout)]
                                     for _ in range(num_pixels_x_cutout)]
                                    for _ in range(num_pixels_y_cutout)]
         gas_mass_density_map = np.zeros((num_pixels_y_cutout, num_pixels_x_cutout, num_pixels_z_cutout), dtype=float)
         projected_gas_2d_coords = rotated_gas_coords[:, :2]
-        gas_line_of_sight_distances = rotated_gas_coords[:, 2]
+        # gas_line_of_sight_distances_normalized is already calculated above
 
         for i in range(gas_coords.shape[0]):
             x_coord_proj = projected_gas_2d_coords[i, 0]
             y_coord_proj = projected_gas_2d_coords[i, 1]
-            z_coord_los = gas_line_of_sight_distances[i]
+            z_coord_los = gas_line_of_sight_distances_normalized[i] # Use normalized distance
 
             x_idx_cutout = int(np.floor((x_coord_proj - min_x_cutout) / pixel_size))
             y_idx_cutout = int(np.floor((y_coord_proj - min_y_cutout) / pixel_size))
             z_idx_cutout = int(np.floor((z_coord_los - min_z_cutout) / los_bin_size))
 
             if 0 <= x_idx_cutout < num_pixels_x_cutout and 0 <= y_idx_cutout < num_pixels_y_cutout and 0 <= z_idx_cutout < num_pixels_z_cutout:
-                gas_particle_membership[y_idx_cutout][x_idx_cutout][z_idx_cutout].append((i, gas_line_of_sight_distances[i]))
+                gas_particle_membership[y_idx_cutout][x_idx_cutout][z_idx_cutout].append((i, gas_line_of_sight_distances_normalized[i]))
                 gas_mass_density_map[y_idx_cutout][x_idx_cutout][z_idx_cutout] += gas_masses[i]
+
+        # --- Calculate gas particles in front of each grid cell ---
+        gas_particles_in_front_of_grid = [[[[] for _ in range(num_pixels_z_cutout)]
+                                           for _ in range(num_pixels_x_cutout)]
+                                          for _ in range(num_pixels_y_cutout)]
+
+        for y_idx in range(num_pixels_y_cutout):
+            for x_idx in range(num_pixels_x_cutout):
+                particles_in_previous_bins = []
+                for z_idx in range(num_pixels_z_cutout):
+                    gas_particles_in_front_of_grid[y_idx][x_idx][z_idx] = list(particles_in_previous_bins)
+
+                    for original_idx, _ in gas_particle_membership[y_idx][x_idx][z_idx]:
+                        particles_in_previous_bins.append(original_idx)
+                    particles_in_previous_bins = sorted(list(set(particles_in_previous_bins)))
+
 
     # --- Prepare grid information for output ---
     grid_info = {
         'min_x_proj': min_x_cutout,
         'min_y_proj': min_y_cutout,
-        'min_z_proj': min_z_cutout,
+        'min_z_proj': min_z_cutout, # This will now be relative to the closest particle
         'num_pixels_x': num_pixels_x_cutout,
         'num_pixels_y': num_pixels_y_cutout,
         'num_pixels_z': num_pixels_z_cutout,
@@ -829,5 +948,157 @@ def get_2d_density_projection_with_los_binning(star_coords, particle_masses, pix
         'effective_los_bin_size': los_bin_size
     }
 
-    return star_particle_membership, star_mass_density_map, central_pixel_coords, grid_info, gas_particle_membership, gas_mass_density_map
+    return star_particle_membership, star_mass_density_map, central_pixel_coords, grid_info, gas_particle_membership, gas_mass_density_map, gas_particles_in_front_of_grid
+
+
+
+def construct_SFH_TNG(stars_form_lbt, stars_init_mass, stars_metallicity, del_t=0.3, max_lbt=18.0):
+    """
+    Constructs the Star Formation History (SFH) from stellar formation times,
+    initial masses, and metallicities using vectorized NumPy operations for efficiency.
+
+    Calculates the mass-weighted average metallicity and mass-weighted average age
+    within each lookback time bin.
+
+    Args:
+        stars_form_lbt (array-like): Array of stellar formation lookback times in Gyr.
+        stars_init_mass (array-like): Array of initial stellar masses in solar mass,
+                                       corresponding to stars_form_lbt.
+        stars_metallicity (array-like): Array of stellar metallicities (e.g., [Fe/H] or Z),
+                                        corresponding to stars_form_lbt.
+        del_t (float, optional): Time bin width in Gyr. Defaults to 0.3 Gyr.
+        max_lbt (float, optional): Maximum lookback time to consider for binning.
+                                   Defaults to 18.0 Gyr.
+
+    Returns:
+        dict: A dictionary containing:
+              - 'lbt' (np.ndarray): Midpoints of lookback time bins where stars formed.
+              - 'sfr' (np.ndarray): Star formation rate in solar mass per year.
+              - 'nstars' (np.ndarray): Number of stars formed in each bin.
+              - 'mass' (np.ndarray): Total initial stellar mass formed within each bin.
+              - 'cumul_mass' (np.ndarray): Stellar mass growth history (total initial mass not yet formed).
+              - 'metallicity' (np.ndarray): Mass-weighted average metallicity in each bin.
+              - 'mass_weighted_age' (np.ndarray): Mass-weighted average stellar population age (lookback time) in each bin.
+
+    Raises:
+        ValueError: If input arrays have incompatible shapes or invalid values.
+    """
+    stars_form_lbt = np.asarray(stars_form_lbt)
+    stars_init_mass = np.asarray(stars_init_mass)
+    stars_metallicity = np.asarray(stars_metallicity)
+
+    # --- Input Validation ---
+    if not (stars_form_lbt.shape == stars_init_mass.shape == stars_metallicity.shape and stars_form_lbt.ndim == 1):
+        raise ValueError("stars_form_lbt, stars_init_mass, and stars_metallicity must be 1D arrays of the same shape.")
+    if del_t <= 0:
+        raise ValueError("del_t (time bin width) must be positive.")
+    if max_lbt <= 0:
+        raise ValueError("max_lbt (maximum lookback time) must be positive.")
+
+    # Handle empty particle set
+    if stars_form_lbt.shape[0] == 0:
+        print("Warning: No star particles provided. Returning empty SFH.")
+        return {
+            'lbt': np.array([]),
+            'sfr': np.array([]),
+            'nstars': np.array([]),
+            'mass': np.array([]),
+            'cumul_mass': np.array([]),
+            'metallicity': np.array([]),
+            'mass_weighted_age': np.array([]) # Added for empty case
+        }
+
+    # Define the bins for lookback time.
+    # The bins are inclusive of the lower bound and exclusive of the upper bound [t, t + del_t).
+    # We add a small epsilon to max_lbt to ensure that max_lbt itself is included in a bin
+    # if it falls exactly on a bin edge.
+    bins = np.arange(0, max_lbt + del_t, del_t)
+
+    # Calculate total initial mass for SMGH calculation
+    total_initial_mass = np.nansum(stars_init_mass)
+
+    # Use np.histogram to efficiently bin the data
+    # mass_in_bins: Sum of initial masses in each time bin
+    # nstars_in_bins: Count of stars in each time bin
+    mass_in_bins, _ = np.histogram(stars_form_lbt, bins=bins, weights=stars_init_mass)
+    nstars_in_bins, _ = np.histogram(stars_form_lbt, bins=bins)
+
+    # Calculate sum of (mass * metallicity) in each bin for mass-weighted average metallicity
+    mass_times_metallicity_in_bins, _ = np.histogram(stars_form_lbt, bins=bins, weights=stars_init_mass * stars_metallicity)
+
+    # Calculate sum of (mass * lookback_time) in each bin for mass-weighted average age
+    mass_times_lbt_in_bins, _ = np.histogram(stars_form_lbt, bins=bins, weights=stars_init_mass * stars_form_lbt)
+
+    # Identify valid bins (where at least one star was formed, or mass is non-zero)
+    # Using mass_in_bins > 0 is more robust for mass-weighted averages.
+    valid_bins_mask = mass_in_bins > 0
+
+    # Extract data for valid bins
+    valid_masses = mass_in_bins[valid_bins_mask]
+    valid_nstars = nstars_in_bins[valid_bins_mask]
+    valid_mass_times_metallicity = mass_times_metallicity_in_bins[valid_bins_mask]
+    valid_mass_times_lbt = mass_times_lbt_in_bins[valid_bins_mask] # Extract for valid bins
+
+    # Calculate lookback time midpoints for the sfh dictionary
+    # bins[:-1] gives the start times of the bins
+    sfh_lbt_midpoints = bins[:-1][valid_bins_mask] + 0.5 * del_t
+
+    # Calculate Star Formation Rate (SFR)
+    # SFR is mass formed per unit time, converted to solar mass per year (1e9 for Gyr to year)
+    sfh_sfr = valid_masses / del_t / 1e9
+
+    # Total stellar mass in each bin
+    sfh_total_stellar_mass_in_bin = valid_masses
+
+    # Calculate Stellar Mass Growth History (SMGH)
+    # SMGH represents the total initial mass of stars that have *not yet formed*
+    # at the start of each bin.
+    # First, calculate the cumulative mass formed up to the end of each bin (including empty ones)
+    cumulative_mass_formed_at_end_of_bin = np.cumsum(mass_in_bins)
+    # Then, subtract this from the total initial mass.
+    # For the first bin, the mass not yet formed is the total_initial_mass.
+    # For subsequent bins, it's total_initial_mass - (mass formed up to previous bin's end).
+    smgh_all_bins = total_initial_mass - np.concatenate(([0], cumulative_mass_formed_at_end_of_bin[:-1]))
+    # Filter for only the valid bins
+    sfh_smgh = smgh_all_bins[valid_bins_mask]
+
+    # Calculate Mass-Weighted Average Metallicity
+    # Avoid division by zero for bins with no mass (though valid_bins_mask should handle this)
+    sfh_metallicity = np.zeros_like(valid_masses)
+    non_zero_mass_mask = valid_masses > 0
+    sfh_metallicity[non_zero_mass_mask] = valid_mass_times_metallicity[non_zero_mass_mask] / valid_masses[non_zero_mass_mask]
+
+    # Calculate Mass-Weighted Average Age
+    sfh_mass_weighted_age = np.zeros_like(valid_masses)
+    sfh_mass_weighted_age[non_zero_mass_mask] = valid_mass_times_lbt[non_zero_mass_mask] / valid_masses[non_zero_mass_mask]
+
+
+    # Construct the sfh dictionary
+    sfh = {
+        'lbt': sfh_lbt_midpoints,
+        'sfr': sfh_sfr,
+        'nstars': valid_nstars,
+        'mass': sfh_total_stellar_mass_in_bin,
+        'cumul_mass': sfh_smgh,
+        'metallicity': sfh_metallicity,
+        'mass_weighted_age': sfh_mass_weighted_age # Added
+    }
+
+    return sfh
+
+
+def get_filter_transmission_pixedfit(filters):
+    from piXedfit.utils.filtering import get_filter_curve, cwave_filters
+
+    filter_transmission = {}
+    filter_wave_eff = {}
+    for ff in filters:
+        filter_wave_eff[ff] = cwave_filters(ff)
+
+        w, t = get_filter_curve(ff)
+        filter_transmission[ff] = {}
+        filter_transmission[ff]['wave'] = w
+        filter_transmission[ff]['trans'] = t
+
+    return filter_transmission, filter_wave_eff
 
