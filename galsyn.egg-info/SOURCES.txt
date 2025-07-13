@@ -1,7 +1,0 @@
-README.md
-setup.py
-galsyn.egg-info/PKG-INFO
-galsyn.egg-info/SOURCES.txt
-galsyn.egg-info/dependency_links.txt
-galsyn.egg-info/requires.txt
-galsyn.egg-info/top_level.txt
