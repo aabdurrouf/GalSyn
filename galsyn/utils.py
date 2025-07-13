@@ -952,7 +952,7 @@ def get_2d_density_projection_with_los_binning(star_coords, particle_masses, pix
 
 
 
-def construct_SFH_TNG(stars_form_lbt, stars_init_mass, stars_metallicity, del_t=0.3, max_lbt=18.0):
+def construct_SFH_TNG(stars_form_lbt, stars_init_mass, stars_metallicity, del_t=0.3, max_lbt=14.0):
     """
     Constructs the Star Formation History (SFH) from stellar formation times,
     initial masses, and metallicities using vectorized NumPy operations for efficiency.
@@ -1005,7 +1005,7 @@ def construct_SFH_TNG(stars_form_lbt, stars_init_mass, stars_metallicity, del_t=
             'mass': np.array([]),
             'cumul_mass': np.array([]),
             'metallicity': np.array([]),
-            'mass_weighted_age': np.array([]) # Added for empty case
+            'mass_weighted_age': np.array([])
         }
 
     # Define the bins for lookback time.
@@ -1081,7 +1081,7 @@ def construct_SFH_TNG(stars_form_lbt, stars_init_mass, stars_metallicity, del_t=
         'mass': sfh_total_stellar_mass_in_bin,
         'cumul_mass': sfh_smgh,
         'metallicity': sfh_metallicity,
-        'mass_weighted_age': sfh_mass_weighted_age # Added
+        'mass_weighted_age': sfh_mass_weighted_age
     }
 
     return sfh
