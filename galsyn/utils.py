@@ -683,6 +683,346 @@ def get_2d_density_projection_with_los_binning(star_coords, particle_masses, pix
         tuple: A tuple containing:
             - star_particle_membership (list of lists of lists of lists): A 3D list (grid) where
               each element `star_particle_membership[y_idx][x_idx][z_idx]` is a list of
+              `original_particle_index` for star particles that fall into that specific 3D bin.
+            - star_mass_density_map (np.ndarray): A 3D NumPy array representing the mass
+              density map (sum of masses per 3D bin) for star particles.
+              Its shape is (num_pixels_y, num_pixels_x, num_pixels_z).
+            - central_pixel_coords (tuple): A tuple (x_pixel_coord, y_pixel_coord)
+              representing the geometric central pixel coordinate of the *summed* 2D map.
+            - grid_info (dict): A dictionary containing information about the grid:
+              'min_x_proj': The minimum x-coordinate of the projected cutout.
+              'min_y_proj': The minimum y-coordinate of the projected cutout.
+              'min_z_proj': The minimum z-coordinate (line-of-sight) of the projected cutout.
+              'num_pixels_x': The number of pixels along the x-dimension.
+              'num_pixels_y': The number of pixels along the y-dimension.
+              'num_pixels_z': The number of pixels along the z-dimension (line-of-sight).
+              'effective_pixel_size_x': The actual pixel size used for x-dimension (same as pixel_size).
+              'effective_pixel_size_y': The actual pixel size used for y-dimension (same as pixel_size).
+              'effective_los_bin_size': The actual bin size used for z-dimension (same as los_bin_size).
+            - gas_particle_membership (list of lists of lists of lists or None): Same structure as
+              `star_particle_membership` but for gas particles, containing `original_particle_index`.
+              None if `gas_coords` not provided.
+            - gas_mass_density_map (np.ndarray or None): A 3D NumPy array representing the mass
+              density map for gas particles. Its shape is (num_pixels_y, num_pixels_x, num_pixels_z).
+              None if `gas_coords` not provided.
+            - gas_particles_in_front_of_grid (list of lists of lists of lists or None): A 3D list (grid) where
+              each element `gas_particles_in_front_of_grid[y_idx][x_idx][z_idx]` is a list of
+              `original_particle_index` for all gas particles in bins *in front* of the current
+              `z_idx` along the line of sight for that (y_idx, x_idx) column. None if `gas_coords` not provided.
+            - star_particles_in_front_of_grid (list of lists of lists of lists or None): A 3D list (grid) where
+              each element `star_particles_in_front_of_grid[y_idx][x_idx][z_idx]` is a list of
+              `original_particle_index` for all star particles in bins *in front* of the current
+              `z_idx` along the line of sight for that (y_idx, x_idx) column. None if no star particles.
+
+    Raises:
+        ValueError: If star_coords/particle_masses are invalid, pixel_size/los_bin_size are not positive,
+                    output_dimension/los_dimension are invalid, an invalid `projection_mode` is provided,
+                    or `gas_coords` is provided without `gas_masses` (or vice-versa).
+    """
+    # --- Input Validation ---
+    if not isinstance(star_coords, np.ndarray) or star_coords.ndim != 2 or star_coords.shape[1] != 3:
+        raise ValueError("star_coords must be a NumPy array of shape (N, 3).")
+    if not isinstance(particle_masses, np.ndarray) or particle_masses.ndim != 1 or particle_masses.shape[0] != star_coords.shape[0]:
+        raise ValueError("particle_masses must be a 1D NumPy array of shape (N,) matching star_coords.")
+    if pixel_size <= 0:
+        raise ValueError("pixel_size must be positive.")
+    if los_bin_size <= 0:
+        raise ValueError("los_bin_size must be positive.")
+    if not (isinstance(output_dimension, tuple) and len(output_dimension) == 2 and
+            output_dimension[0] > 0 and output_dimension[1] > 0):
+        raise ValueError("'output_dimension' must be a tuple (width, height) of two positive numbers.")
+    if not (isinstance(los_dimension, (int, float)) and los_dimension > 0):
+        raise ValueError("'los_dimension' must be a positive number.")
+
+    if (gas_coords is not None and gas_masses is None) or \
+       (gas_coords is None and gas_masses is not None):
+        raise ValueError("Both 'gas_coords' and 'gas_masses' must be provided together, or neither.")
+    if gas_coords is not None:
+        if not (isinstance(gas_coords, np.ndarray) or gas_coords.ndim != 2 or gas_coords.shape[1] != 3):
+            raise ValueError("gas_coords must be a NumPy array of shape (M, 3).")
+        if not (isinstance(gas_masses, np.ndarray) or gas_masses.ndim != 1 or gas_masses.shape[0] != gas_coords.shape[0]):
+            raise ValueError("gas_masses must be a 1D NumPy array of shape (M,) matching gas_coords.")
+
+    # --- Handle Empty Particle Set (Stars) ---
+    if star_coords.shape[0] == 0:
+        print("Warning: No star particles provided. Returning empty results for LOS binning.")
+        return [], np.array([[]]), (0, 0), {'min_x_proj': 0, 'min_y_proj': 0, 'min_z_proj': 0,
+                                            'num_pixels_x': 0, 'num_pixels_y': 0, 'num_pixels_z': 0,
+                                            'effective_pixel_size_x': pixel_size, 'effective_pixel_size_y': pixel_size, 'effective_los_bin_size': los_bin_size}, [], np.array([[]]), None, None
+
+    # --- Determine transformation based on projection_mode or proj_angle_deg ---
+    if projection_mode:
+        mode_map = {
+            'XYZ': (0, 1, 2), # New X=Orig X, New Y=Orig Y, LOS=Orig Z
+            'YXZ': (1, 0, 2), # New X=Orig Y, New Y=Orig X, LOS=Orig Z
+            'ZYX': (2, 1, 0), # New X=Orig Z, New Y=Orig Y, LOS=Orig X
+            'YZX': (1, 2, 0)  # New X=Orig Y, New Y=Orig Z, LOS=Orig X
+        }
+        if projection_mode not in mode_map:
+            raise ValueError(f"Invalid projection_mode: '{projection_mode}'. "
+                             "Accepted modes are 'XYZ', 'YXZ', 'ZYX', 'YZX'.")
+        x_idx, y_idx, z_los_idx = mode_map[projection_mode]
+        rotated_star_coords = star_coords[:, [x_idx, y_idx, z_los_idx]]
+        if gas_coords is not None:
+            rotated_gas_coords = gas_coords[:, [x_idx, y_idx, z_los_idx]]
+    else:
+        proj_angle_rad = np.deg2rad(proj_angle_deg)
+        cos_theta = np.cos(proj_angle_rad)
+        sin_theta = np.sin(proj_angle_rad)
+        rotation_matrix = np.array([
+            [cos_theta, 0, sin_theta],
+            [0, 1, 0],
+            [-sin_theta, 0, cos_theta]
+        ])
+        rotated_star_coords = np.dot(star_coords, rotation_matrix.T)
+        if gas_coords is not None:
+            rotated_gas_coords = np.dot(gas_coords, rotation_matrix.T)
+
+    # --- Extract projected 2D coordinates and line-of-sight distances for STARS ---
+    projected_star_2d_coords = rotated_star_coords[:, :2]
+    star_line_of_sight_distances = rotated_star_coords[:, 2]
+
+    # --- Determine the global minimum LOS distance for normalization ---
+    all_los_distances = star_line_of_sight_distances
+    if gas_coords is not None:
+        gas_line_of_sight_distances_raw = rotated_gas_coords[:, 2]
+        all_los_distances = np.concatenate((all_los_distances, gas_line_of_sight_distances_raw))
+
+    min_global_los = np.min(all_los_distances) if all_los_distances.size > 0 else 0.0
+
+    # --- Normalize line-of-sight distances ---
+    star_line_of_sight_distances_normalized = star_line_of_sight_distances - min_global_los
+    if gas_coords is not None:
+        gas_line_of_sight_distances_normalized = gas_line_of_sight_distances_raw - min_global_los
+
+    # --- Calculate the extent of the *entire* projected STAR dataset for global map ---
+    # Use normalized LOS distances for min_z_full and max_z_full
+    min_x_full, min_y_full = np.min(projected_star_2d_coords, axis=0)
+    max_x_full, max_y_full = np.max(projected_star_2d_coords, axis=0)
+    min_z_full, max_z_full = np.min(star_line_of_sight_distances_normalized), np.max(star_line_of_sight_distances_normalized)
+
+
+    # Define a temporary pixel size for the global map if it's too fine/coarse
+    effective_pixel_size_global = pixel_size
+    effective_los_bin_size_global = los_bin_size
+    epsilon_global_xy = 1e-9 * effective_pixel_size_global
+    epsilon_global_z = 1e-9 * effective_los_bin_size_global
+
+    num_pixels_x_global = int(np.ceil((max_x_full - min_x_full + epsilon_global_xy) / effective_pixel_size_global))
+    num_pixels_y_global = int(np.ceil((max_y_full - min_y_full + epsilon_global_xy) / effective_pixel_size_global))
+    num_pixels_z_global = int(np.ceil((max_z_full - min_z_full + epsilon_global_z) / effective_los_bin_size_global))
+
+    if num_pixels_x_global == 0: num_pixels_x_global = 1
+    if num_pixels_y_global == 0: num_pixels_y_global = 1
+    if num_pixels_z_global == 0: num_pixels_z_global = 1
+
+    # --- Create a global 3D mass density map (STARS) ---
+    global_star_mass_density_map_3d = np.zeros((num_pixels_y_global, num_pixels_x_global, num_pixels_z_global), dtype=float)
+
+    for i in range(star_coords.shape[0]):
+        x_coord_proj = projected_star_2d_coords[i, 0]
+        y_coord_proj = projected_star_2d_coords[i, 1]
+        z_coord_los = star_line_of_sight_distances_normalized[i] # Use normalized distance
+
+        x_idx_global = int(np.floor((x_coord_proj - min_x_full) / effective_pixel_size_global))
+        y_idx_global = int(np.floor((y_coord_proj - min_y_full) / effective_pixel_size_global))
+        z_idx_global = int(np.floor((z_coord_los - min_z_full) / effective_los_bin_size_global))
+
+        # Clip indices to ensure they are within the valid range for the global map
+        x_idx_global = np.clip(x_idx_global, 0, num_pixels_x_global - 1)
+        y_idx_global = np.clip(y_idx_global, 0, num_pixels_y_global - 1)
+        z_idx_global = np.clip(z_idx_global, 0, num_pixels_z_global - 1)
+
+        global_star_mass_density_map_3d[y_idx_global][x_idx_global][z_idx_global] += particle_masses[i]
+
+    # --- Find the most massive pixel in the 2D summed global STAR map ---
+    global_star_mass_density_map_2d_summed = np.sum(global_star_mass_density_map_3d, axis=2)
+
+    most_massive_pixel_x_idx_global = 0
+    most_massive_pixel_y_idx_global = 0
+
+    if np.sum(global_star_mass_density_map_2d_summed) > 0: # Only search if there's mass
+        flat_idx = np.argmax(global_star_mass_density_map_2d_summed)
+        most_massive_pixel_y_idx_global, most_massive_pixel_x_idx_global = np.unravel_index(flat_idx, global_star_mass_density_map_2d_summed.shape)
+
+    # Convert most massive pixel index to its physical center coordinate in the global 2D space
+    most_massive_pixel_x_coord_global = min_x_full + (most_massive_pixel_x_idx_global + 0.5) * effective_pixel_size_global
+    most_massive_pixel_y_coord_global = min_y_full + (most_massive_pixel_y_idx_global + 0.5) * effective_pixel_size_global
+
+    # For LOS dimension, we'll center around the median of the full LOS distances of STARS
+    # Use normalized median for centering
+    median_z_full = np.median(star_line_of_sight_distances_normalized)
+
+    # --- Define the cutout grid's extent and dimensions based on most massive STAR pixel and LOS median ---
+    num_pixels_x_cutout = int(np.ceil(output_dimension[0] / pixel_size))
+    num_pixels_y_cutout = int(np.ceil(output_dimension[1] / pixel_size))
+    num_pixels_z_cutout = int(np.ceil(los_dimension / los_bin_size))
+
+    if num_pixels_x_cutout == 0: num_pixels_x_cutout = 1
+    if num_pixels_y_cutout == 0: num_pixels_y_cutout = 1
+    if num_pixels_z_cutout == 0: num_pixels_z_cutout = 1
+
+    # Calculate the minimum projected coordinates for the cutout,
+    # ensuring its geometric center aligns with the most massive pixel (XY) and LOS median (Z).
+    min_x_cutout = most_massive_pixel_x_coord_global - (num_pixels_x_cutout * pixel_size / 2.0)
+    min_y_cutout = most_massive_pixel_y_coord_global - (num_pixels_y_cutout * pixel_size / 2.0)
+    # min_z_cutout should now be relative to the normalized LOS distances
+    min_z_cutout = median_z_full - (num_pixels_z_cutout * los_bin_size / 2.0)
+
+
+    # --- Initialize output arrays for the cutout region (STARS) ---
+    star_particle_membership = [[[[] for _ in range(num_pixels_z_cutout)]
+                            for _ in range(num_pixels_x_cutout)]
+                           for _ in range(num_pixels_y_cutout)]
+    star_mass_density_map = np.zeros((num_pixels_y_cutout, num_pixels_x_cutout, num_pixels_z_cutout), dtype=float)
+
+    # --- Assign STAR particles to the cutout grid ---
+    for i in range(star_coords.shape[0]):
+        x_coord_proj = projected_star_2d_coords[i, 0]
+        y_coord_proj = projected_star_2d_coords[i, 1]
+        z_coord_los = star_line_of_sight_distances_normalized[i] # Use normalized distance
+
+        x_idx_cutout = int(np.floor((x_coord_proj - min_x_cutout) / pixel_size))
+        y_idx_cutout = int(np.floor((y_coord_proj - min_y_cutout) / pixel_size))
+        z_idx_cutout = int(np.floor((z_coord_los - min_z_cutout) / los_bin_size))
+
+        # Only include particles that fall within the cutout dimensions
+        if 0 <= x_idx_cutout < num_pixels_x_cutout and 0 <= y_idx_cutout < num_pixels_y_cutout and 0 <= z_idx_cutout < num_pixels_z_cutout:
+            star_particle_membership[y_idx_cutout][x_idx_cutout][z_idx_cutout].append(i) # Removed line_of_sight_distance
+            star_mass_density_map[y_idx_cutout][x_idx_cutout][z_idx_cutout] += particle_masses[i]
+
+    # --- Calculate star particles in front of each grid cell ---
+    star_particles_in_front_of_grid = [[[[] for _ in range(num_pixels_z_cutout)]
+                                       for _ in range(num_pixels_x_cutout)]
+                                      for _ in range(num_pixels_y_cutout)]
+
+    for y_idx in range(num_pixels_y_cutout):
+        for x_idx in range(num_pixels_x_cutout):
+            particles_in_previous_bins = []
+            for z_idx in range(num_pixels_z_cutout):
+                star_particles_in_front_of_grid[y_idx][x_idx][z_idx] = list(particles_in_previous_bins)
+
+                for original_idx in star_particle_membership[y_idx][x_idx][z_idx]: # Iterate directly over original_idx
+                    particles_in_previous_bins.append(original_idx)
+                particles_in_previous_bins = sorted(list(set(particles_in_previous_bins)))
+
+    # --- Set central pixel coordinate to the geometric center of the cutout ---
+    central_pixel_x = num_pixels_x_cutout // 2
+    central_pixel_y = num_pixels_y_cutout // 2
+    central_pixel_coords = (central_pixel_x, central_pixel_y)
+
+    # --- Process GAS particles if provided ---
+    gas_particle_membership = None
+    gas_mass_density_map = None
+    gas_particles_in_front_of_grid = None
+
+    if gas_coords is not None:
+        gas_particle_membership = [[[[] for _ in range(num_pixels_z_cutout)]
+                                    for _ in range(num_pixels_x_cutout)]
+                                   for _ in range(num_pixels_y_cutout)]
+        gas_mass_density_map = np.zeros((num_pixels_y_cutout, num_pixels_x_cutout, num_pixels_z_cutout), dtype=float)
+        projected_gas_2d_coords = rotated_gas_coords[:, :2]
+        # gas_line_of_sight_distances_normalized is already calculated above
+
+        for i in range(gas_coords.shape[0]):
+            x_coord_proj = projected_gas_2d_coords[i, 0]
+            y_coord_proj = projected_gas_2d_coords[i, 1]
+            z_coord_los = gas_line_of_sight_distances_normalized[i] # Use normalized distance
+
+            x_idx_cutout = int(np.floor((x_coord_proj - min_x_cutout) / pixel_size))
+            y_idx_cutout = int(np.floor((y_coord_proj - min_y_cutout) / pixel_size))
+            z_idx_cutout = int(np.floor((z_coord_los - min_z_cutout) / los_bin_size))
+
+            if 0 <= x_idx_cutout < num_pixels_x_cutout and 0 <= y_idx_cutout < num_pixels_y_cutout and 0 <= z_idx_cutout < num_pixels_z_cutout:
+                gas_particle_membership[y_idx_cutout][x_idx_cutout][z_idx_cutout].append(i) # Removed line_of_sight_distance
+                gas_mass_density_map[y_idx_cutout][x_idx_cutout][z_idx_cutout] += gas_masses[i]
+
+        # --- Calculate gas particles in front of each grid cell ---
+        gas_particles_in_front_of_grid = [[[[] for _ in range(num_pixels_z_cutout)]
+                                           for _ in range(num_pixels_x_cutout)]
+                                          for _ in range(num_pixels_y_cutout)]
+
+        for y_idx in range(num_pixels_y_cutout):
+            for x_idx in range(num_pixels_x_cutout):
+                particles_in_previous_bins = []
+                for z_idx in range(num_pixels_z_cutout):
+                    gas_particles_in_front_of_grid[y_idx][x_idx][z_idx] = list(particles_in_previous_bins)
+
+                    for original_idx in gas_particle_membership[y_idx][x_idx][z_idx]: # Iterate directly over original_idx
+                        particles_in_previous_bins.append(original_idx)
+                    particles_in_previous_bins = sorted(list(set(particles_in_previous_bins)))
+
+
+    # --- Prepare grid information for output ---
+    grid_info = {
+        'min_x_proj': min_x_cutout,
+        'min_y_proj': min_y_cutout,
+        'min_z_proj': min_z_cutout, # This will now be relative to the closest particle
+        'num_pixels_x': num_pixels_x_cutout,
+        'num_pixels_y': num_pixels_y_cutout,
+        'num_pixels_z': num_pixels_z_cutout,
+        'effective_pixel_size_x': pixel_size,
+        'effective_pixel_size_y': pixel_size,
+        'effective_los_bin_size': los_bin_size
+    }
+
+    return star_particle_membership, star_mass_density_map, central_pixel_coords, grid_info, gas_particle_membership, gas_mass_density_map, gas_particles_in_front_of_grid, star_particles_in_front_of_grid
+
+
+
+def get_2d_density_projection_with_los_binning_old(star_coords, particle_masses, pixel_size, output_dimension, los_bin_size,
+                                               los_dimension, proj_angle_deg=0, projection_mode=None, gas_coords=None, gas_masses=None):
+    """
+    Calculates the 3D mass density projection of star particles given 3D coordinates,
+    their masses, fixed pixel/bin sizes, and desired output dimensions for all axes.
+    The output grid is geometrically centered around the most massive pixel of the
+    full projected 2D star map (after LOS summation). It also calculates the projected distance
+    along the line of sight for each star particle within its 3D bin, and outputs the
+    geometric central pixel coordinate of the *summed* 2D star mass map.
+
+    If `gas_coords` and `gas_masses` are provided, it also calculates the membership of gas particles
+    and their mass density within the *same* projected 3D pixel gridding defined by the star particles.
+
+    If `projection_mode` is specified, it overrides `proj_angle_deg`.
+    The `proj_angle_deg` is measured counter-clockwise from the positive Y-axis.
+    The line-of-sight distance corresponds to the new Z-coordinate after this transformation.
+
+    The line-of-sight distance for each particle is normalized such that the closest
+    particle (considering both stars and gas, if gas is provided) has a line-of-sight
+    distance of 0, and distances increase farther away from this closest point.
+
+    Args:
+        star_coords (np.ndarray): A NumPy array of shape (N, 3) representing the
+                                  (x, y, z) coordinates of N star particles.
+        particle_masses (np.ndarray): A NumPy array of shape (N,) representing the
+                                      masses of N star particles.
+        pixel_size (float): The size of each pixel in the 2D grid (x and y dimensions).
+                            Must be positive.
+        output_dimension (tuple): A tuple (width, height) specifying the desired total
+                                  physical width and height of the 2D output map.
+                                  Each dimension must be positive.
+        los_bin_size (float): The size of each bin along the line-of-sight (z) dimension.
+                              Must be positive.
+        los_dimension (float): The desired total physical depth along the line-of-sight.
+                               Must be positive.
+        proj_angle_deg (float, optional): The projection angle in degrees, measured from the
+                                          positive Z-axis (rotation around Y-axis).
+                                          Defaults to 0. Ignored if `projection_mode` is provided.
+        projection_mode (str, optional): A string specifying a predefined orthogonal projection.
+                                         Can be 'XYZ', 'YXZ', 'ZYX', or 'YZX'.
+                                         If provided, it overrides `proj_angle_deg`.
+                                         Defaults to None.
+        gas_coords (np.ndarray, optional): A NumPy array of shape (M, 3) representing the
+                                           (x, y, z) coordinates of M gas particles.
+                                           Defaults to None.
+        gas_masses (np.ndarray, optional): A NumPy array of shape (M,) representing the
+                                           masses of M gas particles. Must be provided if
+                                           `gas_coords` is provided. Defaults to None.
+
+    Returns:
+        tuple: A tuple containing:
+            - star_particle_membership (list of lists of lists of lists): A 3D list (grid) where
+              each element `star_particle_membership[y_idx][x_idx][z_idx]` is a list of
               tuples `(original_particle_index, line_of_sight_distance)`
               for star particles that fall into that specific 3D bin. The `line_of_sight_distance`
               is now relative to the closest particle (0 being the closest).
@@ -968,327 +1308,6 @@ def get_2d_density_projection_with_los_binning(star_coords, particle_masses, pix
     }
 
     return star_particle_membership, star_mass_density_map, central_pixel_coords, grid_info, gas_particle_membership, gas_mass_density_map, gas_particles_in_front_of_grid, star_particles_in_front_of_grid
-
-
-def get_2d_density_projection_with_los_binning_old(star_coords, particle_masses, pixel_size, output_dimension, los_bin_size, 
-                                               los_dimension, proj_angle_deg=0, projection_mode=None, gas_coords=None, gas_masses=None):
-    """
-    Calculates the 3D mass density projection of star particles given 3D coordinates,
-    their masses, fixed pixel/bin sizes, and desired output dimensions for all axes.
-    The output grid is geometrically centered around the most massive pixel of the
-    full projected 2D star map (after LOS summation). It also calculates the projected distance
-    along the line of sight for each star particle within its 3D bin, and outputs the
-    geometric central pixel coordinate of the *summed* 2D star mass map.
-
-    If `gas_coords` and `gas_masses` are provided, it also calculates the membership of gas particles
-    and their mass density within the *same* projected 3D pixel gridding defined by the star particles.
-
-    If `projection_mode` is specified, it overrides `proj_angle_deg`.
-    The `proj_angle_deg` is measured counter-clockwise from the positive Y-axis.
-    The line-of-sight distance corresponds to the new Z-coordinate after this transformation.
-
-    The line-of-sight distance for each particle is normalized such that the closest
-    particle (considering both stars and gas, if gas is provided) has a line-of-sight
-    distance of 0, and distances increase farther away from this closest point.
-
-    Args:
-        star_coords (np.ndarray): A NumPy array of shape (N, 3) representing the
-                                  (x, y, z) coordinates of N star particles.
-        particle_masses (np.ndarray): A NumPy array of shape (N,) representing the
-                                      masses of N star particles.
-        pixel_size (float): The size of each pixel in the 2D grid (x and y dimensions).
-                            Must be positive.
-        output_dimension (tuple): A tuple (width, height) specifying the desired total
-                                  physical width and height of the 2D output map.
-                                  Each dimension must be positive.
-        los_bin_size (float): The size of each bin along the line-of-sight (z) dimension.
-                              Must be positive.
-        los_dimension (float): The desired total physical depth along the line-of-sight.
-                               Must be positive.
-        proj_angle_deg (float, optional): The projection angle in degrees, measured from the
-                                          positive Z-axis (rotation around Y-axis).
-                                          Defaults to 0. Ignored if `projection_mode` is provided.
-        projection_mode (str, optional): A string specifying a predefined orthogonal projection.
-                                         Can be 'XYZ', 'YXZ', 'ZYX', or 'YZX'.
-                                         If provided, it overrides `proj_angle_deg`.
-                                         Defaults to None.
-        gas_coords (np.ndarray, optional): A NumPy array of shape (M, 3) representing the
-                                           (x, y, z) coordinates of M gas particles.
-                                           Defaults to None.
-        gas_masses (np.ndarray, optional): A NumPy array of shape (M,) representing the
-                                           masses of M gas particles. Must be provided if
-                                           `gas_coords` is provided. Defaults to None.
-
-    Returns:
-        tuple: A tuple containing:
-            - star_particle_membership (list of lists of lists of lists): A 3D list (grid) where
-              each element `star_particle_membership[y_idx][x_idx][z_idx]` is a list of
-              tuples `(original_particle_index, line_of_sight_distance)`
-              for star particles that fall into that specific 3D bin. The `line_of_sight_distance`
-              is now relative to the closest particle (0 being the closest).
-            - star_mass_density_map (np.ndarray): A 3D NumPy array representing the mass
-              density map (sum of masses per 3D bin) for star particles.
-              Its shape is (num_pixels_y, num_pixels_x, num_pixels_z).
-            - central_pixel_coords (tuple): A tuple (x_pixel_coord, y_pixel_coord)
-              representing the geometric central pixel coordinate of the *summed* 2D map.
-            - grid_info (dict): A dictionary containing information about the grid:
-              'min_x_proj': The minimum x-coordinate of the projected cutout.
-              'min_y_proj': The minimum y-coordinate of the projected cutout.
-              'min_z_proj': The minimum z-coordinate (line-of-sight) of the projected cutout.
-              'num_pixels_x': The number of pixels along the x-dimension.
-              'num_pixels_y': The number of pixels along the y-dimension.
-              'num_pixels_z': The number of pixels along the z-dimension (line-of-sight).
-              'effective_pixel_size_x': The actual pixel size used for x-dimension (same as pixel_size).
-              'effective_pixel_size_y': The actual pixel size used for y-dimension (same as pixel_size).
-              'effective_los_bin_size': The actual bin size used for z-dimension (same as los_bin_size).
-            - gas_particle_membership (list of lists of lists of lists or None): Same structure as
-              `star_particle_membership` but for gas particles. None if `gas_coords` not provided.
-            - gas_mass_density_map (np.ndarray or None): A 3D NumPy array representing the mass
-              density map for gas particles. Its shape is (num_pixels_y, num_pixels_x, num_pixels_z).
-              None if `gas_coords` not provided.
-            - gas_particles_in_front_of_grid (list of lists of lists of lists or None): A 3D list (grid) where
-              each element `gas_particles_in_front_of_grid[y_idx][x_idx][z_idx]` is a list of
-              `original_particle_index` for all gas particles in bins *in front* of the current
-              `z_idx` along the line of sight for that (y_idx, x_idx) column. None if `gas_coords` not provided.
-
-    Raises:
-        ValueError: If star_coords/particle_masses are invalid, pixel_size/los_bin_size are not positive,
-                    output_dimension/los_dimension are invalid, an invalid `projection_mode` is provided,
-                    or `gas_coords` is provided without `gas_masses` (or vice-versa).
-    """
-    # --- Input Validation ---
-    if not isinstance(star_coords, np.ndarray) or star_coords.ndim != 2 or star_coords.shape[1] != 3:
-        raise ValueError("star_coords must be a NumPy array of shape (N, 3).")
-    if not isinstance(particle_masses, np.ndarray) or particle_masses.ndim != 1 or particle_masses.shape[0] != star_coords.shape[0]:
-        raise ValueError("particle_masses must be a 1D NumPy array of shape (N,) matching star_coords.")
-    if pixel_size <= 0:
-        raise ValueError("pixel_size must be positive.")
-    if los_bin_size <= 0:
-        raise ValueError("los_bin_size must be positive.")
-    if not (isinstance(output_dimension, tuple) and len(output_dimension) == 2 and
-            output_dimension[0] > 0 and output_dimension[1] > 0):
-        raise ValueError("'output_dimension' must be a tuple (width, height) of two positive numbers.")
-    if not (isinstance(los_dimension, (int, float)) and los_dimension > 0):
-        raise ValueError("'los_dimension' must be a positive number.")
-
-    if (gas_coords is not None and gas_masses is None) or \
-       (gas_coords is None and gas_masses is not None):
-        raise ValueError("Both 'gas_coords' and 'gas_masses' must be provided together, or neither.")
-    if gas_coords is not None:
-        if not (isinstance(gas_coords, np.ndarray) or gas_coords.ndim != 2 or gas_coords.shape[1] != 3):
-            raise ValueError("gas_coords must be a NumPy array of shape (M, 3).")
-        if not (isinstance(gas_masses, np.ndarray) or gas_masses.ndim != 1 or gas_masses.shape[0] != gas_coords.shape[0]):
-            raise ValueError("gas_masses must be a 1D NumPy array of shape (M,) matching gas_coords.")
-
-    # --- Handle Empty Particle Set (Stars) ---
-    if star_coords.shape[0] == 0:
-        print("Warning: No star particles provided. Returning empty results for LOS binning.")
-        return [], np.array([[]]), (0, 0), {'min_x_proj': 0, 'min_y_proj': 0, 'min_z_proj': 0,
-                                            'num_pixels_x': 0, 'num_pixels_y': 0, 'num_pixels_z': 0,
-                                            'effective_pixel_size_x': pixel_size, 'effective_pixel_size_y': pixel_size, 'effective_los_bin_size': los_bin_size}, [], np.array([[]]), None
-
-    # --- Determine transformation based on projection_mode or proj_angle_deg ---
-    if projection_mode:
-        mode_map = {
-            'XYZ': (0, 1, 2), # New X=Orig X, New Y=Orig Y, LOS=Orig Z
-            'YXZ': (1, 0, 2), # New X=Orig Y, New Y=Orig X, LOS=Orig Z
-            'ZYX': (2, 1, 0), # New X=Orig Z, New Y=Orig Y, LOS=Orig X
-            'YZX': (1, 2, 0)  # New X=Orig Y, New Y=Orig Z, LOS=Orig X
-        }
-        if projection_mode not in mode_map:
-            raise ValueError(f"Invalid projection_mode: '{projection_mode}'. "
-                             "Accepted modes are 'XYZ', 'YXZ', 'ZYX', 'YZX'.")
-        x_idx, y_idx, z_los_idx = mode_map[projection_mode]
-        rotated_star_coords = star_coords[:, [x_idx, y_idx, z_los_idx]]
-        if gas_coords is not None:
-            rotated_gas_coords = gas_coords[:, [x_idx, y_idx, z_los_idx]]
-    else:
-        proj_angle_rad = np.deg2rad(proj_angle_deg)
-        cos_theta = np.cos(proj_angle_rad)
-        sin_theta = np.sin(proj_angle_rad)
-        rotation_matrix = np.array([
-            [cos_theta, 0, sin_theta],
-            [0, 1, 0],
-            [-sin_theta, 0, cos_theta]
-        ])
-        rotated_star_coords = np.dot(star_coords, rotation_matrix.T)
-        if gas_coords is not None:
-            rotated_gas_coords = np.dot(gas_coords, rotation_matrix.T)
-
-    # --- Extract projected 2D coordinates and line-of-sight distances for STARS ---
-    projected_star_2d_coords = rotated_star_coords[:, :2]
-    star_line_of_sight_distances = rotated_star_coords[:, 2]
-
-    # --- Determine the global minimum LOS distance for normalization ---
-    all_los_distances = star_line_of_sight_distances
-    if gas_coords is not None:
-        gas_line_of_sight_distances_raw = rotated_gas_coords[:, 2]
-        all_los_distances = np.concatenate((all_los_distances, gas_line_of_sight_distances_raw))
-
-    min_global_los = np.min(all_los_distances) if all_los_distances.size > 0 else 0.0
-
-    # --- Normalize line-of-sight distances ---
-    star_line_of_sight_distances_normalized = star_line_of_sight_distances - min_global_los
-    if gas_coords is not None:
-        gas_line_of_sight_distances_normalized = gas_line_of_sight_distances_raw - min_global_los
-
-    # --- Calculate the extent of the *entire* projected STAR dataset for global map ---
-    # Use normalized LOS distances for min_z_full and max_z_full
-    min_x_full, min_y_full = np.min(projected_star_2d_coords, axis=0)
-    max_x_full, max_y_full = np.max(projected_star_2d_coords, axis=0)
-    min_z_full, max_z_full = np.min(star_line_of_sight_distances_normalized), np.max(star_line_of_sight_distances_normalized)
-
-
-    # Define a temporary pixel size for the global map if it's too fine/coarse
-    effective_pixel_size_global = pixel_size
-    effective_los_bin_size_global = los_bin_size
-    epsilon_global_xy = 1e-9 * effective_pixel_size_global
-    epsilon_global_z = 1e-9 * effective_los_bin_size_global
-
-    num_pixels_x_global = int(np.ceil((max_x_full - min_x_full + epsilon_global_xy) / effective_pixel_size_global))
-    num_pixels_y_global = int(np.ceil((max_y_full - min_y_full + epsilon_global_xy) / effective_pixel_size_global))
-    num_pixels_z_global = int(np.ceil((max_z_full - min_z_full + epsilon_global_z) / effective_los_bin_size_global))
-
-    if num_pixels_x_global == 0: num_pixels_x_global = 1
-    if num_pixels_y_global == 0: num_pixels_y_global = 1
-    if num_pixels_z_global == 0: num_pixels_z_global = 1
-
-    # --- Create a global 3D mass density map (STARS) ---
-    global_star_mass_density_map_3d = np.zeros((num_pixels_y_global, num_pixels_x_global, num_pixels_z_global), dtype=float)
-
-    for i in range(star_coords.shape[0]):
-        x_coord_proj = projected_star_2d_coords[i, 0]
-        y_coord_proj = projected_star_2d_coords[i, 1]
-        z_coord_los = star_line_of_sight_distances_normalized[i] # Use normalized distance
-
-        x_idx_global = int(np.floor((x_coord_proj - min_x_full) / effective_pixel_size_global))
-        y_idx_global = int(np.floor((y_coord_proj - min_y_full) / effective_pixel_size_global))
-        z_idx_global = int(np.floor((z_coord_los - min_z_full) / effective_los_bin_size_global))
-
-        # Clip indices to ensure they are within the valid range for the global map
-        x_idx_global = np.clip(x_idx_global, 0, num_pixels_x_global - 1)
-        y_idx_global = np.clip(y_idx_global, 0, num_pixels_y_global - 1)
-        z_idx_global = np.clip(z_idx_global, 0, num_pixels_z_global - 1)
-
-        global_star_mass_density_map_3d[y_idx_global][x_idx_global][z_idx_global] += particle_masses[i]
-
-    # --- Find the most massive pixel in the 2D summed global STAR map ---
-    global_star_mass_density_map_2d_summed = np.sum(global_star_mass_density_map_3d, axis=2)
-
-    most_massive_pixel_x_idx_global = 0
-    most_massive_pixel_y_idx_global = 0
-
-    if np.sum(global_star_mass_density_map_2d_summed) > 0: # Only search if there's mass
-        flat_idx = np.argmax(global_star_mass_density_map_2d_summed)
-        most_massive_pixel_y_idx_global, most_massive_pixel_x_idx_global = np.unravel_index(flat_idx, global_star_mass_density_map_2d_summed.shape)
-
-    # Convert most massive pixel index to its physical center coordinate in the global 2D space
-    most_massive_pixel_x_coord_global = min_x_full + (most_massive_pixel_x_idx_global + 0.5) * effective_pixel_size_global
-    most_massive_pixel_y_coord_global = min_y_full + (most_massive_pixel_y_idx_global + 0.5) * effective_pixel_size_global
-
-    # For LOS dimension, we'll center around the median of the full LOS distances of STARS
-    # Use normalized median for centering
-    median_z_full = np.median(star_line_of_sight_distances_normalized)
-
-    # --- Define the cutout grid's extent and dimensions based on most massive STAR pixel and LOS median ---
-    num_pixels_x_cutout = int(np.ceil(output_dimension[0] / pixel_size))
-    num_pixels_y_cutout = int(np.ceil(output_dimension[1] / pixel_size))
-    num_pixels_z_cutout = int(np.ceil(los_dimension / los_bin_size))
-
-    if num_pixels_x_cutout == 0: num_pixels_x_cutout = 1
-    if num_pixels_y_cutout == 0: num_pixels_y_cutout = 1
-    if num_pixels_z_cutout == 0: num_pixels_z_cutout = 1
-
-    # Calculate the minimum projected coordinates for the cutout,
-    # ensuring its geometric center aligns with the most massive pixel (XY) and LOS median (Z).
-    min_x_cutout = most_massive_pixel_x_coord_global - (num_pixels_x_cutout * pixel_size / 2.0)
-    min_y_cutout = most_massive_pixel_y_coord_global - (num_pixels_y_cutout * pixel_size / 2.0)
-    # min_z_cutout should now be relative to the normalized LOS distances
-    min_z_cutout = median_z_full - (num_pixels_z_cutout * los_bin_size / 2.0)
-
-
-    # --- Initialize output arrays for the cutout region (STARS) ---
-    star_particle_membership = [[[[] for _ in range(num_pixels_z_cutout)]
-                            for _ in range(num_pixels_x_cutout)]
-                           for _ in range(num_pixels_y_cutout)]
-    star_mass_density_map = np.zeros((num_pixels_y_cutout, num_pixels_x_cutout, num_pixels_z_cutout), dtype=float)
-
-    # --- Assign STAR particles to the cutout grid ---
-    for i in range(star_coords.shape[0]):
-        x_coord_proj = projected_star_2d_coords[i, 0]
-        y_coord_proj = projected_star_2d_coords[i, 1]
-        z_coord_los = star_line_of_sight_distances_normalized[i] # Use normalized distance
-
-        x_idx_cutout = int(np.floor((x_coord_proj - min_x_cutout) / pixel_size))
-        y_idx_cutout = int(np.floor((y_coord_proj - min_y_cutout) / pixel_size))
-        z_idx_cutout = int(np.floor((z_coord_los - min_z_cutout) / los_bin_size))
-
-        # Only include particles that fall within the cutout dimensions
-        if 0 <= x_idx_cutout < num_pixels_x_cutout and 0 <= y_idx_cutout < num_pixels_y_cutout and 0 <= z_idx_cutout < num_pixels_z_cutout:
-            star_particle_membership[y_idx_cutout][x_idx_cutout][z_idx_cutout].append((i, star_line_of_sight_distances_normalized[i]))
-            star_mass_density_map[y_idx_cutout][x_idx_cutout][z_idx_cutout] += particle_masses[i]
-
-    # --- Set central pixel coordinate to the geometric center of the cutout ---
-    central_pixel_x = num_pixels_x_cutout // 2
-    central_pixel_y = num_pixels_y_cutout // 2
-    central_pixel_coords = (central_pixel_x, central_pixel_y)
-
-    # --- Process GAS particles if provided ---
-    gas_particle_membership = None
-    gas_mass_density_map = None
-    gas_particles_in_front_of_grid = None
-
-    if gas_coords is not None:
-        gas_particle_membership = [[[[] for _ in range(num_pixels_z_cutout)]
-                                    for _ in range(num_pixels_x_cutout)]
-                                   for _ in range(num_pixels_y_cutout)]
-        gas_mass_density_map = np.zeros((num_pixels_y_cutout, num_pixels_x_cutout, num_pixels_z_cutout), dtype=float)
-        projected_gas_2d_coords = rotated_gas_coords[:, :2]
-        # gas_line_of_sight_distances_normalized is already calculated above
-
-        for i in range(gas_coords.shape[0]):
-            x_coord_proj = projected_gas_2d_coords[i, 0]
-            y_coord_proj = projected_gas_2d_coords[i, 1]
-            z_coord_los = gas_line_of_sight_distances_normalized[i] # Use normalized distance
-
-            x_idx_cutout = int(np.floor((x_coord_proj - min_x_cutout) / pixel_size))
-            y_idx_cutout = int(np.floor((y_coord_proj - min_y_cutout) / pixel_size))
-            z_idx_cutout = int(np.floor((z_coord_los - min_z_cutout) / los_bin_size))
-
-            if 0 <= x_idx_cutout < num_pixels_x_cutout and 0 <= y_idx_cutout < num_pixels_y_cutout and 0 <= z_idx_cutout < num_pixels_z_cutout:
-                gas_particle_membership[y_idx_cutout][x_idx_cutout][z_idx_cutout].append((i, gas_line_of_sight_distances_normalized[i]))
-                gas_mass_density_map[y_idx_cutout][x_idx_cutout][z_idx_cutout] += gas_masses[i]
-
-        # --- Calculate gas particles in front of each grid cell ---
-        gas_particles_in_front_of_grid = [[[[] for _ in range(num_pixels_z_cutout)]
-                                           for _ in range(num_pixels_x_cutout)]
-                                          for _ in range(num_pixels_y_cutout)]
-
-        for y_idx in range(num_pixels_y_cutout):
-            for x_idx in range(num_pixels_x_cutout):
-                particles_in_previous_bins = []
-                for z_idx in range(num_pixels_z_cutout):
-                    gas_particles_in_front_of_grid[y_idx][x_idx][z_idx] = list(particles_in_previous_bins)
-
-                    for original_idx, _ in gas_particle_membership[y_idx][x_idx][z_idx]:
-                        particles_in_previous_bins.append(original_idx)
-                    particles_in_previous_bins = sorted(list(set(particles_in_previous_bins)))
-
-
-    # --- Prepare grid information for output ---
-    grid_info = {
-        'min_x_proj': min_x_cutout,
-        'min_y_proj': min_y_cutout,
-        'min_z_proj': min_z_cutout, # This will now be relative to the closest particle
-        'num_pixels_x': num_pixels_x_cutout,
-        'num_pixels_y': num_pixels_y_cutout,
-        'num_pixels_z': num_pixels_z_cutout,
-        'effective_pixel_size_x': pixel_size,
-        'effective_pixel_size_y': pixel_size,
-        'effective_los_bin_size': los_bin_size
-    }
-
-    return star_particle_membership, star_mass_density_map, central_pixel_coords, grid_info, gas_particle_membership, gas_mass_density_map, gas_particles_in_front_of_grid
 
 
 
