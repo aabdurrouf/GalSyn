@@ -144,7 +144,7 @@ def _process_pixel_data_no_los_binning(ii, jj, star_particle_membership, gas_par
             logzsol = np.log10(stars_zsol[star_id])
             sp_instance.params["logzsol"] = logzsol   
             sp_instance.params['gas_logz'] = logzsol
-            sp_instance.params['tage'] = stars_age[star_id]
+            #sp_instance.params['tage'] = stars_age[star_id]
 
             wave, spec = sp_instance.get_spectrum(peraa=True, tage=stars_age[star_id])        # spectrum in L_sun/AA
 
@@ -631,7 +631,7 @@ def _process_pixel_data_with_los_binning_tabsfh(ii, jj, star_particle_membership
                         logzsol = np.log10(stars_zsol[star_id])
                         sp_instance.params["logzsol"] = logzsol   
                         sp_instance.params['gas_logz'] = logzsol
-                        sp_instance.params['tage'] = stars_age[star_id]
+                        #sp_instance.params['tage'] = stars_age[star_id]
                         wave, spec = sp_instance.get_spectrum(peraa=True, tage=stars_age[star_id])        # spectrum in L_sun/AA
 
                         if dust_AV > 0.0:
@@ -702,7 +702,7 @@ def _process_pixel_data_with_los_binning_tabsfh(ii, jj, star_particle_membership
                             logzsol = np.log10(young_csp_sfh_Z[kk]/0.0127)
                             sp_instance.params["logzsol"] = logzsol   
                             sp_instance.params['gas_logz'] = logzsol
-                            sp_instance.params['tage'] = young_csp_sfh_lbt[kk]
+                            #sp_instance.params['tage'] = young_csp_sfh_lbt[kk]
                             wave, spec = sp_instance.get_spectrum(peraa=True, tage=young_csp_sfh_lbt[kk])        # spectrum in L_sun/AA
                             
                             if dust_AV > 0.0:
@@ -892,7 +892,7 @@ def _process_pixel_data_with_los_binning_ssp(ii, jj, star_particle_membership, g
                     logzsol = np.log10(mw_zsol)
                     sp_instance.params["logzsol"] = logzsol   
                     sp_instance.params['gas_logz'] = logzsol
-                    sp_instance.params['tage'] = mw_age
+                    #sp_instance.params['tage'] = mw_age
                     wave, spec1 = sp_instance.get_spectrum(peraa=True, tage=mw_age)        # spectrum in L_sun/AA
                     norm = tot_mass/sp_instance.stellar_mass
                     spec1 = spec1*norm
@@ -914,7 +914,7 @@ def _process_pixel_data_with_los_binning_ssp(ii, jj, star_particle_membership, g
                     logzsol = np.log10(mw_zsol)
                     sp_instance.params["logzsol"] = logzsol   
                     sp_instance.params['gas_logz'] = logzsol
-                    sp_instance.params['tage'] = mw_age
+                    #sp_instance.params['tage'] = mw_age
                     wave, spec2 = sp_instance.get_spectrum(peraa=True, tage=mw_age)        # spectrum in L_sun/AA
                     norm = tot_mass/sp_instance.stellar_mass
                     spec2 = spec2*norm
@@ -1109,7 +1109,7 @@ def generate_images_with_los_binning(sim_file, z, filters, filter_transmission, 
         mean_tauV_res, mean_AV_unres = 0.0, 0.0
     else:
         mean_AV_unres = -2.5*np.log10(np.exp(-2.0*mean_tauV_res))                 # assumed twice of average tauV resolved (Vogelsberger+20)
-    print ('mean_tauV_res=%lf mean_AV_unres=%lf' % (mean_tauV_res,mean_AV_unres))
+    #print ('mean_tauV_res=%lf mean_AV_unres=%lf' % (mean_tauV_res,mean_AV_unres))
     # -----------
 
     nbands = len(filters)
