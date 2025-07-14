@@ -25,10 +25,37 @@ def init_worker():
     global sp_instance
     sp_instance = fsps.StellarPopulation(zcontinuous=1)
 
+    sp_instance.params['imf_type'] = imf_type
+    sp_instance.params["add_dust_emission"] = False
+    sp_instance.params["add_neb_emission"] = add_neb_emission
+    sp_instance.params['gas_logu'] = gas_logu
+    sp_instance.params["fagn"] = 0
+    sp_instance.params["sfh"] = 0   # SSP
+    sp_instance.params["dust1"] = 0.0
+    sp_instance.params["dust2"] = 0.0   # optical depth
+
 def init_worker3():
     global sp_instance, sp_instance3
     sp_instance = fsps.StellarPopulation(zcontinuous=1)
     sp_instance3 = fsps.StellarPopulation(zcontinuous=3)
+
+    sp_instance.params['imf_type'] = imf_type
+    sp_instance.params["add_dust_emission"] = False
+    sp_instance.params["add_neb_emission"] = add_neb_emission
+    sp_instance.params['gas_logu'] = gas_logu
+    sp_instance.params["fagn"] = 0
+    sp_instance.params["sfh"] = 0   # SSP
+    sp_instance.params["dust1"] = 0.0
+    sp_instance.params["dust2"] = 0.0   # optical depth
+
+    sp_instance3.params['imf_type'] = imf_type
+    sp_instance3.params["add_dust_emission"] = False
+    sp_instance3.params["add_neb_emission"] = 0
+    sp_instance3.params['gas_logu'] = gas_logu
+    sp_instance3.params["fagn"] = 0
+    sp_instance3.params["sfh"] = 3   # tabular SFH
+    sp_instance3.params["dust1"] = 0.0
+    sp_instance3.params["dust2"] = 0.0   # optical depth
 
 def _process_pixel_data_no_los_binning(ii, jj, star_particle_membership, gas_particle_membership, 
                                     stars_mass, stars_age, stars_zsol, stars_init_mass, 
@@ -39,17 +66,6 @@ def _process_pixel_data_no_los_binning(ii, jj, star_particle_membership, gas_par
     Worker function to process calculations for a single pixel (ii, jj).
     This function will be executed in parallel for each pixel.
     """
-
-    global sp_instance # Declare that we're using the global variable
-
-    sp_instance.params['imf_type'] = imf_type
-    sp_instance.params["add_dust_emission"] = False
-    sp_instance.params["add_neb_emission"] = add_neb_emission
-    sp_instance.params['gas_logu'] = gas_logu
-    sp_instance.params["fagn"] = 0
-    sp_instance.params["sfh"] = 0   # SSP
-    sp_instance.params["dust1"] = 0.0
-    sp_instance.params["dust2"] = 0.0   # optical depth
 
     # Initialize a dictionary to store results for this pixel
     pixel_results = {
@@ -239,8 +255,6 @@ def generate_images_no_los_binning(sim_file, z, filters, filter_transmission, fi
         n_jobs (int, optional): Number of CPU cores to use for parallel processing. 
                                 -1 means use all available cores. Defaults to -1.
     """
-
-    sp_instance = fsps.StellarPopulation(zcontinuous=1, imf_type=imf_type, add_neb_emission=add_neb_emission)
 
     print ('Processing '+sim_file)
     # --- Data Loading and Initial Calculations (Sequential) ---
@@ -519,26 +533,6 @@ def _process_pixel_data_with_los_binning(ii, jj, star_particle_membership, gas_p
     This function will be executed in parallel for each pixel.
     """
 
-    global sp_instance, sp_instance3
-
-    sp_instance.params['imf_type'] = imf_type
-    sp_instance.params["add_dust_emission"] = False
-    sp_instance.params["add_neb_emission"] = add_neb_emission
-    sp_instance.params['gas_logu'] = gas_logu
-    sp_instance.params["fagn"] = 0
-    sp_instance.params["sfh"] = 0   # SSP
-    sp_instance.params["dust1"] = 0.0
-    sp_instance.params["dust2"] = 0.0   # optical depth
-
-    sp_instance3.params['imf_type'] = imf_type
-    sp_instance3.params["add_dust_emission"] = False
-    sp_instance3.params["add_neb_emission"] = 0
-    sp_instance3.params['gas_logu'] = gas_logu
-    sp_instance3.params["fagn"] = 0
-    sp_instance3.params["sfh"] = 3   # tabular SFH
-    sp_instance3.params["dust1"] = 0.0
-    sp_instance3.params["dust2"] = 0.0   # optical depth
-
     # Initialize a dictionary to store results for this pixel
     pixel_results = {
         'map_stars_mass': 0.0,
@@ -556,7 +550,9 @@ def _process_pixel_data_with_los_binning(ii, jj, star_particle_membership, gas_p
         'map_flux_dust': np.zeros(len(filters))
     }
 
-    los_star_ids0 = np.concatenate((np.asarray([x[0] for x in star_particle_membership[ii][jj][-1]], dtype=int), 
+    #los_star_ids0 = np.concatenate((np.asarray([x[0] for x in star_particle_membership[ii][jj][-1]], dtype=int), 
+    #                                np.asarray(star_particles_in_front_of_grid[ii][jj][-1], dtype=int)))
+    los_star_ids0 = np.concatenate((np.asarray(star_particle_membership[ii][jj][-1], dtype=int), 
                                     np.asarray(star_particles_in_front_of_grid[ii][jj][-1], dtype=int)))
     idxs = np.where((np.isnan(stars_mass[los_star_ids0]) == False) &
                      (np.isnan(stars_age[los_star_ids0]) == False) &
@@ -564,7 +560,9 @@ def _process_pixel_data_with_los_binning(ii, jj, star_particle_membership, gas_p
     los_star_ids = los_star_ids0[idxs]
 
 
-    los_gas_ids0 = np.concatenate((np.asarray([x[0] for x in gas_particle_membership[ii][jj][-1]], dtype=int), 
+    #los_gas_ids0 = np.concatenate((np.asarray([x[0] for x in gas_particle_membership[ii][jj][-1]], dtype=int), 
+    #                               np.asarray(gas_particles_in_front_of_grid[ii][jj][-1], dtype=int)))
+    los_gas_ids0 = np.concatenate((np.asarray(gas_particle_membership[ii][jj][-1], dtype=int), 
                                    np.asarray(gas_particles_in_front_of_grid[ii][jj][-1], dtype=int)))
     idxg = np.where(np.isnan(gas_mass[los_gas_ids0]) == False)[0]
     los_gas_ids = los_gas_ids0[idxg]
@@ -607,7 +605,8 @@ def _process_pixel_data_with_los_binning(ii, jj, star_particle_membership, gas_p
         for zz in range(dimz):
 
             # calculate spectra
-            star_ids = np.asarray([x[0] for x in star_particle_membership[ii][jj][zz]], dtype=int)
+            #star_ids = np.asarray([x[0] for x in star_particle_membership[ii][jj][zz]], dtype=int)
+            star_ids = np.asarray(star_particle_membership[ii][jj][zz], dtype=int)
 
             if len(star_ids) > 0:
                 
@@ -806,9 +805,6 @@ def generate_images_with_los_binning(sim_file, z, filters, filter_transmission, 
         n_jobs (int, optional): Number of CPU cores to use for parallel processing. 
                                 -1 means use all available cores. Defaults to -1.
     """
-
-    sp_instance = fsps.StellarPopulation(zcontinuous=1)
-    sp_instance3 = fsps.StellarPopulation(zcontinuous=3)
 
     print ('Processing '+sim_file)
     # --- Data Loading and Initial Calculations (Sequential) ---
