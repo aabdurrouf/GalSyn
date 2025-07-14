@@ -162,10 +162,9 @@ def tau_dust_given_z(z):
     from scipy.interpolate import interp1d
     
     # based on Vogelsberger+2020 (Table 3)
-    data_z = [0, 2, 3, 4, 5, 6, 7, 8, 12]
-    data_tau_dust = [0.46, 0.46, 0.20, 0.13, 0.08, 0.06, 0.04, 0.03, 0.03]
+    from .config import NORM_DUST_Z, NORM_DUST_TAU
 
-    f = interp1d(data_z, data_tau_dust, fill_value="extrapolate")
+    f = interp1d(NORM_DUST_Z, NORM_DUST_TAU, fill_value="extrapolate")
     return f(z)
 
 
