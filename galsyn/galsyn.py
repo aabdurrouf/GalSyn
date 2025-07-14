@@ -135,8 +135,9 @@ def _process_pixel_data_no_los_binning(ii, jj, star_particle_membership, gas_par
             # calculate total cold hydrogen gas column density in front of the particle along the line of sight
             idxg_front = np.where(gas_los_dist < star_los_dist[i_sid])[0]
             front_gas_ids = gas_ids[idxg_front]
-
-            cold_front_gas_ids = np.where((gas_sfr_inst[front_gas_ids] > 0.0) | (gas_log_temp[front_gas_ids] < 3.9))[0]
+            #cold_front_gas_ids = np.where((gas_sfr_inst[front_gas_ids] > 0.0) | (gas_log_temp[front_gas_ids] < 3.9))[0]
+            idxg1 = np.where((gas_sfr_inst[front_gas_ids] > 0.0) | (gas_log_temp[front_gas_ids] < 3.9))[0]
+            cold_front_gas_ids = front_gas_ids[idxg1]
 
             if len(cold_front_gas_ids) > 0:
                 temp_mw_gas_zsol = np.nansum(gas_mass[cold_front_gas_ids]*gas_zsol[cold_front_gas_ids])/np.nansum(gas_mass[cold_front_gas_ids])
@@ -508,10 +509,6 @@ def generate_images_no_los_binning(sim_file, z, filters, filter_transmission, fi
 
 
 
-
-
-
-
 def _process_pixel_data_with_los_binning(ii, jj, star_particle_membership, gas_particle_membership, gas_particles_in_front_of_grid, 
                                         star_particles_in_front_of_grid, stars_mass, stars_age, stars_zsol, stars_init_mass, gas_mass, 
                                         gas_sfr_inst, gas_zsol, gas_log_temp, gas_mass_H, filters, filter_transmission, snap_z, 
@@ -608,29 +605,34 @@ def _process_pixel_data_with_los_binning(ii, jj, star_particle_membership, gas_p
         grid_array_tauV = []
 
         for zz in range(dimz):
-            # calculate dust attenuation depth
-            front_gas_ids = np.asarray(gas_particles_in_front_of_grid[ii][jj][zz], dtype=int) 
-            cold_front_gas_ids = np.where((gas_sfr_inst[front_gas_ids] > 0.0) | (gas_log_temp[front_gas_ids] < 3.9))[0]
-                
-            if len(cold_front_gas_ids) > 0:
-                temp_mw_gas_zsol = np.nansum(gas_mass[cold_front_gas_ids]*gas_zsol[cold_front_gas_ids])/np.nansum(gas_mass[cold_front_gas_ids])
-                nH = np.nansum(gas_mass_H[cold_front_gas_ids])*1.247914e+14/pix_area_kpc2      # number of hydrogen atom per cm^2
-                tauV = tau_dust_given_z(snap_z)*temp_mw_gas_zsol*nH/2.1e+21
-                dust_AV = -2.5*np.log10((1.0 - np.exp(-1.0*tauV))/tauV)
-                if np.isnan(dust_AV)==True:
-                    tauV, dust_AV = 0.0, 0.0
-            else:
-                tauV, dust_AV = 0.0, 0.0
-
-            grid_array_tauV.append(tauV)
-            grid_array_AV.append(dust_AV)
 
             # calculate spectra
             star_ids = np.asarray([x[0] for x in star_particle_membership[ii][jj][zz]], dtype=int)
 
             if len(star_ids) > 0:
                 
-                if len(star_ids) <= 100:
+                if len(los_gas_ids) > 0:
+                    # calculate dust attenuation depth
+                    front_gas_ids = np.asarray(gas_particles_in_front_of_grid[ii][jj][zz], dtype=int) 
+                    idxg1 = np.where((gas_sfr_inst[front_gas_ids] > 0.0) | (gas_log_temp[front_gas_ids] < 3.9))[0]
+                    cold_front_gas_ids = front_gas_ids[idxg1]
+                        
+                    if len(cold_front_gas_ids) > 0:
+                        temp_mw_gas_zsol = np.nansum(gas_mass[cold_front_gas_ids]*gas_zsol[cold_front_gas_ids])/np.nansum(gas_mass[cold_front_gas_ids])
+                        nH = np.nansum(gas_mass_H[cold_front_gas_ids])*1.247914e+14/pix_area_kpc2      # number of hydrogen atom per cm^2
+                        tauV = tau_dust_given_z(snap_z)*temp_mw_gas_zsol*nH/2.1e+21
+                        dust_AV = -2.5*np.log10((1.0 - np.exp(-1.0*tauV))/tauV)
+                        if np.isnan(dust_AV)==True:
+                            tauV, dust_AV = 0.0, 0.0
+                    else:
+                        tauV, dust_AV = 0.0, 0.0
+                else:
+                    tauV, dust_AV = 0.0, 0.0
+
+                grid_array_tauV.append(tauV)
+                grid_array_AV.append(dust_AV)
+                
+                if len(star_ids) <= 5:         ##########
                     array_spec = []
                     array_spec_dust = []
                     for star_id in star_ids:
@@ -805,19 +807,16 @@ def generate_images_with_los_binning(sim_file, z, filters, filter_transmission, 
                                 -1 means use all available cores. Defaults to -1.
     """
 
-    sp_instance = fsps.StellarPopulation(zcontinuous=1, imf_type=imf_type, add_neb_emission=add_neb_emission)
-    sp_instance3 = fsps.StellarPopulation(zcontinuous=3, imf_type=imf_type, add_neb_emission=0)
+    sp_instance = fsps.StellarPopulation(zcontinuous=1)
+    sp_instance3 = fsps.StellarPopulation(zcontinuous=3)
 
     print ('Processing '+sim_file)
     # --- Data Loading and Initial Calculations (Sequential) ---
 
-    global snap_z
     snap_z = z
     snap_a = 1.0/(1.0 + snap_z)
 
     pix_kpc = angular_to_physical(snap_z, pix_arcsec)
-
-    global pix_area_kpc2
     pix_area_kpc2 = pix_kpc*pix_kpc
     print ('pixel size: %lf arcsec or %lf kpc' % (pix_arcsec,pix_kpc))
 
@@ -892,6 +891,7 @@ def generate_images_with_los_binning(sim_file, z, filters, filter_transmission, 
     
     dimx, dimy, dimz = grid_info['num_pixels_x'], grid_info['num_pixels_y'], grid_info['num_pixels_z']
     print ('Cutout size: %d x %d pix or %d x %d kpc' % (dimx,dimy,dim_kpc,dim_kpc))
+    print ('Number of grids along the line of sight: %d' % dimz)
 
     # ------ estimate unresolved dust AV associated with the birth cloud ------- #
     idxg_global = np.where((gas_sfr_inst>0.0) | (gas_log_temp<3.9))[0]
