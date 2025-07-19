@@ -167,6 +167,14 @@ def tau_dust_given_z(z):
     f = interp1d(NORM_DUST_Z, NORM_DUST_TAU, fill_value="extrapolate")
     return f(z)
 
+def drude_profile(EB, wave_um):
+    wave0 = 0.2175
+    dwave = 0.035
+    part1 = wave_um * wave_um * dwave * dwave
+    part2 = np.square((wave_um*wave_um) - (wave0*wave0))  
+
+    D_lambda = EB * part1 / (part2 + part1)
+    return D_lambda
 
 def modified_calzetti_dust_curve(AV, wave, dust_index=0.0):
     wave = wave/1e+4     # in micron
@@ -179,20 +187,17 @@ def modified_calzetti_dust_curve(AV, wave, dust_index=0.0):
     k_lambda = k_lambda1.tolist() + k_lambda2.tolist()
     k_lambda = np.asarray(k_lambda)
 
-    wave_V = 0.5477
-    wave_02 = 0.2175*0.2175
-    dwave = 0.0350
-    Eb = 0.85 - 1.9*dust_index
-    top = wave*dwave*wave*dwave
-    low = (wave*wave - wave_02)*(wave*wave - wave_02)
-    D_lambda = Eb*top/(low + top)
+    EB = 0.85 - 1.9*dust_index
+    D_lambda = drude_profile(EB, wave)
 
+    wave_V = 0.5500
     A_lambda = AV*(k_lambda + D_lambda)*np.power(wave/wave_V, dust_index)/4.05
 
     return A_lambda
 
+
 def unresolved_dust_birth_cloud(AV, wave, dust_index_bc=-0.7):
-    wave_V = 5477.0
+    wave_V = 5500.0
     A_lambda = AV*np.power(wave/wave_V, dust_index_bc)
 
     return A_lambda
