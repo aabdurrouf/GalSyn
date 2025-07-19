@@ -20,10 +20,17 @@ imf_type, add_neb_emission, add_igm_absorption, igm_type, dust_index_bc, gas_log
 import fsps
 sp_instance = None  # Global variable to avoid reloading fsps per model
 
-def init_worker():
+def init_worker(snap_z_val, pix_area_kpc2_val, mean_AV_unres_val, filters_val, filter_transmission_val):
     global sp_instance
-    sp_instance = fsps.StellarPopulation(zcontinuous=1)
+    global Alambda_per_AV
+    global igm_trans
+    global snap_z
+    global pix_area_kpc2
+    global mean_AV_unres
+    global filters 
+    global filter_transmission
 
+    sp_instance = fsps.StellarPopulation(zcontinuous=1)
     sp_instance.params['imf_type'] = imf_type
     sp_instance.params["add_dust_emission"] = False
     sp_instance.params["add_neb_emission"] = add_neb_emission
@@ -34,14 +41,29 @@ def init_worker():
     sp_instance.params["dust2"] = 0.0   # optical depth
 
     wave, spec = sp_instance.get_spectrum(peraa=True, tage=1.0)
-
-    global Alambda_per_AV
     Alambda_per_AV = modified_calzetti_dust_curve(1.0, wave, dust_index=0.0)
+
+    snap_z = snap_z_val
+    pix_area_kpc2 = pix_area_kpc2_val
+    mean_AV_unres = mean_AV_unres_val
+    filters = filters_val
+    filter_transmission = filter_transmission_val
+
+    if add_igm_absorption == 1:
+        if igm_type == 0:
+            igm_trans = igm_att_madau(wave * (1.0+snap_z), snap_z)
+        elif igm_type == 1:
+            igm_trans = igm_att_inoue(wave * (1.0+snap_z), snap_z)
+        else:
+            print ('igm_type is not recognized! options are: 1 for Madau+1995 and Inoue+2014')
+            sys.exit()
+    else:
+        igm_trans = 1
+
 
 def _process_pixel_data(ii, jj, star_particle_membership, gas_particle_membership, 
                         stars_mass, stars_age, stars_zsol, stars_init_mass, 
-                        gas_mass, gas_sfr_inst, gas_zsol, gas_log_temp, gas_mass_H, 
-                        filters, filter_transmission, snap_z, pix_area_kpc2, mean_AV_unres):
+                        gas_mass, gas_sfr_inst, gas_zsol, gas_log_temp, gas_mass_H):
     """
     ii=y jj=x
     Worker function to process calculations for a single pixel (ii, jj).
@@ -179,20 +201,8 @@ def _process_pixel_data(ii, jj, star_particle_membership, gas_particle_membershi
             spec_lum_dust = np.nansum(array_spec_dust, axis=0)
 
             # redshifting:
-            spec_wave, spec_flux = cosmo_redshifting(wave, spec_lum, snap_z)   # in erg/s/cm^2/Ang.
+            spec_wave, spec_flux = cosmo_redshifting(wave, spec_lum, snap_z)              # in erg/s/cm^2/Ang.
             spec_wave, spec_flux_dust = cosmo_redshifting(wave, spec_lum_dust, snap_z)    # in erg/s/cm^2/Ang.
-
-            # IGM absorption:
-            if add_igm_absorption == 1:
-                if igm_type == 0:
-                    trans = igm_att_madau(spec_wave, snap_z)
-                elif igm_type == 1:
-                    trans = igm_att_inoue(spec_wave, snap_z)
-                else:
-                    print ('igm_type is not recognized! options are: 1 for Madau+1995 and Inoue+2014')
-                    sys.exit()
-            else:
-                trans = 1
 
             # filtering
             nbands = len(filters)
@@ -200,8 +210,8 @@ def _process_pixel_data(ii, jj, star_particle_membership, gas_particle_membershi
             redshift_flux_dust = np.zeros(nbands)
 
             for i_band in range(nbands):
-                redshift_flux[i_band] = filtering(spec_wave, spec_flux*trans, filter_transmission[filters[i_band]]['wave'], filter_transmission[filters[i_band]]['trans'])
-                redshift_flux_dust[i_band] = filtering(spec_wave, spec_flux_dust*trans, filter_transmission[filters[i_band]]['wave'], filter_transmission[filters[i_band]]['trans'])
+                redshift_flux[i_band] = filtering(spec_wave, spec_flux*igm_trans, filter_transmission[filters[i_band]]['wave'], filter_transmission[filters[i_band]]['trans'])
+                redshift_flux_dust[i_band] = filtering(spec_wave, spec_flux_dust*igm_trans, filter_transmission[filters[i_band]]['wave'], filter_transmission[filters[i_band]]['trans'])
 
         if len(redshift_flux) > 0:
             pixel_results['map_flux'] = redshift_flux
@@ -238,13 +248,10 @@ def generate_images(sim_file, z, filters, filter_transmission, filter_wave_eff, 
     print ('Processing '+sim_file)
     # --- Data Loading and Initial Calculations (Sequential) ---
 
-    global snap_z
     snap_z = z
     snap_a = 1.0/(1.0 + snap_z)
 
     pix_kpc = angular_to_physical(snap_z, pix_arcsec)
-
-    global pix_area_kpc2
     pix_area_kpc2 = pix_kpc*pix_kpc
     print ('pixel size: %lf arcsec or %lf kpc' % (pix_arcsec,pix_kpc))
 
@@ -361,8 +368,7 @@ def generate_images(sim_file, z, filters, filter_transmission, filter_wave_eff, 
         for jj in range(dimx): # Iterate over columns (x-axis)
             tasks.append((ii, jj, star_particle_membership, gas_particle_membership, 
                             stars_mass, stars_age, stars_zsol, stars_init_mass, 
-                            gas_mass, gas_sfr_inst, gas_zsol, gas_log_temp, gas_mass_H, 
-                            filters, filter_transmission, snap_z, pix_area_kpc2, mean_AV_unres))
+                            gas_mass, gas_sfr_inst, gas_zsol, gas_log_temp, gas_mass_H))
 
     # Determine the number of CPU cores to use
     num_cores = n_jobs
@@ -372,7 +378,8 @@ def generate_images(sim_file, z, filters, filter_transmission, filter_wave_eff, 
     print(f"\nStarting parallel pixel processing on {num_cores} cores...")
 
     with tqdm_joblib(total=len(tasks), desc="Processing pixels") as progress_bar:
-        results = Parallel(n_jobs=num_cores, verbose=0, initializer=init_worker)(
+        results = Parallel(n_jobs=num_cores, verbose=0, initializer=init_worker,
+                           initargs=(snap_z, pix_area_kpc2, mean_AV_unres, filters, filter_transmission))(
             delayed(_process_pixel_data)(*task_args) for task_args in tasks
         )
     print("\nFinished parallel pixel processing.")
