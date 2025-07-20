@@ -2,14 +2,9 @@ import sys
 import numpy as np
 from operator import itemgetter
 
-def fsps_setup():
-    from .config import IMF_TYPE, ADD_NEB_EMISSION, ADD_IGM_ABSORPTION, IGM_TYPE, DUST_INDEX_BC, GAS_LOGU, DUST_INDEX, T_ESC
-    return IMF_TYPE, ADD_NEB_EMISSION, ADD_IGM_ABSORPTION, IGM_TYPE, DUST_INDEX_BC, GAS_LOGU, DUST_INDEX, T_ESC
+def define_cosmo(cosmo_str):
 
-def define_cosmo():
-    from .config import COSMO, COSMO_LITTLE_H
-
-    cosmo_name = COSMO.lower()  # Make case-insensitive
+    cosmo_name = cosmo_str.lower()  # Make case-insensitive
 
     if cosmo_name == "planck18":
         from astropy.cosmology import Planck18 as cosmo
@@ -27,12 +22,9 @@ def define_cosmo():
         print("Selected cosmology is not recognized!")
         sys.exit()
 
-    return cosmo, COSMO_LITTLE_H
+    return cosmo
 
-global cosmo
-cosmo, cosmo_h = define_cosmo()
-
-def interp_age_univ_from_z(z):
+def interp_age_univ_from_z(z, cosmo):
     
     from scipy.interpolate import interp1d
     
@@ -42,7 +34,7 @@ def interp_age_univ_from_z(z):
     f = interp1d(arr_z, age_univ, fill_value="extrapolate")
     return f(z)
 
-def cosmo_redshifting(wave_rest, L_lambda_rest, z):
+def cosmo_redshifting(wave_rest, L_lambda_rest, z, cosmo):
     """
     Performs cosmological redshifting of a spectrum.
 
@@ -156,58 +148,6 @@ def assign_cutout_size(z, log_totmstar):
             dim_kpc = 20 
 
     return dim_kpc
-
-
-def tau_dust_given_z(z):
-    from scipy.interpolate import interp1d
-    
-    # based on Vogelsberger+2020 (Table 3)
-    from .config import NORM_DUST_Z, NORM_DUST_TAU
-
-    f = interp1d(NORM_DUST_Z, NORM_DUST_TAU, fill_value="extrapolate")
-    return f(z)
-
-def drude_profile(Bump_strength, wave_um):
-    wave0 = 0.2175
-    dwave = 0.035
-    part1 = wave_um * wave_um * dwave * dwave
-    part2 = np.square((wave_um*wave_um) - (wave0*wave0))  
-
-    D_lambda = Bump_strength * part1 / (part2 + part1)
-    return D_lambda
-
-def bump_strength_from_dust_index(dust_index):
-    # Based on Kriek & Conroy (2013)
-    return 0.85 - 1.9*dust_index
-
-
-def modified_calzetti_dust_curve(AV, wave, dust_index=0.0, Bump_strength=None):
-    wave = wave/1e+4     # in micron
-    idx = np.where(wave <= 0.63)[0]
-    k_lambda1 = 4.05 + (2.659*(-2.156 + (1.509/wave[idx]) - (0.198/wave[idx]/wave[idx]) + (0.011/wave[idx]/wave[idx]/wave[idx])))
-
-    idx = np.where(wave > 0.63)[0]
-    k_lambda2 = 4.05 + (2.659*(-1.857 + (1.040/wave[idx]))) 
-
-    k_lambda = k_lambda1.tolist() + k_lambda2.tolist()
-    k_lambda = np.asarray(k_lambda)
-
-    if Bump_strength is None:
-        Bump_strength = bump_strength_from_dust_index(dust_index)
-        
-    D_lambda = drude_profile(Bump_strength, wave)
-
-    wave_V = 0.5500
-    A_lambda = AV*(k_lambda + D_lambda)*np.power(wave/wave_V, dust_index)/4.05
-
-    return A_lambda
-
-
-def unresolved_dust_birth_cloud(AV, wave, dust_index_bc=-0.7):
-    wave_V = 5500.0
-    A_lambda = AV*np.power(wave/wave_V, dust_index_bc)
-
-    return A_lambda
 
 
 # wave: wavelength in Angstroms

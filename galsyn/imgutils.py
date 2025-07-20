@@ -2,16 +2,13 @@ import numpy as np
 import astropy.units as u
 from .utils import *
 
-cosmo, cosmo_h = define_cosmo()
-
-def angular_to_physical(z, arcsec_per_pix):
+def angular_to_physical(z, arcsec_per_pix, cosmo):
     kpc_per_arcmin = cosmo.kpc_proper_per_arcmin(z)
     kpc_per_pix = kpc_per_arcmin.value*arcsec_per_pix/60.0 
     
     return kpc_per_pix
 
-
-def physical_to_angular(z, physical_size_kpc):
+def physical_to_angular(z, physical_size_kpc, cosmo):
     # Compute angular diameter distance in kpc
     D_A = cosmo.angular_diameter_distance(z).to(u.kpc)
     
@@ -19,7 +16,6 @@ def physical_to_angular(z, physical_size_kpc):
     angular_size_arcsec = (physical_size_kpc * u.kpc / D_A).to(u.rad).value * 206265  # arcsec
     
     return angular_size_arcsec
-
 
 def convert_flux_map(flux_map, wave_eff, to_unit='nJy', pixel_scale_arcsec=None):
     """

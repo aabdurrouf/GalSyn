@@ -7,9 +7,6 @@ from .utils import *
 from .config import API_KEY
 headers = {"api-key":API_KEY}
 
-cosmo, cosmo_h = define_cosmo()
-imf_type, add_neb_emission, add_igm_absorption, igm_type, dust_index_bc, gas_logu, dust_index, t_esc = fsps_setup()
-
 baseUrl_tng = 'http://www.tng-project.org/api/'
 
 def get(path, params=None):
@@ -59,7 +56,7 @@ def get_num_subhalos(snap_number, sim='TNG50-1', snaps_info=None):
         snaps_info = get_tng_snaps_info(sim)
     return snaps_info[int(snap_number)]['num_groups_subfind']
 
-def cosmic_times_snapshots(sim='TNG50-1',snaps_info=None):
+def cosmic_times_snapshots(sim='TNG50-1',snaps_info=None, cosmo='Planck18'):
 
     if snaps_info is None:
         snaps_info = get_tng_snaps_info(sim)
@@ -72,7 +69,7 @@ def cosmic_times_snapshots(sim='TNG50-1',snaps_info=None):
 
     return cosmic_times
 
-def cosmic_times_of_snapshots(snaps, sim='TNG50-1', snaps_info=None):
+def cosmic_times_of_snapshots(snaps, sim='TNG50-1', snaps_info=None, cosmo='Planck18'):
 
     if snaps_info is None:
         snaps_info = get_tng_snaps_info(sim)
