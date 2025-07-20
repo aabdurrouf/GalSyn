@@ -6,7 +6,7 @@ from .galsyn_run import generate_images
 
 class GalaxySynthesizer:
 
-    def __init__(self, sim_file, z, filters, filter_transmission, filter_wave_eff):
+    def __init__(self, sim_file=None, z=0.01, filters=[], filter_transmission={}, filter_wave_eff={}):
         self._sim_file = sim_file
         self._z = z
         self._filters = filters
@@ -30,19 +30,44 @@ class GalaxySynthesizer:
         """
         Loads default parameter values from the config.py module.
         """
+        # Hydrogen fraction
+        self._XH = getattr(config, 'XH', 0.76)
+
+        # Cosmology
+        self._cosmo_str = getattr(config, 'COSMO', "Planck18")
+        self._cosmo_h = getattr(config, 'COSMO_LITTLE_H', 0.6774)
+
+        # SPS setup
         self._imf_type = getattr(config, 'IMF_TYPE', 1)
         self._add_neb_emission = getattr(config, 'ADD_NEB_EMISSION', 1)
         self._gas_logu = getattr(config, 'GAS_LOGU', -2.0)
+
+        # IGM absorption
         self._add_igm_absorption = getattr(config, 'ADD_IGM_ABSORPTION', 1)
         self._igm_type = getattr(config, 'IGM_TYPE', 0)
-        self._dust_index_bc = getattr(config, 'DUST_INDEX_BC', -0.7)
-        self._dust_index = getattr(config, 'DUST_INDEX', 0.0)
-        self._t_esc = getattr(config, 'T_ESC', 0.01)
+
+        # Dust attenuation tau normalization as function of redshift
         self._norm_dust_z = getattr(config, 'NORM_DUST_Z', [0, 2, 3, 4, 5, 6, 7, 8, 12])
         self._norm_dust_tau = getattr(config, 'NORM_DUST_TAU', [0.46, 0.46, 0.20, 0.13, 0.08, 0.06, 0.04, 0.03, 0.03])
-        self._cosmo_str = getattr(config, 'COSMO', "Planck18")
-        self._cosmo_h = getattr(config, 'COSMO_LITTLE_H', 0.6774)
-        self._XH = getattr(config, 'XH', 0.76)
+
+        # Dust attenuation setup
+        self._dust_law = getattr(config, 'DUST_LAW', 0)
+        self._dust_index = getattr(config, 'DUST_INDEX', 0.0)
+        self._bump_amp = getattr(config, 'BUMP_AMP', 0.85)
+        self._dust_index_bc = getattr(config, 'DUST_INDEX_BC', -0.7)
+        self._t_esc = getattr(config, 'T_ESC', 0.01)
+
+        self._dustindexAV_AV = getattr(config, 'DUSTINDEXAV_AV', [0.0, 0.2, 0.4, 0.6, 0.8, 1.0, 1.2, 1.4, 1.6, 1.8, 2.0, 2.2, 2.4, 2.6, 2.8, 3.0, 3.2, 3.4, 3.6, 3.8, 4.0])
+        self._dustindexAV_dust_index = getattr(config, 'DUSTINDEXAV_DUST_INDEX', [-1.005, -0.548, -0.264, -0.135, -0.067, 0.048, 0.166, 0.217, 0.239, 0.261, 0.283, 0.306, 
+                                                                                  0.328, 0.35, 0.373, 0.395, 0.417, 0.44, 0.462, 0.484, 0.507])
+
+        self._salim_a0 = getattr(config, 'SALIM_A0', -4.30)
+        self._salim_a1 = getattr(config, 'SALIM_A1', 2.71)
+        self._salim_a2 = getattr(config, 'SALIM_A2', -0.191)
+        self._salim_a3 = getattr(config, 'SALIM_A3', 0.0121)
+        self._salim_RV = getattr(config, 'SALIM_RV', 3.15)
+        self._salim_B = getattr(config, 'SALIM_B', 1.57)
+        
 
     @property
     def sim_file(self):
@@ -305,6 +330,112 @@ class GalaxySynthesizer:
             raise ValueError("XH must be a number between 0 and 1.")
         self._XH = value
 
+    @property
+    def dust_law(self):
+        return self._dust_law
+
+    @dust_law.setter
+    def dust_law(self, value):
+        if not isinstance(value, int) or value not in [0, 1, 2, 3, 4, 5]:
+            raise ValueError("dust_law must be integer in the range of 0 to 5.")
+        self._dust_law = value
+
+    @property
+    def bump_amp(self):
+        return self._bump_amp
+
+    @bump_amp.setter
+    def bump_amp(self, value):
+        if not isinstance(value, (int, float)):
+            raise ValueError("bump_amp must be a number.")
+        self._bump_amp = value
+
+    @property
+    def dustindexAV_AV(self):
+        return self._dustindexAV_AV
+
+    @dustindexAV_AV.setter
+    def dustindexAV_AV(self, value):
+        if not isinstance(value, list):
+            raise ValueError("dustindexAV_AV must be a list.")
+        for i, item in enumerate(value):
+            if not isinstance(item, (int, float)):
+                raise ValueError(f"dustindexAV_AV list must contain only numbers. Item at index {i} is not a number ({type(item).__name__}).")
+        self._dustindexAV_AV = value[:]
+
+    @property
+    def dustindexAV_dust_index(self):
+        return self._dustindexAV_dust_index
+
+    @dustindexAV_dust_index.setter
+    def dustindexAV_dust_index(self, value):
+        if not isinstance(value, list):
+            raise ValueError("dustindexAV_dust_index must be a list.")
+        for i, item in enumerate(value):
+            if not isinstance(item, (int, float)):
+                raise ValueError(f"dustindexAV_dust_index list must contain only numbers. Item at index {i} is not a number ({type(item).__name__}).")
+        self._dustindexAV_dust_index = value[:]
+
+    @property
+    def salim_a0(self):
+        return self._salim_a0
+
+    @salim_a0.setter
+    def salim_a0(self, value):
+        if not isinstance(value, (int, float)):
+            raise ValueError("salim_a0 must be a number.")
+        self._salim_a0 = value
+
+    @property
+    def salim_a1(self):
+        return self._salim_a1
+
+    @salim_a1.setter
+    def salim_a1(self, value):
+        if not isinstance(value, (int, float)):
+            raise ValueError("salim_a1 must be a number.")
+        self._salim_a1 = value
+
+    @property
+    def salim_a2(self):
+        return self._salim_a2
+
+    @salim_a2.setter
+    def salim_a2(self, value):
+        if not isinstance(value, (int, float)):
+            raise ValueError("salim_a2 must be a number.")
+        self._salim_a2 = value
+
+    @property
+    def salim_a3(self):
+        return self._salim_a3
+
+    @salim_a3.setter
+    def salim_a3(self, value):
+        if not isinstance(value, (int, float)):
+            raise ValueError("salim_a3 must be a number.")
+        self._salim_a3 = value
+
+    @property
+    def salim_RV(self):
+        return self._salim_RV
+
+    @salim_RV.setter
+    def salim_RV(self, value):
+        if not isinstance(value, (int, float)):
+            raise ValueError("salim_RV must be a number.")
+        self._salim_RV = value
+
+    @property
+    def salim_B(self):
+        return self._salim_B
+
+    @salim_B.setter
+    def salim_B(self, value):
+        if not isinstance(value, (int, float)):
+            raise ValueError("salim_B must be a number.")
+        self._salim_B = value
+
     # --- Convenience method for setting multiple parameters ---
 
     def set_params(self, **kwargs):
@@ -379,7 +510,17 @@ class GalaxySynthesizer:
                 norm_dust_tau = self.norm_dust_tau,
                 cosmo_str = self.cosmo_str,
                 cosmo_h = self.cosmo_h,
-                XH = self.XH
+                XH = self.XH,
+                dust_law = self.dust_law,
+                bump_amp = self.bump_amp,
+                dustindexAV_AV = self.dustindexAV_AV,
+                dustindexAV_dust_index = self.dustindexAV_dust_index,
+                salim_a0 = self.salim_a0,
+                salim_a1 = self.salim_a1,
+                salim_a2 = self.salim_a2,
+                salim_a3 = self.salim_a3,
+                salim_RV = self.salim_RV,
+                salim_B = self.salim_B
             )
             #print("\nGalaxy image synthesis completed successfully.")
         except Exception as e:

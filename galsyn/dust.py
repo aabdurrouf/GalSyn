@@ -2,6 +2,8 @@ import sys
 import numpy as np
 from galsyn import config 
 
+wave_V = 0.5500
+
 def tau_dust_given_z(z, norm_dust_z, norm_dust_tau):
     from scipy.interpolate import interp1d
     
@@ -18,36 +20,48 @@ def drude_profile(Bump_strength, wave_um):
     D_lambda = Bump_strength * part1 / (part2 + part1)
     return D_lambda
 
-def bump_strength_from_dust_index(dust_index):
+def bump_amp_from_dust_index(dust_index):
     # Based on Kriek & Conroy (2013)
     return 0.85 - 1.9*dust_index
 
-def modified_calzetti_dust_curve(AV, wave, dust_index=0.0, Bump_strength=None):
-    wave = wave/1e+4     # in micron
-    idx = np.where(wave <= 0.63)[0]
-    k_lambda1 = 4.05 + (2.659*(-2.156 + (1.509/wave[idx]) - (0.198/wave[idx]/wave[idx]) + (0.011/wave[idx]/wave[idx]/wave[idx])))
+def unresolved_dust_birth_cloud_Alambda_per_AV(wave_ang, dust_index_bc=-0.7):
+    Alambda_per_AV = np.power(wave_ang/wave_V, dust_index_bc)
+    return Alambda_per_AV
 
-    idx = np.where(wave > 0.63)[0]
-    k_lambda2 = 4.05 + (2.659*(-1.857 + (1.040/wave[idx]))) 
+def calzetti_dust_klambda(wave_ang):
+    wave_um = wave_ang/1e+4     # in micron
+    idx = np.where(wave_um <= 0.63)[0]
+    k_lambda1 = 4.05 + (2.659*(-2.156 + (1.509/wave_um[idx]) - (0.198/wave_um[idx]/wave_um[idx]) + (0.011/wave_um[idx]/wave_um[idx]/wave_um[idx])))
+
+    idx = np.where(wave_um > 0.63)[0]
+    k_lambda2 = 4.05 + (2.659*(-1.857 + (1.040/wave_um[idx]))) 
 
     k_lambda = k_lambda1.tolist() + k_lambda2.tolist()
-    k_lambda = np.asarray(k_lambda)
 
-    if Bump_strength is None:
-        Bump_strength = bump_strength_from_dust_index(dust_index)
-        
-    D_lambda = drude_profile(Bump_strength, wave)
+    return np.asarray(k_lambda)
 
-    wave_V = 0.5500
-    A_lambda = AV*(k_lambda + D_lambda)*np.power(wave/wave_V, dust_index)/4.05
+def calzetti_dust_Alambda_per_AV(wave_ang):
+    k_lambda = calzetti_dust_klambda(wave_ang)
+    Alambda_per_AV = k_lambda/4.05
+    return Alambda_per_AV
 
-    return A_lambda
+def modified_calzetti_dust_Alambda_per_AV(wave_ang, dust_index=0.0, bump_amp=None):
+    k_lambda = calzetti_dust_klambda(wave_ang)
 
-def unresolved_dust_birth_cloud(AV, wave, dust_index_bc=-0.7):
-    wave_V = 5500.0
-    A_lambda = AV*np.power(wave/wave_V, dust_index_bc)
-    return A_lambda
+    if bump_amp is None:
+        bump_amp = bump_amp_from_dust_index(dust_index)
 
-    
+    wave_um = wave_ang/1e+4
+    D_lambda = drude_profile(bump_amp, wave_um)
+    Alambda_per_AV = (k_lambda + D_lambda)*np.power(wave_um/wave_V, dust_index)/4.05
+    return Alambda_per_AV
 
+def salim18_dust_Alambda_per_AV(wave_ang, salim_a0, salim_a1, salim_a2, salim_a3, salim_B, salim_RV):
+    wave_um = wave_ang/1e+4      # in micron
+
+    D_lambda = drude_profile(salim_B, wave_um)
+    k_lambda = salim_a0 + (salim_a1/wave_um) + (salim_a2/wave_um/wave_um) + (salim_a3/wave_um/wave_um/wave_um) + D_lambda + salim_RV
+
+    Alambda_per_AV = k_lambda / salim_RV
+    return Alambda_per_AV
 

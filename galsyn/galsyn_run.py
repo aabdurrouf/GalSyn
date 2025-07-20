@@ -7,6 +7,7 @@ from .utils import *
 from .dust import *
 from joblib import Parallel, delayed
 import multiprocessing
+from scipy.interpolate import interp1d
 
 from tqdm.auto import tqdm
 from tqdm_joblib import tqdm_joblib
@@ -17,26 +18,16 @@ sp_instance = None  # Global variable to avoid reloading fsps per model
 def init_worker(snap_z_val, pix_area_kpc2_val, mean_AV_unres_val, filters_val, 
                 filter_transmission_val, imf_type_val, add_neb_emission_val, 
                 gas_logu_val, add_igm_absorption_val, igm_type_val, dust_index_bc_val, 
-                dust_index_val, t_esc_val, scale_dust_tau_val, cosmo_val):
-    global sp_instance
-    global Alambda_per_AV
-    global igm_trans
-    global snap_z
-    global pix_area_kpc2
-    global mean_AV_unres
-    global filters 
-    global filter_transmission
-
-    global imf_type
-    global add_neb_emission
-    global gas_logu
-    global add_igm_absorption
-    global igm_type
-    global dust_index_bc
-    global dust_index
-    global t_esc
-    global scale_dust_tau 
-    global cosmo
+                dust_index_val, t_esc_val, scale_dust_tau_val, cosmo_val, dust_law_val,
+                bump_amp_val, dustindexAV_AV_val, dustindexAV_dust_index_val, salim_a0_val, 
+                salim_a1_val, salim_a2_val, salim_a3_val, salim_RV_val, salim_B_val):
+    
+    global sp_instance, igm_trans, snap_z, pix_area_kpc2
+    global mean_AV_unres, filters, filter_transmission, imf_type
+    global add_neb_emission, gas_logu, add_igm_absorption, igm_type
+    global dust_index_bc, dust_index, t_esc, scale_dust_tau, cosmo
+    global dust_law, bump_amp, salim_a0, salim_a1, salim_a2, salim_a3 
+    global salim_RV, salim_B, dust_Alambda_per_AV
 
     snap_z = snap_z_val
     pix_area_kpc2 = pix_area_kpc2_val
@@ -49,10 +40,18 @@ def init_worker(snap_z_val, pix_area_kpc2_val, mean_AV_unres_val, filters_val,
     add_igm_absorption = add_igm_absorption_val
     igm_type = igm_type_val
     dust_index_bc = dust_index_bc_val
-    dust_index = dust_index_val
     t_esc = t_esc_val
     scale_dust_tau = scale_dust_tau_val
     cosmo = cosmo_val
+    dust_law = dust_law_val
+    salim_a0 = salim_a0_val
+    salim_a1 = salim_a1_val
+    salim_a2 = salim_a2_val
+    salim_a3 = salim_a3_val
+    salim_RV = salim_RV_val
+    salim_B = salim_B_val
+    dust_index = dust_index_val
+    bump_amp = bump_amp_val
 
     sp_instance = fsps.StellarPopulation(zcontinuous=1)
     sp_instance.params['imf_type'] = imf_type
@@ -65,7 +64,25 @@ def init_worker(snap_z_val, pix_area_kpc2_val, mean_AV_unres_val, filters_val,
     sp_instance.params["dust2"] = 0.0   # optical depth
 
     wave, spec = sp_instance.get_spectrum(peraa=True, tage=1.0)
-    Alambda_per_AV = modified_calzetti_dust_curve(1.0, wave, dust_index=dust_index)
+
+    if dust_law <= 1:
+        global func_interp_dust_index
+        dustindexAV_AV = dustindexAV_AV_val
+        dustindexAV_dust_index = dustindexAV_dust_index_val
+        func_interp_dust_index = interp1d(dustindexAV_AV, dustindexAV_dust_index, bounds_error=False, fill_value='extrapolate')
+
+    elif dust_law == 2:  # modified Calzetti+20 with Bump strength tied to dust_index and dust_index is free. Dust index is single value applied to all star particles irrespective of A_V
+        bump_amp = bump_amp_from_dust_index(dust_index)
+        dust_Alambda_per_AV = modified_calzetti_dust_Alambda_per_AV(wave, dust_index=dust_index, bump_amp=bump_amp)
+
+    elif dust_law == 3:  # modified Calzetti+20 with free Bump strengh and dust_index.  Dust index is single value applied to all star particles irrespective of A_V
+        dust_Alambda_per_AV = modified_calzetti_dust_Alambda_per_AV(wave, dust_index=dust_index, bump_amp=bump_amp)
+
+    elif dust_law == 4:  # Salim et al. (2018)
+        dust_Alambda_per_AV = salim18_dust_Alambda_per_AV(wave, salim_a0, salim_a1, salim_a2, salim_a3, salim_B, salim_RV)
+
+    elif dust_law == 5:  # Calzetti et al. (2000)
+        dust_Alambda_per_AV = calzetti_dust_Alambda_per_AV(wave)
 
     if add_igm_absorption == 1:
         if igm_type == 0:
@@ -77,6 +94,32 @@ def init_worker(snap_z_val, pix_area_kpc2_val, mean_AV_unres_val, filters_val,
             sys.exit()
     else:
         igm_trans = 1
+
+
+def dust_reddening_diffuse_ism(dust_AV, wave, dust_law):
+    if dust_law == 0:  # modified Calzetti+20 with Bump strength tied to dust_index and dust_index is dependent on A_V
+        dust_index1 = func_interp_dust_index(dust_AV)
+        bump_amp1 = bump_amp_from_dust_index(dust_index1)
+        Alambda = modified_calzetti_dust_Alambda_per_AV(wave, dust_index=dust_index1, bump_amp=bump_amp1) * dust_AV
+
+    elif dust_law == 1:  # modified Calzetti+20 with free Bump strengh and dust_index is dependent on A_V
+        dust_index1 = func_interp_dust_index(dust_AV)
+        Alambda = modified_calzetti_dust_Alambda_per_AV(wave, dust_index=dust_index1, bump_amp=bump_amp) * dust_AV
+
+    #elif dust_law == 2:  # modified Calzetti+20 with Bump strength tied to dust_index and dust_index is free. Dust index is single value applied to all star particles irrespective of A_V
+    #    bump_amp1 = bump_amp_from_dust_index(dust_index)
+    #    Alambda = modified_calzetti_dust_Alambda_per_AV(wave, dust_index=dust_index, bump_amp=bump_amp1) * dust_AV
+    #elif dust_law == 3:  # modified Calzetti+20 with free Bump strengh and dust_index.  Dust index is single value applied to all star particles irrespective of A_V
+    #    Alambda = modified_calzetti_dust_Alambda_per_AV(wave, dust_index=dust_index, bump_amp=bump_amp) * dust_AV
+    #elif dust_law == 4:  # Salim et al. (2018)
+    #    Alambda = salim18_dust_Alambda_per_AV(wave, salim_a0, salim_a1, salim_a2, salim_a3, salim_B, salim_RV) * dust_AV
+    #elif dust_law == 5:  # Calzetti et al. (2000)
+    #    Alambda = calzetti_dust_Alambda_per_AV(wave) * dust_AV
+    #else:
+    #    print ('dust_law choice not recognized!')
+    #    sys.exit()
+
+    return Alambda
 
 
 def _process_pixel_data(ii, jj, star_particle_membership, gas_particle_membership, 
@@ -114,14 +157,12 @@ def _process_pixel_data(ii, jj, star_particle_membership, gas_particle_membershi
     star_los_dist0 = np.asarray([x[1] for x in star_particle_membership[ii][jj]])
     star_los_dist = star_los_dist0[idxs]
 
-
     gas_ids0 = np.asarray([x[0] for x in gas_particle_membership[ii][jj]], dtype=int)
     idxg = np.where(np.isnan(gas_mass[gas_ids0]) == False)[0]
     gas_ids = gas_ids0[idxg]
     
     gas_los_dist0 = np.asarray([x[1] for x in gas_particle_membership[ii][jj]])
     gas_los_dist = gas_los_dist0[idxg]
-
 
     current_stars_mass_sum = np.nansum(stars_mass[star_ids])
     pixel_results['map_stars_mass'] = current_stars_mass_sum
@@ -184,9 +225,13 @@ def _process_pixel_data(ii, jj, star_particle_membership, gas_particle_membershi
                     spec_dust = spec
                 else:
                     # attenuation by resolved dust in the diffuse ISM
-                    #A_lambda = modified_calzetti_dust_curve(dust_AV, wave, dust_index=dust_index)
-                    A_lambda = Alambda_per_AV * dust_AV
-                    spec_dust = spec*np.power(10.0, -0.4*A_lambda)
+                    if dust_law <= 1:
+                        Alambda = dust_reddening_diffuse_ism(dust_AV, wave, dust_law)
+                    else:
+                        Alambda = dust_Alambda_per_AV * dust_AV
+                    #Alambda = modified_calzetti_dust_curve(dust_AV, wave, dust_index=dust_index)
+                    
+                    spec_dust = spec*np.power(10.0, -0.4*Alambda)
                     array_tauV.append(tauV)
                     array_AV.append(dust_AV)
             else:
@@ -194,8 +239,9 @@ def _process_pixel_data(ii, jj, star_particle_membership, gas_particle_membershi
 
             if stars_age[star_id] <= t_esc:    # age criterion defining young stars associated with birth clouds 
                 # attenuation by unresolved dust in the birth cloud
-                A_lambda = unresolved_dust_birth_cloud(mean_AV_unres, wave, dust_index_bc=dust_index_bc)
-                spec_dust = spec_dust*np.power(10.0, -0.4*A_lambda)
+                Alambda = unresolved_dust_birth_cloud_Alambda_per_AV(wave, dust_index_bc=dust_index_bc) * mean_AV_unres
+                #A_lambda = unresolved_dust_birth_cloud(mean_AV_unres, wave, dust_index_bc=dust_index_bc)
+                spec_dust = spec_dust*np.power(10.0, -0.4*Alambda)
     
             norm = stars_mass[star_id]/sp_instance.stellar_mass
 
@@ -245,7 +291,9 @@ def generate_images(sim_file, z, filters, filter_transmission, filter_wave_eff, 
                     pix_arcsec=0.02, flux_unit='MJy/sr', polar_angle_deg=0, azimuth_angle_deg=0,
                     name_out_img=None, n_jobs=-1, imf_type=1, add_neb_emission=1, gas_logu=-2.0, 
                     add_igm_absorption=1, igm_type=0, dust_index_bc=-0.7, dust_index=0.0, t_esc=0.01, 
-                    norm_dust_z=[], norm_dust_tau=[], cosmo_str='Planck18', cosmo_h=0.6774, XH=0.76):
+                    norm_dust_z=[], norm_dust_tau=[], cosmo_str='Planck18', cosmo_h=0.6774, XH=0.76, 
+                    dust_law=0, bump_amp=0.85, dustindexAV_AV=[], dustindexAV_dust_index=[], salim_a0=-4.30, 
+                    salim_a1=2.71, salim_a2=-0.191, salim_a3=0.0121, salim_RV=3.15, salim_B=1.57):
     """
     Generates astrophysical images from HDF5 simulation data with parallelized pixel calculations.
 
@@ -259,10 +307,8 @@ def generate_images(sim_file, z, filters, filter_transmission, filter_wave_eff, 
         dim_kpc (float, optional): Dimension of the image in kpc. If None, assigned automatically. Defaults to None.
         pix_arcsec (float, optional): Pixel size in arcseconds. Defaults to 0.02.
         flux_unit (string, optional): Desired flux unit for the generated images. Options are: 'MJy/sr', 'nJy', 'AB magnitude', or 'erg/s/cm2/A'. Default to 'MJy/sr'.
-        h (float, optional): Hubble constant in units of 100 km/s/Mpc. Defaults to 0.704.
         name_out_img (str, optional): Output file name for images. Defaults to None.
-        n_jobs (int, optional): Number of CPU cores to use for parallel processing. 
-                                -1 means use all available cores. Defaults to -1.
+        ncpu (int, optional): Number of CPU cores to use for parallel processing.
     """
 
     cosmo = define_cosmo(cosmo_str)
@@ -404,7 +450,9 @@ def generate_images(sim_file, z, filters, filter_transmission, filter_wave_eff, 
     with tqdm_joblib(total=len(tasks), desc="Processing pixels") as progress_bar:
         results = Parallel(n_jobs=num_cores, verbose=0, initializer=init_worker,
                            initargs=(snap_z, pix_area_kpc2, mean_AV_unres, filters, filter_transmission, imf_type, add_neb_emission, 
-                                     gas_logu, add_igm_absorption, igm_type, dust_index_bc, dust_index, t_esc, scale_dust_tau, cosmo))(
+                                     gas_logu, add_igm_absorption, igm_type, dust_index_bc, dust_index, t_esc, scale_dust_tau, cosmo, 
+                                     dust_law, bump_amp, dustindexAV_AV, dustindexAV_dust_index, salim_a0, salim_a1, salim_a2, salim_a3, 
+                                     salim_RV, salim_B))(
             delayed(_process_pixel_data)(*task_args) for task_args in tasks
         )
     print("\nFinished parallel pixel processing.")
