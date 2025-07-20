@@ -167,16 +167,21 @@ def tau_dust_given_z(z):
     f = interp1d(NORM_DUST_Z, NORM_DUST_TAU, fill_value="extrapolate")
     return f(z)
 
-def drude_profile(EB, wave_um):
+def drude_profile(Bump_strength, wave_um):
     wave0 = 0.2175
     dwave = 0.035
     part1 = wave_um * wave_um * dwave * dwave
     part2 = np.square((wave_um*wave_um) - (wave0*wave0))  
 
-    D_lambda = EB * part1 / (part2 + part1)
+    D_lambda = Bump_strength * part1 / (part2 + part1)
     return D_lambda
 
-def modified_calzetti_dust_curve(AV, wave, dust_index=0.0):
+def bump_strength_from_dust_index(dust_index):
+    # Based on Kriek & Conroy (2013)
+    return 0.85 - 1.9*dust_index
+
+
+def modified_calzetti_dust_curve(AV, wave, dust_index=0.0, Bump_strength=None):
     wave = wave/1e+4     # in micron
     idx = np.where(wave <= 0.63)[0]
     k_lambda1 = 4.05 + (2.659*(-2.156 + (1.509/wave[idx]) - (0.198/wave[idx]/wave[idx]) + (0.011/wave[idx]/wave[idx]/wave[idx])))
@@ -187,8 +192,10 @@ def modified_calzetti_dust_curve(AV, wave, dust_index=0.0):
     k_lambda = k_lambda1.tolist() + k_lambda2.tolist()
     k_lambda = np.asarray(k_lambda)
 
-    EB = 0.85 - 1.9*dust_index
-    D_lambda = drude_profile(EB, wave)
+    if Bump_strength is None:
+        Bump_strength = bump_strength_from_dust_index(dust_index)
+        
+    D_lambda = drude_profile(Bump_strength, wave)
 
     wave_V = 0.5500
     A_lambda = AV*(k_lambda + D_lambda)*np.power(wave/wave_V, dust_index)/4.05
