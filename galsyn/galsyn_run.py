@@ -14,6 +14,32 @@ from tqdm_joblib import tqdm_joblib
 
 import fsps
 sp_instance = None  # Global variable to avoid reloading fsps per model
+igm_trans = None
+snap_z = None
+pix_area_kpc2 = None
+mean_AV_unres = None
+filters = None
+filter_transmission = None
+imf_type = None
+add_neb_emission = None
+gas_logu = None
+add_igm_absorption = None
+igm_type = None
+dust_index_bc = None
+dust_index = None
+t_esc = None
+scale_dust_tau = None
+cosmo = None
+dust_law = None
+bump_amp = None
+salim_a0 = None
+salim_a1 = None
+salim_a2 = None
+salim_a3 = None
+salim_RV = None
+salim_B = None
+dust_Alambda_per_AV = None
+func_interp_dust_index = None
 
 def init_worker(snap_z_val, pix_area_kpc2_val, mean_AV_unres_val, filters_val, 
                 filter_transmission_val, imf_type_val, add_neb_emission_val, 
