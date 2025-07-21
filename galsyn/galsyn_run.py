@@ -360,13 +360,13 @@ def generate_images(sim_file, z, filters, filter_transmission, filter_wave_eff, 
 
     f.close()
 
+    star_coords = np.column_stack((stars_coords_x, stars_coords_y, stars_coords_z))
+    gas_coords = np.column_stack((gas_coords_x, gas_coords_y, gas_coords_z))
+
     if dim_kpc is None:
         dim_kpc = determine_image_size(star_coords, stars_mass, pix_kpc, (initdim_kpc, initdim_kpc), 
                                        polar_angle_deg, azimuth_angle_deg, gas_coords, gas_mass, 
                                        mass_percentage=initdim_mass_fraction)
-
-    star_coords = np.column_stack((stars_coords_x, stars_coords_y, stars_coords_z))
-    gas_coords = np.column_stack((gas_coords_x, gas_coords_y, gas_coords_z))
 
     output_dimension = (dim_kpc, dim_kpc)
     star_particle_membership, star_mass_density_map, central_pixel_coords, grid_info, gas_particle_membership, gas_mass_density_map = get_2d_density_projection_no_los_binning(
