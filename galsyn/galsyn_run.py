@@ -106,19 +106,6 @@ def dust_reddening_diffuse_ism(dust_AV, wave, dust_law):
         dust_index1 = func_interp_dust_index(dust_AV)
         Alambda = modified_calzetti_dust_Alambda_per_AV(wave, dust_index=dust_index1, bump_amp=bump_amp) * dust_AV
 
-    #elif dust_law == 2:  # modified Calzetti+20 with Bump strength tied to dust_index and dust_index is free. Dust index is single value applied to all star particles irrespective of A_V
-    #    bump_amp1 = bump_amp_from_dust_index(dust_index)
-    #    Alambda = modified_calzetti_dust_Alambda_per_AV(wave, dust_index=dust_index, bump_amp=bump_amp1) * dust_AV
-    #elif dust_law == 3:  # modified Calzetti+20 with free Bump strengh and dust_index.  Dust index is single value applied to all star particles irrespective of A_V
-    #    Alambda = modified_calzetti_dust_Alambda_per_AV(wave, dust_index=dust_index, bump_amp=bump_amp) * dust_AV
-    #elif dust_law == 4:  # Salim et al. (2018)
-    #    Alambda = salim18_dust_Alambda_per_AV(wave, salim_a0, salim_a1, salim_a2, salim_a3, salim_B, salim_RV) * dust_AV
-    #elif dust_law == 5:  # Calzetti et al. (2000)
-    #    Alambda = calzetti_dust_Alambda_per_AV(wave) * dust_AV
-    #else:
-    #    print ('dust_law choice not recognized!')
-    #    sys.exit()
-
     return Alambda
 
 
@@ -287,13 +274,14 @@ def _process_pixel_data(ii, jj, star_particle_membership, gas_particle_membershi
     return ii, jj, pixel_results
 
 
-def generate_images(sim_file, z, filters, filter_transmission, filter_wave_eff, dim_kpc=5.0, 
+def generate_images(sim_file, z, filters, filter_transmission, filter_wave_eff, dim_kpc=None, 
                     pix_arcsec=0.02, flux_unit='MJy/sr', polar_angle_deg=0, azimuth_angle_deg=0,
                     name_out_img=None, n_jobs=-1, imf_type=1, add_neb_emission=1, gas_logu=-2.0, 
                     add_igm_absorption=1, igm_type=0, dust_index_bc=-0.7, dust_index=0.0, t_esc=0.01, 
                     norm_dust_z=[], norm_dust_tau=[], cosmo_str='Planck18', cosmo_h=0.6774, XH=0.76, 
                     dust_law=0, bump_amp=0.85, dustindexAV_AV=[], dustindexAV_dust_index=[], salim_a0=-4.30, 
-                    salim_a1=2.71, salim_a2=-0.191, salim_a3=0.0121, salim_RV=3.15, salim_B=1.57):
+                    salim_a1=2.71, salim_a2=-0.191, salim_a3=0.0121, salim_RV=3.15, salim_B=1.57, 
+                    initdim_kpc=100, initdim_mass_fraction=0.92):
     """
     Generates astrophysical images from HDF5 simulation data with parallelized pixel calculations.
 
@@ -373,7 +361,9 @@ def generate_images(sim_file, z, filters, filter_transmission, filter_wave_eff, 
     f.close()
 
     if dim_kpc is None:
-        dim_kpc = assign_cutout_size(snap_z, np.log10(np.nansum(stars_mass)))
+        dim_kpc = determine_image_size(star_coords, stars_mass, pix_kpc, (initdim_kpc, initdim_kpc), 
+                                       polar_angle_deg, azimuth_angle_deg, gas_coords, gas_mass, 
+                                       mass_percentage=initdim_mass_fraction)
 
     star_coords = np.column_stack((stars_coords_x, stars_coords_y, stars_coords_z))
     gas_coords = np.column_stack((gas_coords_x, gas_coords_y, gas_coords_z))
