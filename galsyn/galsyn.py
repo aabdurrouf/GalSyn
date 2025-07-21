@@ -17,12 +17,15 @@ class GalaxySynthesizer:
         self._load_config_defaults()
 
         # Set other default parameters
-        self._dim_kpc = 5.0
+        self._dim_kpc = None
         self._pix_arcsec = 0.02
         self._flux_unit = 'MJy/sr'
         self._polar_angle_deg = 0
         self._azimuth_angle_deg = 0
         self._ncpu = 4 # Default to 4, can be overridden by config or set_params
+
+        self._initdim_kpc = 100
+        self._initdim_mass_fraction = 0.92
 
         self._name_out_img = None
 
@@ -128,8 +131,9 @@ class GalaxySynthesizer:
 
     @dim_kpc.setter
     def dim_kpc(self, value):
-        if not isinstance(value, (int, float)) or value <= 0:
-            raise ValueError("dim_kpc must be a positive number.")
+        if value is not None:
+            if not isinstance(value, (int, float)) or value <= 0:
+                raise ValueError("dim_kpc must be a positive number or None.")
         self._dim_kpc = value
 
     @property
@@ -182,6 +186,26 @@ class GalaxySynthesizer:
         if not isinstance(value, int) or value <= 0:
             raise ValueError("ncpu must be a positive integer.")
         self._ncpu = value
+
+    @property
+    def initdim_kpc(self):
+        return self._initdim_kpc
+
+    @initdim_kpc.setter
+    def initdim_kpc(self, value):
+        if not isinstance(value, (int, float)) or value <= 0:
+            raise ValueError("initdim_kpc must be a positive number.")
+        self._initdim_kpc = value
+
+    @property
+    def initdim_mass_fraction(self):
+        return self._initdim_mass_fraction
+
+    @initdim_mass_fraction.setter
+    def initdim_mass_fraction(self, value):
+        if not isinstance(value, (int, float)) or value <= 0:
+            raise ValueError("initdim_mass_fraction must be a positive number.")
+        self._initdim_mass_fraction = value
 
     @property
     def name_out_img(self):
@@ -520,7 +544,9 @@ class GalaxySynthesizer:
                 salim_a2 = self.salim_a2,
                 salim_a3 = self.salim_a3,
                 salim_RV = self.salim_RV,
-                salim_B = self.salim_B
+                salim_B = self.salim_B,
+                initdim_kpc = self.initdim_kpc,
+                initdim_mass_fraction = self.initdim_mass_fraction
             )
             #print("\nGalaxy image synthesis completed successfully.")
         except Exception as e:
