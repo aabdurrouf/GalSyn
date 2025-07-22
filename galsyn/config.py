@@ -1,4 +1,3 @@
-API_KEY = "api_key"
 COSMO = "Planck18"
 COSMO_LITTLE_H = 0.6774
 XH = 0.76
