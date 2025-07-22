@@ -2,6 +2,7 @@ import os, sys
 import numpy as np
 from . import config
 from .galsyn_run import generate_images
+from .ssp_generator import generate_ssp_grid, FSPS_Z_SUN # Import the new function and constant
 
 
 class GalaxySynthesizer:
@@ -28,6 +29,14 @@ class GalaxySynthesizer:
         self._initdim_mass_fraction = 0.92
 
         self._name_out_img = None
+        self._ssp_filepath = "ssp_spectra.hdf5" # Default SSP file path
+        self._use_precomputed_ssp = True # New flag, default to True
+
+        # New parameters for pixel spectra output
+        self._output_pixel_spectra = False # Default to not output spectra
+        self._rest_wave_min = 1000.0 # Default min wavelength in Angstrom
+        self._rest_wave_max = 16000.0 # Default max wavelength in Angstrom
+
 
     def _load_config_defaults(self):
         """
@@ -384,7 +393,7 @@ class GalaxySynthesizer:
             raise ValueError("dustindexAV_AV must be a list.")
         for i, item in enumerate(value):
             if not isinstance(item, (int, float)):
-                raise ValueError(f"dustindexAV_AV list must contain only numbers. Item at index {i} is not a number ({type(item).__name__}).")
+                raise ValueError(f"norm_dust_z list must contain only numbers. Item at index {i} is not a number ({type(item).__name__}).")
         self._dustindexAV_AV = value[:]
 
     @property
@@ -459,6 +468,59 @@ class GalaxySynthesizer:
         if not isinstance(value, (int, float)):
             raise ValueError("salim_B must be a number.")
         self._salim_B = value
+    
+    @property
+    def ssp_filepath(self):
+        return self._ssp_filepath
+
+    @ssp_filepath.setter
+    def ssp_filepath(self, value):
+        if not isinstance(value, str):
+            raise ValueError("ssp_filepath must be a string.")
+        self._ssp_filepath = value
+
+    @property
+    def use_precomputed_ssp(self):
+        return self._use_precomputed_ssp
+
+    @use_precomputed_ssp.setter
+    def use_precomputed_ssp(self, value):
+        if not isinstance(value, bool):
+            raise ValueError("use_precomputed_ssp must be a boolean (True/False).")
+        self._use_precomputed_ssp = value
+
+    @property
+    def output_pixel_spectra(self):
+        return self._output_pixel_spectra
+
+    @output_pixel_spectra.setter
+    def output_pixel_spectra(self, value):
+        if not isinstance(value, bool):
+            raise ValueError("output_pixel_spectra must be a boolean (True/False).")
+        self._output_pixel_spectra = value
+
+    @property
+    def rest_wave_min(self):
+        return self._rest_wave_min
+
+    @rest_wave_min.setter
+    def rest_wave_min(self, value):
+        if not isinstance(value, (int, float)) or value <= 0:
+            raise ValueError("rest_wave_min must be a positive number.")
+        self._rest_wave_min = float(value)
+
+    @property
+    def rest_wave_max(self):
+        return self._rest_wave_max
+
+    @rest_wave_max.setter
+    def rest_wave_max(self, value):
+        if not isinstance(value, (int, float)) or value <= 0:
+            raise ValueError("rest_wave_max must be a positive number.")
+        self._rest_wave_max = float(value)
+        if self._rest_wave_max <= self._rest_wave_min:
+            raise ValueError("rest_wave_max must be greater than rest_wave_min.")
+
 
     # --- Convenience method for setting multiple parameters ---
 
@@ -497,14 +559,42 @@ class GalaxySynthesizer:
                     pass
         return f"GalaxySynthesizer({', '.join(params_list)})"
 
+    def generate_ssp_data(self, overwrite=False):
+        """
+        Generates the SSP spectra grid and saves it to the specified ssp_filepath.
+        Parameters like imf_type, add_neb_emission, gas_logu from the synthesizer
+        instance are used for SSP generation to ensure consistency.
+        This method is only called if use_precomputed_ssp is True.
+        """
+        if not self.use_precomputed_ssp:
+            print("Skipping SSP grid generation as use_precomputed_ssp is False.")
+            return
+
+        print(f"Checking for pre-computed SSP spectra at: {self.ssp_filepath}")
+        if not os.path.exists(self.ssp_filepath) or overwrite:
+            print("Pre-computed SSP spectra not found or overwrite requested. Generating now...")
+            self.ssp_filepath = generate_ssp_grid(
+                output_filename=self.ssp_filepath,
+                imf_type=self.imf_type,
+                add_neb_emission=self.add_neb_emission,
+                gas_logu=self.gas_logu,
+                overwrite=overwrite
+            )
+        else:
+            print("Pre-computed SSP spectra found. Skipping generation.")
+        
+        pass
+
+
     # --- Method to run the synthesis process ---
     def run_synthesis(self):
         """
         Executes the galaxy image synthesis process using the current parameters
         set in this GalaxySynthesizer instance.
         """
-        #print("\nStarting galaxy image synthesis with current parameters:")
-        #print(self) # Print current parameters for confirmation
+        # Ensure SSP data is generated/available if pre-computed option is chosen
+        if self.use_precomputed_ssp:
+            self.generate_ssp_data()
 
         try:
             # Call the generate_images function from galsyn.py
@@ -546,7 +636,12 @@ class GalaxySynthesizer:
                 salim_RV = self.salim_RV,
                 salim_B = self.salim_B,
                 initdim_kpc = self.initdim_kpc,
-                initdim_mass_fraction = self.initdim_mass_fraction
+                initdim_mass_fraction = self.initdim_mass_fraction,
+                use_precomputed_ssp = self.use_precomputed_ssp, # Pass the new flag
+                ssp_filepath = self.ssp_filepath, # Pass the SSP file path
+                output_pixel_spectra = self.output_pixel_spectra, # Pass new flag
+                rest_wave_min = self.rest_wave_min, # Pass new param
+                rest_wave_max = self.rest_wave_max # Pass new param
             )
             #print("\nGalaxy image synthesis completed successfully.")
         except Exception as e:
