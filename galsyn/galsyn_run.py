@@ -485,8 +485,8 @@ def generate_images(sim_file, z, filters, filter_transmission, filter_wave_eff, 
                     norm_dust_z=[], norm_dust_tau=[], cosmo_str='Planck18', cosmo_h=0.6774, XH=0.76, 
                     dust_law=0, bump_amp=0.85, dustindexAV_AV=[], dustindexAV_dust_index=[], salim_a0=-4.30, 
                     salim_a1=2.71, salim_a2= -0.191, salim_a3=0.0121, salim_RV=3.15, salim_B=1.57, 
-                    initdim_kpc=100, initdim_mass_fraction=0.92,
-                    use_precomputed_ssp=True, ssp_filepath="ssp_spectra.hdf5", ssp_interpolation_method='nearest', 
+                    initdim_kpc=200, initdim_mass_fraction=0.99, use_precomputed_ssp=True, 
+                    ssp_filepath="ssp_spectra.hdf5", ssp_interpolation_method='nearest', 
                     output_pixel_spectra=False, rest_wave_min=1000.0, rest_wave_max=16000.0): 
     """
     Generates astrophysical images from HDF5 simulation data with parallelized pixel calculations.
@@ -526,7 +526,7 @@ def generate_images(sim_file, z, filters, filter_transmission, filter_wave_eff, 
         dustindexAV_dust_index (list, optional): Dust index values for interpolation. Defaults to [].
         salim_a0, salim_a1, salim_a2, salim_a3, salim_RV, salim_B (float, optional): Parameters for Salim+2018 dust law.
         initdim_kpc (float, optional): Initial guess for image dimension in kpc. Defaults to 100.
-        initdim_mass_fraction (float, optional): Mass fraction to determine initial image dimension. Defaults to 0.92.
+        initdim_mass_fraction (float, optional): Mass fraction to determine initial image dimension. Defaults to 0.99. 
         use_precomputed_ssp (bool, optional): If True, use pre-computed SSP spectra. If False, generate on-the-fly.
                                               Defaults to True.
         ssp_filepath (str, optional): Path to the pre-computed SSP spectra HDF5 file.
@@ -605,7 +605,7 @@ def generate_images(sim_file, z, filters, filter_transmission, filter_wave_eff, 
     if dim_kpc is None:
         dim_kpc = determine_image_size(star_coords, stars_mass, pix_kpc, (initdim_kpc, initdim_kpc), 
                                        polar_angle_deg, azimuth_angle_deg, gas_coords, gas_mass, 
-                                       mass_percentage=initdim_mass_fraction)
+                                       mass_percentage=initdim_mass_fraction, max_img_dim=initdim_kpc)
 
     output_dimension = (dim_kpc, dim_kpc)
     star_particle_membership, star_mass_density_map, central_pixel_coords, grid_info, gas_particle_membership, gas_mass_density_map = get_2d_density_projection_no_los_binning(

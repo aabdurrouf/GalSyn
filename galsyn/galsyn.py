@@ -26,7 +26,7 @@ class GalaxySynthesizer:
         self._ncpu = 4 # Default to 4, can be overridden by config or set_params
 
         self._initdim_kpc = 100
-        self._initdim_mass_fraction = 0.92
+        self._initdim_mass_fraction = 0.99
 
         self._name_out_img = None
         self._ssp_filepath = "ssp_spectra.hdf5" # Default SSP file path

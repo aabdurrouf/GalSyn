@@ -155,7 +155,7 @@ def get_effective_range(profile, mass_percentage_threshold=0.95):
 
 
 def determine_image_size(star_coords, particle_masses, pixel_size, output_dimension, polar_angle_deg, 
-                         azimuth_angle_deg, gas_coords, gas_masses, mass_percentage=0.92):
+                         azimuth_angle_deg, gas_coords, gas_masses, mass_percentage=0.98, max_img_dim=100):
 
     out = get_2d_density_projection_no_los_binning(star_coords, particle_masses, pixel_size, output_dimension, 
                                                    polar_angle_deg=polar_angle_deg, azimuth_angle_deg=azimuth_angle_deg, 
@@ -189,6 +189,10 @@ def determine_image_size(star_coords, particle_masses, pixel_size, output_dimens
     final_output_height = max(final_output_height, min_dim_physical)
 
     img_dim = int(round(max(final_output_width, final_output_height)))
+    
+    if img_dim > max_img_dim:
+         img_dim = max_img_dim
+
     return img_dim
 
 
