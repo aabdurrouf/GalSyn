@@ -6,11 +6,10 @@ from .imgutils import *
 from .utils import *
 from .dust import *
 from joblib import Parallel, delayed
-import multiprocessing
-from scipy.interpolate import interp1d
-
 from tqdm.auto import tqdm
 from tqdm_joblib import tqdm_joblib
+import multiprocessing
+from scipy.interpolate import interp1d, RegularGridInterpolator # Import RegularGridInterpolator
 
 import fsps # Keep FSPS import for on-the-fly option
 from .ssp_generator import FSPS_Z_SUN # Import FSPS_Z_SUN for consistent metallicity handling
@@ -26,15 +25,20 @@ ssp_spectra_grid = None
 ssp_stellar_mass_grid = None # New global variable for surviving stellar mass
 ssp_fsps_z_sun = None # Store Z_sun used when generating SSPs
 
+# Global interpolator for SSP spectra and stellar mass (if linear interpolation is chosen)
+_global_ssp_spectra_interpolator = None
+_global_ssp_stellar_mass_interpolator = None
+
+
 # Global variables for worker initialization
 sp_instance = None  # FSPS instance, now conditionally initialized
 igm_trans = None
 snap_z = None
 pix_area_kpc2 = None
 mean_AV_unres = None
-filters = None
-filter_transmission = None
-imf_type = None
+# filters = None # No longer global, reconstructed in init_worker
+# filter_transmission = None # No longer global, reconstructed in init_worker
+# imf_type = None # Reconstructed in init_worker
 add_neb_emission = None
 gas_logu = None
 add_igm_absorption = None
@@ -43,7 +47,7 @@ dust_index_bc = None
 dust_index = None
 t_esc = None
 scale_dust_tau = None
-cosmo = None
+# cosmo = None # Reconstructed in init_worker
 dust_law = None
 bump_amp = None
 salim_a0 = None
@@ -55,37 +59,46 @@ salim_B = None
 dust_Alambda_per_AV = None
 func_interp_dust_index = None # For dust_law 0 and 1
 use_precomputed_ssp = False # New global flag
+ssp_interpolation_method = 'linear' # New global flag for interpolation method
 
 # New global variables for pixel spectra output
 output_pixel_spectra_flag = False
 global_output_obs_wave = None # The observed wavelength grid for output spectra
 
+# New global variables for worker-specific parameters that are reconstructed
+_worker_filters = None
+_worker_filter_transmission = None
+_worker_filter_wave_eff = None
+_worker_imf_type = None
+_worker_cosmo = None
 
-def init_worker(snap_z_val, pix_area_kpc2_val, mean_AV_unres_val, filters_val, 
-                filter_transmission_val, imf_type_val, add_neb_emission_val, 
-                gas_logu_val, add_igm_absorption_val, igm_type_val, dust_index_bc_val, 
-                dust_index_val, t_esc_val, scale_dust_tau_val, cosmo_val, dust_law_val,
-                bump_amp_val, dustindexAV_AV_val, dustindexAV_dust_index_val, salim_a0_val, 
+
+def init_worker(snap_z_val, pix_area_kpc2_val, mean_AV_unres_val, 
+                filters_list_val, # Changed to filters_list_val
+                imf_type_val, add_neb_emission_val, gas_logu_val, 
+                add_igm_absorption_val, igm_type_val, dust_index_bc_val, 
+                dust_index_val, t_esc_val, scale_dust_tau_val, 
+                cosmo_str_val, cosmo_h_val, XH_val, # Changed to cosmo_str_val, cosmo_h_val, XH_val
+                dust_law_val, bump_amp_val, dustindexAV_AV_val, dustindexAV_dust_index_val, salim_a0_val, 
                 salim_a1_val, salim_a2_val, salim_a3_val, salim_RV_val, salim_B_val,
-                use_precomputed_ssp_val, ssp_filepath_val=None,
-                output_pixel_spectra_val=False, rest_wave_min_val=None, rest_wave_max_val=None): # Added new args
+                use_precomputed_ssp_val, ssp_filepath_val=None, ssp_interpolation_method_val='linear', 
+                output_pixel_spectra_val=False, rest_wave_min_val=None, rest_wave_max_val=None): 
     
     global ssp_wave, ssp_ages_gyr, ssp_logzsol_grid, ssp_spectra_grid, ssp_stellar_mass_grid, ssp_fsps_z_sun
+    global _global_ssp_spectra_interpolator, _global_ssp_stellar_mass_interpolator 
     global sp_instance, igm_trans, snap_z, pix_area_kpc2
-    global mean_AV_unres, filters, filter_transmission, imf_type
-    global add_neb_emission, gas_logu, add_igm_absorption, igm_type
-    global dust_index_bc, dust_index, t_esc, scale_dust_tau, cosmo
-    global dust_law, bump_amp, salim_a0, salim_a1, salim_a2, salim_a3 
+    global mean_AV_unres, add_neb_emission, gas_logu, add_igm_absorption, igm_type
+    global dust_index_bc, dust_index, t_esc, scale_dust_tau, dust_law, bump_amp, salim_a0, salim_a1, salim_a2, salim_a3 
     global salim_RV, salim_B, dust_Alambda_per_AV, func_interp_dust_index
-    global use_precomputed_ssp # Update global flag
-    global output_pixel_spectra_flag, global_output_obs_wave # New globals
+    global use_precomputed_ssp, ssp_interpolation_method 
+    global output_pixel_spectra_flag, global_output_obs_wave 
+    global _worker_filters, _worker_filter_transmission, _worker_filter_wave_eff, _worker_imf_type, _worker_cosmo # New globals
 
     snap_z = snap_z_val
     pix_area_kpc2 = pix_area_kpc2_val
     mean_AV_unres = mean_AV_unres_val
-    filters = filters_val
-    filter_transmission = filter_transmission_val
-    imf_type = imf_type_val
+    
+    _worker_imf_type = imf_type_val # Store imf_type in worker-specific global
     add_neb_emission = add_neb_emission_val
     gas_logu = gas_logu_val
     add_igm_absorption = add_igm_absorption_val
@@ -93,7 +106,9 @@ def init_worker(snap_z_val, pix_area_kpc2_val, mean_AV_unres_val, filters_val,
     dust_index_bc = dust_index_bc_val
     t_esc = t_esc_val
     scale_dust_tau = scale_dust_tau_val
-    cosmo = cosmo_val
+    
+    _worker_cosmo = define_cosmo(cosmo_str_val) # Reconstruct cosmology object
+    
     dust_law = dust_law_val
     salim_a0 = salim_a0_val
     salim_a1 = salim_a1_val
@@ -103,7 +118,12 @@ def init_worker(snap_z_val, pix_area_kpc2_val, mean_AV_unres_val, filters_val,
     salim_B = salim_B_val
     dust_index = dust_index_val
     bump_amp = bump_amp_val
-    use_precomputed_ssp = use_precomputed_ssp_val # Set the flag
+    use_precomputed_ssp = use_precomputed_ssp_val 
+    ssp_interpolation_method = ssp_interpolation_method_val 
+
+    # Reconstruct filters and transmission curves
+    _worker_filters = filters_list_val
+    _worker_filter_transmission, _worker_filter_wave_eff = get_filter_transmission_pixedfit(_worker_filters)
 
     # Set new global flags for pixel spectra output
     output_pixel_spectra_flag = output_pixel_spectra_val
@@ -122,20 +142,36 @@ def init_worker(snap_z_val, pix_area_kpc2_val, mean_AV_unres_val, filters_val,
                 ssp_spectra_grid = f_ssp['spectra'][:]
                 ssp_stellar_mass_grid = f_ssp['stellar_mass'][:] # Load surviving stellar mass
                 ssp_fsps_z_sun = f_ssp.attrs['fsps_z_sun']
+                
                 # Verify consistency of FSPS parameters used for SSP generation
-                if f_ssp.attrs['imf_type'] != imf_type:
-                    print(f"Warning: IMF type mismatch! SSP grid was generated with {f_ssp.attrs['imf_type']}, but current setting is {imf_type}.")
+                if f_ssp.attrs['imf_type'] != _worker_imf_type: # Use _worker_imf_type
+                    print(f"Warning: IMF type mismatch! SSP grid was generated with {f_ssp.attrs['imf_type']}, but current setting is {_worker_imf_type}.")
                 if f_ssp.attrs['add_neb_emission'] != add_neb_emission:
                     print(f"Warning: Nebular emission setting mismatch! SSP grid was generated with {f_ssp.attrs['add_neb_emission']}, but current setting is {add_neb_emission}.")
                 if f_ssp.attrs['gas_logu'] != gas_logu:
                     print(f"Warning: Gas LogU setting mismatch! SSP grid was generated with {f_ssp.attrs['gas_logu']}, but current setting is {gas_logu}.")
+
+                # If linear interpolation is chosen, create the interpolator objects
+                if ssp_interpolation_method == 'linear':
+                    # Corrected: The spectra grid is (num_ages, num_metallicities, num_wavelengths)
+                    # So, axes for RegularGridInterpolator should be (ages_gyr, logzsol_grid).
+                    _global_ssp_spectra_interpolator = RegularGridInterpolator(
+                        (ssp_ages_gyr, ssp_logzsol_grid), ssp_spectra_grid, 
+                        method='linear', bounds_error=False, fill_value=0.0
+                    )
+                    # Stellar mass grid is (num_ages, num_metallicities)
+                    _global_ssp_stellar_mass_interpolator = RegularGridInterpolator(
+                        (ssp_ages_gyr, ssp_logzsol_grid), ssp_stellar_mass_grid, 
+                        method='linear', bounds_error=False, fill_value=0.0
+                    )
+
         except Exception as e:
             print(f"Error loading SSP grid from {ssp_filepath_val}: {e}")
             sys.exit(1) # Exit if SSP grid cannot be loaded
     else:
         # Initialize FSPS instance for on-the-fly generation
         sp_instance = fsps.StellarPopulation(zcontinuous=1)
-        sp_instance.params['imf_type'] = imf_type
+        sp_instance.params['imf_type'] = _worker_imf_type # Use _worker_imf_type
         sp_instance.params["add_dust_emission"] = False
         sp_instance.params["add_neb_emission"] = add_neb_emission
         sp_instance.params['gas_logu'] = gas_logu
@@ -216,7 +252,7 @@ def dust_reddening_diffuse_ism(dust_AV, wave, dust_law):
     return Alambda
 
 
-def _process_pixel_data(ii, jj, star_particle_membership_list, gas_particle_membership_list, # Renamed arguments
+def _process_pixel_data(ii, jj, star_particle_membership_list, gas_particle_membership_list, 
                         stars_mass, stars_age, stars_zsol, stars_init_mass, 
                         gas_mass, gas_sfr_inst, gas_zsol, gas_log_temp, gas_mass_H):
     """
@@ -241,10 +277,10 @@ def _process_pixel_data(ii, jj, star_particle_membership_list, gas_particle_memb
         'map_gas_mw_zsol': 0.0,
         'map_dust_mean_tauV': 0.0,
         'map_dust_mean_AV': 0.0,
-        'map_flux': np.zeros(len(filters)),
-        'map_flux_dust': np.zeros(len(filters)),
-        'obs_spectra_nodust_igm': np.zeros(len(global_output_obs_wave)) if output_pixel_spectra_flag else None,
-        'obs_spectra_dust_igm': np.zeros(len(global_output_obs_wave)) if output_pixel_spectra_flag else None
+        'map_flux': np.zeros(len(_worker_filters)), # Use _worker_filters
+        'map_flux_dust': np.zeros(len(_worker_filters)), # Use _worker_filters
+        'obs_spectra_nodust_igm': np.zeros(len(global_output_obs_wave)) if output_pixel_spectra_flag and global_output_obs_wave.size > 0 else np.zeros(0), # Ensure correct size for empty grid
+        'obs_spectra_dust_igm': np.zeros(len(global_output_obs_wave)) if output_pixel_spectra_flag and global_output_obs_wave.size > 0 else np.zeros(0) # Ensure correct size for empty grid
     }
 
     # Corrected: Directly use the passed lists for the current pixel
@@ -314,15 +350,25 @@ def _process_pixel_data(ii, jj, star_particle_membership_list, gas_particle_memb
                 # to logzsol relative to FSPS_Z_SUN (0.019)
                 # Absolute metallicity = stars_zsol[star_id] * PRIMORDIAL_Z_SUN_VALUE
                 # logzsol for FSPS = log10(Absolute metallicity / FSPS_Z_SUN)
-                particle_logzsol = np.log10( (stars_zsol[star_id] * PRIMORDIAL_Z_SUN_VALUE) / ssp_fsps_z_sun )
+                particle_logzsol_absolute = (stars_zsol[star_id] * PRIMORDIAL_Z_SUN_VALUE) / ssp_fsps_z_sun
                 
-                # Find closest age and logzsol indices
-                age_idx = np.argmin(np.abs(ssp_ages_gyr - stars_age[star_id]))
-                z_idx = np.argmin(np.abs(ssp_logzsol_grid - particle_logzsol))
-                
-                # Retrieve the pre-computed spectrum (L_sun/AA) and its surviving stellar mass
-                spec = ssp_spectra_grid[age_idx, z_idx, :]
-                ssp_mass_formed = ssp_stellar_mass_grid[age_idx, z_idx] # Use surviving stellar mass from grid
+                # Create interpolation points for the current particle
+                # Note: The interpolator expects (age, log10(Z/Z_sun)) for points
+                points = np.array([[stars_age[star_id], np.log10(particle_logzsol_absolute)]])
+
+                if ssp_interpolation_method == 'linear':
+                    # Use interpolator for spectrum and stellar mass
+                    spec = _global_ssp_spectra_interpolator(points)[0] # [0] because it returns (1, N_wavelengths)
+                    ssp_mass_formed = _global_ssp_stellar_mass_interpolator(points)[0] # [0] because it returns (1,)
+                else: # 'nearest' method
+                    # Find closest age and logzsol indices
+                    age_idx = np.argmin(np.abs(ssp_ages_gyr - stars_age[star_id]))
+                    z_idx = np.argmin(np.abs(ssp_logzsol_grid - np.log10(particle_logzsol_absolute))) # Note: log10 here
+                    
+                    # Retrieve the pre-computed spectrum (L_sun/AA) and its surviving stellar mass
+                    spec = ssp_spectra_grid[age_idx, z_idx, :] # Corrected order: [age_idx, metallicity_idx, :]
+                    ssp_mass_formed = ssp_stellar_mass_grid[age_idx, z_idx] # Corrected order: [age_idx, metallicity_idx]
+
             else:
                 # On-the-fly FSPS spectrum generation
                 # Convert stellar metallicity (in units of primordial solar metallicity)
@@ -392,8 +438,8 @@ def _process_pixel_data(ii, jj, star_particle_membership_list, gas_particle_memb
             spec_lum_dust = np.nansum(array_spec_dust, axis=0) # Total dust-attenuated rest-frame luminosity (L_sun/AA)
 
             # Redshifting and IGM absorption for observed spectra output and broadband fluxes
-            spec_wave_obs, spec_flux_obs = cosmo_redshifting(wave, spec_lum, snap_z, cosmo)              # in erg/s/cm^2/Ang.
-            spec_wave_obs, spec_flux_dust_obs = cosmo_redshifting(wave, spec_lum_dust, snap_z, cosmo)    # in erg/s/cm^2/Ang.
+            spec_wave_obs, spec_flux_obs = cosmo_redshifting(wave, spec_lum, snap_z, _worker_cosmo)              # in erg/s/cm^2/Ang. # Use _worker_cosmo
+            spec_wave_obs, spec_flux_dust_obs = cosmo_redshifting(wave, spec_lum_dust, snap_z, _worker_cosmo)    # in erg/s/cm^2/Ang. # Use _worker_cosmo
 
             # Apply IGM transmission to observed fluxes
             spec_flux_obs_igm = spec_flux_obs * igm_trans
@@ -410,20 +456,17 @@ def _process_pixel_data(ii, jj, star_particle_membership_list, gas_particle_memb
                     
                     pixel_results['obs_spectra_nodust_igm'] = interp_func_nodust(global_output_obs_wave)
                     pixel_results['obs_spectra_dust_igm'] = interp_func_dust(global_output_obs_wave)
-                else:
-                    # If global_output_obs_wave is empty, output empty arrays of correct size
-                    pixel_results['obs_spectra_nodust_igm'] = np.zeros(0)
-                    pixel_results['obs_spectra_dust_igm'] = np.zeros(0)
+                # No 'else' needed here, as pixel_results are initialized with empty arrays if global_output_obs_wave is empty
 
 
             # filtering for broadband fluxes
-            nbands = len(filters)
+            nbands = len(_worker_filters) # Use _worker_filters
             redshift_flux = np.zeros(nbands)
             redshift_flux_dust = np.zeros(nbands)
 
             for i_band in range(nbands):
-                redshift_flux[i_band] = filtering(spec_wave_obs, spec_flux_obs_igm, filter_transmission[filters[i_band]]['wave'], filter_transmission[filters[i_band]]['trans'])
-                redshift_flux_dust[i_band] = filtering(spec_wave_obs, spec_flux_dust_obs_igm, filter_transmission[filters[i_band]]['wave'], filter_transmission[filters[i_band]]['trans'])
+                redshift_flux[i_band] = filtering(spec_wave_obs, spec_flux_obs_igm, _worker_filter_transmission[_worker_filters[i_band]]['wave'], _worker_filter_transmission[_worker_filters[i_band]]['trans']) # Use _worker_filter_transmission, _worker_filters
+                redshift_flux_dust[i_band] = filtering(spec_wave_obs, spec_flux_dust_obs_igm, _worker_filter_transmission[_worker_filters[i_band]]['wave'], _worker_filter_transmission[_worker_filters[i_band]]['trans']) # Use _worker_filter_transmission, _worker_filters
 
         if len(redshift_flux) > 0:
             pixel_results['map_flux'] = redshift_flux
@@ -441,10 +484,10 @@ def generate_images(sim_file, z, filters, filter_transmission, filter_wave_eff, 
                     add_igm_absorption=1, igm_type=0, dust_index_bc=-0.7, dust_index=0.0, t_esc=0.01, 
                     norm_dust_z=[], norm_dust_tau=[], cosmo_str='Planck18', cosmo_h=0.6774, XH=0.76, 
                     dust_law=0, bump_amp=0.85, dustindexAV_AV=[], dustindexAV_dust_index=[], salim_a0=-4.30, 
-                    salim_a1=2.71, salim_a2=-0.191, salim_a3=0.0121, salim_RV=3.15, salim_B=1.57, 
+                    salim_a1=2.71, salim_a2= -0.191, salim_a3=0.0121, salim_RV=3.15, salim_B=1.57, 
                     initdim_kpc=100, initdim_mass_fraction=0.92,
-                    use_precomputed_ssp=True, ssp_filepath="ssp_spectra.hdf5",
-                    output_pixel_spectra=False, rest_wave_min=1000.0, rest_wave_max=16000.0): # Added new args
+                    use_precomputed_ssp=True, ssp_filepath="ssp_spectra.hdf5", ssp_interpolation_method='linear', 
+                    output_pixel_spectra=False, rest_wave_min=1000.0, rest_wave_max=16000.0): 
     """
     Generates astrophysical images from HDF5 simulation data with parallelized pixel calculations.
     Allows choice between using pre-computed SSP spectra from an HDF5 file or
@@ -488,6 +531,8 @@ def generate_images(sim_file, z, filters, filter_transmission, filter_wave_eff, 
                                               Defaults to True.
         ssp_filepath (str, optional): Path to the pre-computed SSP spectra HDF5 file.
                                       Only used if `use_precomputed_ssp` is True. Defaults to "ssp_spectra.hdf5".
+        ssp_interpolation_method (str, optional): Method for interpolating SSPs if `use_precomputed_ssp` is True.
+                                                  Options: 'nearest', 'linear'. Defaults to 'linear'.
         output_pixel_spectra (bool, optional): If True, output observed-frame spectra for each pixel. Defaults to False.
         rest_wave_min (float, optional): Minimum rest-frame wavelength for output spectra (Angstrom). Defaults to 1000.0.
         rest_wave_max (float, optional): Maximum rest-frame wavelength for output spectra (Angstrom). Defaults to 16000.0.
@@ -596,7 +641,7 @@ def generate_images(sim_file, z, filters, filter_transmission, filter_wave_eff, 
     print ('mean_tauV_res=%lf mean_AV_unres=%lf' % (mean_tauV_res,mean_AV_unres))
     # -----------
 
-    nbands = len(filters)
+    nbands = len(filters) # This filters is the original one from generate_images call
 
     # Initialize all result maps to zeros
     map_mw_age = np.zeros((dimy,dimx))
@@ -659,12 +704,18 @@ def generate_images(sim_file, z, filters, filter_transmission, filter_wave_eff, 
 
     with tqdm_joblib(total=len(processed_tasks_args), desc="Processing pixels") as progress_bar:
         results = Parallel(n_jobs=num_cores, verbose=0, initializer=init_worker,
-                           initargs=(snap_z, pix_area_kpc2, mean_AV_unres, filters, filter_transmission, imf_type, add_neb_emission, 
-                                     gas_logu, add_igm_absorption, igm_type, dust_index_bc, dust_index, t_esc, scale_dust_tau, cosmo, 
-                                     dust_law, bump_amp, dustindexAV_AV, dustindexAV_dust_index, salim_a0, salim_a1, salim_a2, salim_a3, 
-                                     salim_RV, salim_B,
-                                     use_precomputed_ssp, ssp_filepath, # Existing args
-                                     output_pixel_spectra, rest_wave_min, rest_wave_max))( # New args
+                           initargs=(snap_z, pix_area_kpc2, mean_AV_unres, 
+                                     # Pass simple types for filters and cosmology related
+                                     filters, # Pass the original filters list (strings)
+                                     imf_type, add_neb_emission, gas_logu, 
+                                     add_igm_absorption, igm_type, dust_index_bc, dust_index, t_esc, scale_dust_tau, 
+                                     cosmo_str, cosmo_h, XH, # Pass cosmo_str, cosmo_h, XH
+                                     dust_law, bump_amp, 
+                                     # Ensure these are lists/tuples of primitives, not numpy arrays directly
+                                     list(dustindexAV_AV), list(dustindexAV_dust_index), 
+                                     salim_a0, salim_a1, salim_a2, salim_a3, salim_RV, salim_B,
+                                     use_precomputed_ssp, ssp_filepath, ssp_interpolation_method, 
+                                     output_pixel_spectra, rest_wave_min, rest_wave_max))( 
             delayed(_process_pixel_data)(*task_args) for task_args in processed_tasks_args
         )
     print("\nFinished parallel pixel processing.")
@@ -709,7 +760,10 @@ def generate_images(sim_file, z, filters, filter_transmission, filter_wave_eff, 
     print("All calculations complete. Maps populated.")
 
     # convert flux units
-    for i_band in range(nbands):
+    # nbands is based on the original filters list from generate_images call.
+    # The _worker_filters list is only available within the worker processes.
+    # So we must use the 'filters' variable that was passed into generate_images.
+    for i_band in range(len(filters)): 
         map_flux[:,:,i_band] = convert_flux_map(map_flux[:,:,i_band], filter_wave_eff[filters[i_band]], to_unit=flux_unit, pixel_scale_arcsec=pix_arcsec)
         map_flux_dust[:,:,i_band] = convert_flux_map(map_flux_dust[:,:,i_band], filter_wave_eff[filters[i_band]], to_unit=flux_unit, pixel_scale_arcsec=pix_arcsec)
 
@@ -752,20 +806,20 @@ def generate_images(sim_file, z, filters, filter_transmission, filter_wave_eff, 
                 hdul.append(primary_hdu)
 
                 # Add extensions for other bands (no dust)
-                for i_band in range(nbands):
+                for i_band in range(len(filters)): # Use original filters list
                     ext_hdr = fits.Header()
-                    ext_hdr['EXTNAME'] = 'NODUST_'+filters[i_band].upper()
-                    ext_hdr['FILTER'] = filters[i_band]
-                    ext_hdr['COMMENT'] = f'Flux for filter: {filters[i_band]}'
+                    ext_hdr['EXTNAME'] = 'NODUST_'+filters[i_band].upper() 
+                    ext_hdr['FILTER'] = filters[i_band] 
+                    ext_hdr['COMMENT'] = f'Flux for filter: {filters[i_band]}' 
                     ext_hdu = fits.ImageHDU(data=map_flux[:, :, i_band], header=ext_hdr)
                     hdul.append(ext_hdu)
 
                 # Add extensions for other bands (with dust)
-                for i_band in range(nbands):
+                for i_band in range(len(filters)): # Use original filters list
                     ext_hdr = fits.Header()
-                    ext_hdr['EXTNAME'] = 'DUST_'+filters[i_band].upper()
-                    ext_hdr['FILTER'] = filters[i_band]
-                    ext_hdr['COMMENT'] = f'Flux (with dust) for filter: {filters[i_band]}'
+                    ext_hdr['EXTNAME'] = 'DUST_'+filters[i_band].upper() 
+                    ext_hdr['FILTER'] = filters[i_band] 
+                    ext_hdr['COMMENT'] = f'Flux (with dust) for filter: {filters[i_band]}' 
                     ext_hdu = fits.ImageHDU(data=map_flux_dust[:, :, i_band], header=ext_hdr)
                     hdul.append(ext_hdu)
             else:
@@ -798,30 +852,30 @@ def generate_images(sim_file, z, filters, filter_transmission, filter_wave_eff, 
             if output_pixel_spectra:
                 # No-dust spectra
                 ext_hdr_nodust_spec = fits.Header()
-                ext_hdr_nodust_spec['EXTNAME'] = 'OBS_SPEC_NODUST' # Changed EXTNAME
-                ext_hdr_nodust_spec['COMMENT'] = 'Observed-frame spectra (no dust attenuation, with IGM)' # Changed comment
-                ext_hdr_nodust_spec['CRPIX1'] = dimx / 2.0 + 0.5 # Reference pixel X (center)
-                ext_hdr_nodust_spec['CRPIX2'] = dimy / 2.0 + 0.5 # Reference pixel Y (center)
-                ext_hdr_nodust_spec['CDELT1'] = pix_kpc # Pixel scale X (kpc/pixel)
-                ext_hdr_nodust_spec['CDELT2'] = pix_kpc # Pixel scale Y (kpc/pixel)
+                ext_hdr_nodust_spec['EXTNAME'] = 'OBS_SPEC_NODUST' 
+                ext_hdr_nodust_spec['COMMENT'] = 'Observed-frame spectra (no dust attenuation, with IGM)' 
+                ext_hdr_nodust_spec['CRPIX1'] = dimx / 2.0 + 0.5 
+                ext_hdr_nodust_spec['CRPIX2'] = dimy / 2.0 + 0.5 
+                ext_hdr_nodust_spec['CDELT1'] = pix_kpc 
+                ext_hdr_nodust_spec['CDELT2'] = pix_kpc 
                 ext_hdr_nodust_spec['CUNIT1'] = 'kpc'
                 ext_hdr_nodust_spec['CUNIT2'] = 'kpc'
                 # Add wavelength axis info for observed frame
-                ext_hdr_nodust_spec['CRPIX3'] = 1.0 # Reference pixel for wavelength axis (first point)
-                ext_hdr_nodust_spec['CDELT3'] = (global_output_obs_wave[1] - global_output_obs_wave[0]) if global_output_obs_wave.size > 1 else 0.0 # Wavelength step
-                ext_hdr_nodust_spec['CRVAL3'] = global_output_obs_wave[0] if global_output_obs_wave.size > 0 else 0.0 # Starting wavelength
+                ext_hdr_nodust_spec['CRPIX3'] = 1.0 
+                ext_hdr_nodust_spec['CDELT3'] = (global_output_obs_wave[1] - global_output_obs_wave[0]) if global_output_obs_wave.size > 1 else 0.0 
+                ext_hdr_nodust_spec['CRVAL3'] = global_output_obs_wave[0] if global_output_obs_wave.size > 0 else 0.0 
                 ext_hdr_nodust_spec['CUNIT3'] = 'Angstrom'
-                ext_hdr_nodust_spec['BUNIT'] = 'erg/s/cm2/Angstrom' # Units of the spectra
+                ext_hdr_nodust_spec['BUNIT'] = 'erg/s/cm2/Angstrom' 
                 hdul.append(fits.ImageHDU(data=map_spectra_nodust, header=ext_hdr_nodust_spec))
 
                 # Dust-attenuated spectra
                 ext_hdr_dust_spec = fits.Header()
-                ext_hdr_dust_spec['EXTNAME'] = 'OBS_SPEC_DUST' # Changed EXTNAME
-                ext_hdr_dust_spec['COMMENT'] = 'Observed-frame spectra (with dust attenuation, with IGM)' # Changed comment
-                ext_hdr_dust_spec['CRPIX1'] = dimx / 2.0 + 0.5 # Reference pixel X (center)
-                ext_hdr_dust_spec['CRPIX2'] = dimy / 2.0 + 0.5 # Reference pixel Y (center)
-                ext_hdr_dust_spec['CDELT1'] = pix_kpc # Pixel scale X (kpc/pixel)
-                ext_hdr_dust_spec['CDELT2'] = pix_kpc # Pixel scale Y (kpc/pixel)
+                ext_hdr_dust_spec['EXTNAME'] = 'OBS_SPEC_DUST' 
+                ext_hdr_dust_spec['COMMENT'] = 'Observed-frame spectra (with dust attenuation, with IGM)' 
+                ext_hdr_dust_spec['CRPIX1'] = dimx / 2.0 + 0.5 
+                ext_hdr_dust_spec['CRPIX2'] = dimy / 2.0 + 0.5 
+                ext_hdr_dust_spec['CDELT1'] = pix_kpc 
+                ext_hdr_dust_spec['CDELT2'] = pix_kpc 
                 ext_hdr_dust_spec['CUNIT1'] = 'kpc'
                 ext_hdr_dust_spec['CUNIT2'] = 'kpc'
                 # Add wavelength axis info for observed frame
