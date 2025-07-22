@@ -59,7 +59,7 @@ salim_B = None
 dust_Alambda_per_AV = None
 func_interp_dust_index = None # For dust_law 0 and 1
 use_precomputed_ssp = False # New global flag
-ssp_interpolation_method = 'linear' # New global flag for interpolation method
+ssp_interpolation_method = 'nearest' # New global flag for interpolation method
 
 # New global variables for pixel spectra output
 output_pixel_spectra_flag = False
@@ -81,7 +81,7 @@ def init_worker(snap_z_val, pix_area_kpc2_val, mean_AV_unres_val,
                 cosmo_str_val, cosmo_h_val, XH_val, # Changed to cosmo_str_val, cosmo_h_val, XH_val
                 dust_law_val, bump_amp_val, dustindexAV_AV_val, dustindexAV_dust_index_val, salim_a0_val, 
                 salim_a1_val, salim_a2_val, salim_a3_val, salim_RV_val, salim_B_val,
-                use_precomputed_ssp_val, ssp_filepath_val=None, ssp_interpolation_method_val='linear', 
+                use_precomputed_ssp_val, ssp_filepath_val=None, ssp_interpolation_method_val='nearest', 
                 output_pixel_spectra_val=False, rest_wave_min_val=None, rest_wave_max_val=None): 
     
     global ssp_wave, ssp_ages_gyr, ssp_logzsol_grid, ssp_spectra_grid, ssp_stellar_mass_grid, ssp_fsps_z_sun
@@ -486,7 +486,7 @@ def generate_images(sim_file, z, filters, filter_transmission, filter_wave_eff, 
                     dust_law=0, bump_amp=0.85, dustindexAV_AV=[], dustindexAV_dust_index=[], salim_a0=-4.30, 
                     salim_a1=2.71, salim_a2= -0.191, salim_a3=0.0121, salim_RV=3.15, salim_B=1.57, 
                     initdim_kpc=100, initdim_mass_fraction=0.92,
-                    use_precomputed_ssp=True, ssp_filepath="ssp_spectra.hdf5", ssp_interpolation_method='linear', 
+                    use_precomputed_ssp=True, ssp_filepath="ssp_spectra.hdf5", ssp_interpolation_method='nearest', 
                     output_pixel_spectra=False, rest_wave_min=1000.0, rest_wave_max=16000.0): 
     """
     Generates astrophysical images from HDF5 simulation data with parallelized pixel calculations.
@@ -532,7 +532,7 @@ def generate_images(sim_file, z, filters, filter_transmission, filter_wave_eff, 
         ssp_filepath (str, optional): Path to the pre-computed SSP spectra HDF5 file.
                                       Only used if `use_precomputed_ssp` is True. Defaults to "ssp_spectra.hdf5".
         ssp_interpolation_method (str, optional): Method for interpolating SSPs if `use_precomputed_ssp` is True.
-                                                  Options: 'nearest', 'linear'. Defaults to 'linear'.
+                                                  Options: 'nearest', 'linear'. Defaults to 'nearest'.
         output_pixel_spectra (bool, optional): If True, output observed-frame spectra for each pixel. Defaults to False.
         rest_wave_min (float, optional): Minimum rest-frame wavelength for output spectra (Angstrom). Defaults to 1000.0.
         rest_wave_max (float, optional): Maximum rest-frame wavelength for output spectra (Angstrom). Defaults to 16000.0.

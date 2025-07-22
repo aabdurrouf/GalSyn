@@ -31,7 +31,7 @@ class GalaxySynthesizer:
         self._name_out_img = None
         self._ssp_filepath = "ssp_spectra.hdf5" # Default SSP file path
         self._use_precomputed_ssp = True # New flag, default to True
-        self._ssp_interpolation_method = 'linear' # New parameter: 'nearest' or 'linear'
+        self._ssp_interpolation_method = 'nearest' # options are: 'nearest', 'linear', and 'cubic'
 
         # New parameters for pixel spectra output
         self._output_pixel_spectra = False # Default to not output spectra
@@ -496,8 +496,8 @@ class GalaxySynthesizer:
 
     @ssp_interpolation_method.setter
     def ssp_interpolation_method(self, value):
-        if not isinstance(value, str) or value.lower() not in ['nearest', 'linear']:
-            raise ValueError("ssp_interpolation_method must be 'nearest' or 'linear'.")
+        if not isinstance(value, str) or value.lower() not in ['nearest', 'linear', 'cubic']:
+            raise ValueError("ssp_interpolation_method must one of these options: 'nearest', 'linear', 'cubic'.")
         self._ssp_interpolation_method = value.lower()
 
     @property
