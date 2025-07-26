@@ -73,7 +73,3 @@ def convert_flux_map(flux_map, wave_eff, to_unit='nJy', pixel_scale_arcsec=None)
 
     else:
         raise ValueError(f"Unsupported target unit: {to_unit}")
-
-
-
-
