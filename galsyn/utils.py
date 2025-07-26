@@ -490,7 +490,6 @@ def construct_SFH_TNG(stars_form_lbt, stars_init_mass, stars_metallicity, del_t=
     sfh_mass_weighted_age = np.zeros_like(valid_masses)
     sfh_mass_weighted_age[non_zero_mass_mask] = valid_mass_times_lbt[non_zero_mass_mask] / valid_masses[non_zero_mass_mask]
 
-
     # Construct the sfh dictionary
     sfh = {
         'lbt': sfh_lbt_midpoints,
