@@ -15,19 +15,23 @@ from scipy.integrate import simpson
 import fsps
 
 FSPS_Z_SUN = 0.019
-PRIMORDIAL_Z_SUN_VALUE = 0.0127
+PRIMORDIAL_Z_SUN_VALUE = 0.0127 # This is likely a constant for the simulation data's metallicity definition
 
+# Global variables for SSP data (loaded once per worker if use_precomputed_ssp is True)
 ssp_wave = None
 ssp_ages_gyr = None
 ssp_logzsol_grid = None
 ssp_spectra_grid = None
 ssp_stellar_mass_grid = None
-ssp_fsps_z_sun = None
+ssp_code_z_sun = None # Will store FSPS_Z_SUN or BAGPIPES_Z_SUN
 
 _global_ssp_spectra_interpolator = None
 _global_ssp_stellar_mass_interpolator = None
 
+# Global variables for FSPS instance (initialized once per worker if use_precomputed_ssp is False)
 sp_instance = None
+
+# Other global worker variables
 igm_trans = None
 snap_z = None
 pix_area_kpc2 = None
@@ -92,16 +96,6 @@ def _load_filter_transmission_from_paths(filters_list, filter_transmission_path_
             trans = data[:, 1]
 
             filter_transmission_data[f_name] = {'wave': wave, 'trans': trans}
-            
-            # Check if wavelength is in linear scale and issue a warning if not
-            # A simple check: if the difference between consecutive log-transformed wavelengths
-            # is roughly constant, it's probably logarithmic.
-            #if len(wave) > 2:
-            #    log_wave = np.log10(wave[np.where(wave > 0)])
-            #    if len(log_wave) > 1 and np.std(np.diff(log_wave)) < np.std(np.diff(wave)):
-            #        print(f"Warning: Wavelengths for filter '{f_name}' appear to be in a logarithmic scale. "
-            #              "Numerical integration (Simpson's rule) assumes linear spacing. "
-            #              "Results for pivot wavelength might be inaccurate if not truly linear.")
 
             # Calculate pivot wavelength
             # Lambda_p = sqrt(integral(lambda * T(lambda) d_lambda) / integral(T(lambda) / lambda d_lambda))
@@ -126,7 +120,7 @@ def _load_filter_transmission_from_paths(filters_list, filter_transmission_path_
     return filter_transmission_data, filter_wave_pivot_data
 
 
-def init_worker(snap_z_val, pix_area_kpc2_val, mean_AV_unres_val, 
+def init_worker(ssp_code_val, snap_z_val, pix_area_kpc2_val, mean_AV_unres_val, 
                 filters_list_val,
                 filter_transmission_path_val,
                 imf_type_val, imf_upper_limit_val, imf_lower_limit_val, 
@@ -140,7 +134,7 @@ def init_worker(snap_z_val, pix_area_kpc2_val, mean_AV_unres_val,
                 use_precomputed_ssp_val, ssp_filepath_val=None, ssp_interpolation_method_val='nearest', 
                 output_pixel_spectra_val=False, rest_wave_min_val=None, rest_wave_max_val=None): 
     
-    global ssp_wave, ssp_ages_gyr, ssp_logzsol_grid, ssp_spectra_grid, ssp_stellar_mass_grid, ssp_fsps_z_sun
+    global ssp_wave, ssp_ages_gyr, ssp_logzsol_grid, ssp_spectra_grid, ssp_stellar_mass_grid, ssp_code_z_sun
     global _global_ssp_spectra_interpolator, _global_ssp_stellar_mass_interpolator 
     global sp_instance, igm_trans, snap_z, pix_area_kpc2
     global mean_AV_unres, add_neb_emission, gas_logu, add_igm_absorption, igm_type
@@ -199,13 +193,19 @@ def init_worker(snap_z_val, pix_area_kpc2_val, mean_AV_unres_val,
             sys.exit(1)
         try:
             with h5py.File(ssp_filepath_val, 'r') as f_ssp:
+                # Check if the SSP file is for FSPS
+                if f_ssp.attrs.get('code') != 'FSPS':
+                    print(f"Error: SSP grid file '{ssp_filepath_val}' was generated with '{f_ssp.attrs.get('code', 'unknown')}' but 'FSPS' is selected for ssp_code.")
+                    sys.exit(1)
+
                 ssp_wave = f_ssp['wavelength'][:]
                 ssp_ages_gyr = f_ssp['ages_gyr'][:]
                 ssp_logzsol_grid = f_ssp['logzsol'][:]
                 ssp_spectra_grid = f_ssp['spectra'][:]
                 ssp_stellar_mass_grid = f_ssp['stellar_mass'][:]
-                ssp_fsps_z_sun = f_ssp.attrs['z_sun']
-                
+                ssp_code_z_sun = f_ssp.attrs['z_sun'] # This will be FSPS_Z_SUN
+
+                # Consistency checks for FSPS-specific parameters
                 if f_ssp.attrs['imf_type'] != _worker_imf_type:
                     print(f"Warning: IMF type mismatch! SSP grid was generated with {f_ssp.attrs['imf_type']}, but current setting is {_worker_imf_type}.")
                 if f_ssp.attrs['add_neb_emission'] != add_neb_emission:
@@ -228,7 +228,7 @@ def init_worker(snap_z_val, pix_area_kpc2_val, mean_AV_unres_val,
                 if 'mdave' in f_ssp.attrs and f_ssp.attrs['mdave'] != _worker_mdave:
                     print(f"Warning: MDAVE mismatch! SSP grid was generated with {f_ssp.attrs['mdave']}, but current setting is {_worker_mdave}.")
 
-                if ssp_interpolation_method == 'linear':
+                if ssp_interpolation_method == 'linear': # Add 'cubic' if supported by RegularGridInterpolator
                     _global_ssp_spectra_interpolator = RegularGridInterpolator(
                         (ssp_ages_gyr, ssp_logzsol_grid), ssp_spectra_grid, 
                         method='linear', bounds_error=False, fill_value=0.0
@@ -237,20 +237,30 @@ def init_worker(snap_z_val, pix_area_kpc2_val, mean_AV_unres_val,
                         (ssp_ages_gyr, ssp_logzsol_grid), ssp_stellar_mass_grid, 
                         method='linear', bounds_error=False, fill_value=0.0
                     )
+                elif ssp_interpolation_method == 'cubic':
+                    _global_ssp_spectra_interpolator = RegularGridInterpolator(
+                        (ssp_ages_gyr, ssp_logzsol_grid), ssp_spectra_grid, 
+                        method='cubic', bounds_error=False, fill_value=0.0
+                    )
+                    _global_ssp_stellar_mass_interpolator = RegularGridInterpolator(
+                        (ssp_ages_gyr, ssp_logzsol_grid), ssp_stellar_mass_grid, 
+                        method='cubic', bounds_error=False, fill_value=0.0
+                    )
+
 
         except Exception as e:
             print(f"Error loading SSP grid from {ssp_filepath_val}: {e}")
             sys.exit(1)
-    else:
+    else: # Generate on-the-fly using FSPS
         sp_instance = fsps.StellarPopulation(zcontinuous=1)
         sp_instance.params['imf_type'] = _worker_imf_type
         sp_instance.params['imf_upper_limit'] = _worker_imf_upper_limit
         sp_instance.params['imf_lower_limit'] = _worker_imf_lower_limit
-        sp_instance.params['imf1'] = _worker_imf1
-        sp_instance.params['imf2'] = _worker_imf2
-        sp_instance.params['imf3'] = _worker_imf3
-        sp_instance.params['vdmc'] = _worker_vdmc
-        sp_instance.params['mdave'] = _worker_mdave
+        sp_instance.params['imf1'] = imf1_val # Corrected from _imf1_val
+        sp_instance.params['imf2'] = imf2_val # Corrected from _imf2_val
+        sp_instance.params['imf3'] = imf3_val # Corrected from _imf3_val
+        sp_instance.params['vdmc'] = vdmc_val # Corrected from _vdmc_val
+        sp_instance.params['mdave'] = mdave_val # Corrected from _mdave_val
         sp_instance.params["add_dust_emission"] = False
         sp_instance.params["add_neb_emission"] = add_neb_emission
         sp_instance.params['gas_logu'] = gas_logu
@@ -259,6 +269,7 @@ def init_worker(snap_z_val, pix_area_kpc2_val, mean_AV_unres_val,
         sp_instance.params["dust1"] = 0.0
         sp_instance.params["dust2"] = 0.0
         ssp_wave, _ = sp_instance.get_spectrum(peraa=True, tage=1.0)
+        ssp_code_z_sun = FSPS_Z_SUN # Set Z_sun for on-the-fly FSPS
 
     if output_pixel_spectra_flag:
         obs_ssp_wave_full = ssp_wave * (1.0 + snap_z)
@@ -277,7 +288,6 @@ def init_worker(snap_z_val, pix_area_kpc2_val, mean_AV_unres_val,
                   f"Observed range: [{obs_min_boundary:.1f}-{obs_max_boundary:.1f}] Angstroms. "
                   f"Output spectra will be empty for this pixel.")
             global_output_obs_wave = np.array([])
-
 
     if dust_law <= 1:
         global func_interp_dust_index
@@ -412,20 +422,24 @@ def _process_pixel_data(ii, jj, star_particle_membership_list, gas_particle_memb
             star_id = star_ids[i_sid]
 
             if use_precomputed_ssp:
-                particle_logzsol_absolute = (stars_zsol[star_id] * PRIMORDIAL_Z_SUN_VALUE) / ssp_fsps_z_sun
+                # Convert simulation metallicity (Z/Z_primordial_solar) to log(Z/Z_ssp_code_solar)
+                particle_logzsol_ssp_code = np.log10( (stars_zsol[star_id] * PRIMORDIAL_Z_SUN_VALUE) / ssp_code_z_sun )
                 
-                points = np.array([[stars_age[star_id], np.log10(particle_logzsol_absolute)]])
+                points = np.array([[stars_age[star_id], particle_logzsol_ssp_code]])
 
                 if ssp_interpolation_method == 'linear':
                     spec = _global_ssp_spectra_interpolator(points)[0]
                     ssp_mass_formed = _global_ssp_stellar_mass_interpolator(points)[0]
+                elif ssp_interpolation_method == 'cubic':
+                    spec = _global_ssp_spectra_interpolator(points)[0]
+                    ssp_mass_formed = _global_ssp_stellar_mass_interpolator(points)[0]
                 else: # 'nearest' method
                     age_idx = np.argmin(np.abs(ssp_ages_gyr - stars_age[star_id]))
-                    z_idx = np.argmin(np.abs(ssp_logzsol_grid - np.log10(particle_logzsol_absolute)))
+                    z_idx = np.argmin(np.abs(ssp_logzsol_grid - particle_logzsol_ssp_code))
                     
                     spec = ssp_spectra_grid[age_idx, z_idx, :]
                     ssp_mass_formed = ssp_stellar_mass_grid[age_idx, z_idx]
-            else:
+            else: # On-the-fly FSPS
                 logzsol = np.log10( (stars_zsol[star_id] * PRIMORDIAL_Z_SUN_VALUE) / FSPS_Z_SUN )
                 sp_instance.params["logzsol"] = logzsol   
                 sp_instance.params['gas_logz'] = logzsol
@@ -518,9 +532,8 @@ def _process_pixel_data(ii, jj, star_particle_membership_list, gas_particle_memb
 
 def generate_images(sim_file, z, filters, filter_transmission_path, dim_kpc=None,
                     pix_arcsec=0.02, flux_unit='MJy/sr', polar_angle_deg=0, azimuth_angle_deg=0,
-                    name_out_img=None, n_jobs=-1, imf_type=1, imf_upper_limit=120.0, imf_lower_limit=0.08,
-                    imf1=1.3, imf2=2.3, imf3=2.3, vdmc=0.08, mdave=0.5,                                    
-                    add_neb_emission=1, gas_logu=-2.0, 
+                    name_out_img=None, n_jobs=-1, ssp_code='FSPS', imf_type=1, imf_upper_limit=120.0, imf_lower_limit=0.08,
+                    imf1=1.3, imf2=2.3, imf3=2.3, vdmc=0.08, mdave=0.5, add_neb_emission=1, gas_logu=-2.0, 
                     add_igm_absorption=1, igm_type=0, dust_index_bc=-0.7, dust_index=0.0, t_esc=0.01, 
                     norm_dust_z=[], norm_dust_tau=[], cosmo_str='Planck18', cosmo_h=0.6774, XH=0.76, 
                     dust_law=0, bump_amp=0.85, dustindexAV_AV=[], dustindexAV_dust_index=[], salim_a0=-4.30, 
@@ -548,6 +561,7 @@ def generate_images(sim_file, z, filters, filter_transmission_path, dim_kpc=None
         azimuth_angle_deg (float, optional): Azimuth angle for projection. Defaults to 0.
         name_out_img (str, optional): Output file name for images. Defaults to None.
         n_jobs (int, optional): Number of CPU cores to use for parallel processing. Defaults to -1 (all available).
+        ssp_code (str, optional): The SSP code to use ('FSPS' or 'Bagpipes'). Defaults to 'FSPS'.
         imf_type (int, optional): IMF type for FSPS (must match SSP grid if pre-computed). Defaults to 1.
         imf_upper_limit (float, optional): The upper limit of the IMF, in solar masses. Only used if `use_precomputed_ssp` is False or for consistency check if `use_precomputed_ssp` is True. Defaults to 120.0.
         imf_lower_limit (float, optional): The lower limit of the IMF, in solar masses. Only used if `use_precomputed_ssp` is False or for consistency check if `use_precomputed_ssp` is True. Defaults to 0.08.
@@ -580,7 +594,7 @@ def generate_images(sim_file, z, filters, filter_transmission_path, dim_kpc=None
         ssp_filepath (str, optional): Path to the pre-computed SSP spectra HDF5 file.
                                       Only used if `use_precomputed_ssp` is True. Defaults to "ssp_spectra.hdf5".
         ssp_interpolation_method (str, optional): Method for interpolating SSPs if `use_precomputed_ssp` is True.
-                                                  Options: 'nearest', 'linear'. Defaults to 'nearest'.
+                                                  Options: 'nearest', 'linear', 'cubic'. Defaults to 'nearest'.
         output_pixel_spectra (bool, optional): If True, output observed-frame spectra for each pixel. Defaults to False.
         rest_wave_min (float, optional): Minimum rest-frame wavelength for output spectra (Angstrom). Defaults to 1000.0.
         rest_wave_max (float, optional): Maximum rest-frame wavelength for output spectra (Angstrom). Defaults to 16000.0.
@@ -692,8 +706,8 @@ def generate_images(sim_file, z, filters, filter_transmission_path, dim_kpc=None
     map_stars_mw_zsol = np.zeros((dimy,dimx))
     map_stars_mass = np.zeros((dimy,dimx))
     map_sfr_100 = np.zeros((dimy,dimx))
-    map_sfr_10 = np.zeros((dimy,dimx))
     map_sfr_30 = np.zeros((dimy,dimx))
+    map_sfr_10 = np.zeros((dimy,dimx))
     map_gas_mw_zsol = np.zeros((dimy,dimx))
     map_gas_mass = np.zeros((dimy,dimx))
     map_sfr_inst = np.zeros((dimy,dimx))
@@ -732,16 +746,13 @@ def generate_images(sim_file, z, filters, filter_transmission_path, dim_kpc=None
 
     with tqdm_joblib(total=len(processed_tasks_args), desc="Processing pixels") as progress_bar:
         results = Parallel(n_jobs=num_cores, verbose=0, initializer=init_worker,
-                           initargs=(snap_z, pix_area_kpc2, mean_AV_unres, 
-                                     filters,
-                                     filter_transmission_path,
+                           initargs=(ssp_code, snap_z, pix_area_kpc2, mean_AV_unres, # Pass ssp_code
+                                     filters, filter_transmission_path,
                                      imf_type, imf_upper_limit, imf_lower_limit, 
-                                     imf1, imf2, imf3, vdmc, mdave,             
-                                     add_neb_emission, gas_logu, 
-                                     add_igm_absorption, igm_type, dust_index_bc, dust_index, t_esc, scale_dust_tau, 
-                                     cosmo_str, cosmo_h, XH, 
-                                     dust_law, bump_amp, 
-                                     list(dustindexAV_AV), list(dustindexAV_dust_index), 
+                                     imf1, imf2, imf3, vdmc, mdave, add_neb_emission, 
+                                     gas_logu, add_igm_absorption, igm_type, dust_index_bc, 
+                                     dust_index, t_esc, scale_dust_tau, cosmo_str, cosmo_h, XH, 
+                                     dust_law, bump_amp, list(dustindexAV_AV), list(dustindexAV_dust_index), 
                                      salim_a0, salim_a1, salim_a2, salim_a3, salim_RV, salim_B,
                                      use_precomputed_ssp, ssp_filepath, ssp_interpolation_method, 
                                      output_pixel_spectra, rest_wave_min, rest_wave_max))( 
@@ -811,6 +822,7 @@ def generate_images(sim_file, z, filters, filter_transmission_path, dim_kpc=None
                 prihdr['PIXSIZE'] = pix_arcsec
                 prihdr['BUNIT'] = flux_unit
                 prihdr['SCALE'] = flux_scale
+                prihdr['SSP_CODE'] = ssp_code # Add SSP code to FITS header
 
                 primary_hdu = fits.PrimaryHDU(data=primary_data, header=prihdr)
                 hdul.append(primary_hdu)
@@ -896,3 +908,4 @@ def generate_images(sim_file, z, filters, filter_transmission_path, dim_kpc=None
 
         except Exception as e:
             print(f"Error saving FITS file {name_out_img}: {e}")
+

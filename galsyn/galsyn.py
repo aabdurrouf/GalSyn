@@ -1,16 +1,18 @@
 import os, sys
 import numpy as np
 from . import config
-from .galsyn_run import generate_images
+# Import both run modules
+from . import galsyn_run_fsps
+from . import galsyn_run_bagpipes
 import importlib.resources
 
 class GalaxySynthesizer:
 
-    def __init__(self, sim_file=None, z=0.01, filters=[], filter_transmission_path={}): # Changed: filter_transmission_path
+    def __init__(self, sim_file=None, z=0.01, filters=[], filter_transmission_path={}):
         self._sim_file = sim_file
         self._z = z
         self._filters = filters
-        self._filter_transmission_path = filter_transmission_path # Changed: storing paths directly
+        self._filter_transmission_path = filter_transmission_path
 
         # Initialize with default values from config.py
         self._load_config_defaults()
@@ -31,6 +33,7 @@ class GalaxySynthesizer:
         self._output_pixel_spectra = False
         self._rest_wave_min = 1000.0
         self._rest_wave_max = 16000.0
+        self._ssp_code = 'FSPS' # New parameter: default to FSPS
 
     def _load_config_defaults(self):
         """
@@ -43,7 +46,7 @@ class GalaxySynthesizer:
         self._cosmo_str = getattr(config, 'COSMO', "Planck18")
         self._cosmo_h = getattr(config, 'COSMO_LITTLE_H', 0.6774)
 
-        # IMF setup
+        # IMF setup (FSPS specific, but kept for consistency if FSPS is chosen)
         self._imf_type = getattr(config, 'IMF_TYPE', 1)
         self._imf_upper_limit = getattr(config, 'IMF_UPPER_LIMIT', 120.0)
         self._imf_lower_limit = getattr(config, 'IMF_LOWER_LIMIT', 0.08)
@@ -117,7 +120,7 @@ class GalaxySynthesizer:
         self._filters = value[:]
 
     @property
-    def filter_transmission_path(self): # New property
+    def filter_transmission_path(self):
         return self._filter_transmission_path
 
     @filter_transmission_path.setter
@@ -222,6 +225,16 @@ class GalaxySynthesizer:
         if value is not None and not isinstance(value, str):
             raise ValueError("name_out_img must be a string or None.")
         self._name_out_img = value
+
+    @property
+    def ssp_code(self):
+        return self._ssp_code
+
+    @ssp_code.setter
+    def ssp_code(self, value):
+        if not isinstance(value, str) or value.upper() not in ['FSPS', 'BAGPIPES']:
+            raise ValueError("ssp_code must be 'FSPS' or 'Bagpipes'.")
+        self._ssp_code = value.upper()
 
     @property
     def imf_type(self):
@@ -638,23 +651,33 @@ class GalaxySynthesizer:
     def generate_ssp_data(self):
         """
         Determines the SSP spectra grid filepath and ensures it exists.
-        If _ssp_filepath is None, it defaults to the packaged data file.
+        If _ssp_filepath is None, it defaults to the packaged data file based on ssp_code.
         If the determined SSP file does not exist, it raises a FileNotFoundError.
         """
         if not self.use_precomputed_ssp:
-            print("Skipping SSP grid check as use_precomputed_ssp is False.")
+            print("SSP grid generation will be done on-the-fly. Skipping pre-computed SSP grid check.")
             return
 
-        # Determine the effective SSP filepath
+        # Determine the effective SSP filepath based on ssp_code
         if self._ssp_filepath is None:
             try:
-                # Use importlib.resources to get the path to the packaged data file
-                effective_ssp_filepath = str(importlib.resources.files('galsyn.data').joinpath('ssp_spectra.hdf5'))
-                print("Using packaged SSP data, which was calculated using FSPS assumming Chabrier et al. (2003) IMF, MIST isochrone, MILES spectral library, and Cloudy nebular emission")
+                if self.ssp_code == 'FSPS':
+                    effective_ssp_filepath = str(importlib.resources.files('galsyn.data').joinpath('ssp_spectra.hdf5'))
+                    print("Using packaged FSPS SSP data (Chabrier et al. 2003 IMF, MIST isochrone, MILES spectral library, Cloudy nebular emission).")
+                elif self.ssp_code == 'BAGPIPES':
+                    effective_ssp_filepath = str(importlib.resources.files('galsyn.data').joinpath('ssp_spectra_bagpipes.hdf5'))
+                    print("Using packaged Bagpipes SSP data (Kroupa 2001 IMF).")
+                else:
+                    raise ValueError(f"Unknown ssp_code: {self.ssp_code}. Cannot determine default SSP filepath.")
             except Exception as e:
-                # Fallback if packaged data path cannot be determined (e.g., package not installed correctly)
                 print(f"Warning: Could not locate packaged SSP data via importlib.resources. Error: {e}. Falling back to a direct filename check.")
-                effective_ssp_filepath = "ssp_spectra.hdf5" # Assume it's in the current working directory or a known location
+                # Fallback to current directory if packaged data path cannot be determined
+                if self.ssp_code == 'FSPS':
+                    effective_ssp_filepath = "ssp_spectra.hdf5"
+                elif self.ssp_code == 'BAGPIPES':
+                    effective_ssp_filepath = "ssp_spectra_bagpipes.hdf5"
+                else: # Should not happen due to earlier check, but for safety
+                    raise ValueError(f"Unknown ssp_code: {self.ssp_code}. Cannot determine default SSP filepath.")
         else:
             effective_ssp_filepath = self._ssp_filepath
             print(f"Using specified SSP filepath: {effective_ssp_filepath}")
@@ -663,7 +686,8 @@ class GalaxySynthesizer:
         if not os.path.exists(effective_ssp_filepath):
             raise FileNotFoundError(
                 f"SSP file not found at '{effective_ssp_filepath}'. "
-                f"Please ensure the SSP data file exists at this path or is correctly packaged within 'galsyn.data'."
+                f"Please ensure the SSP data file exists at this path or is correctly packaged within 'galsyn.data'. "
+                f"Alternatively, set use_precomputed_ssp=False to generate SSPs on-the-fly."
             )
         else:
             # Ensure _ssp_filepath is set to the resolved path if it was initially None
@@ -679,65 +703,84 @@ class GalaxySynthesizer:
         Executes the galaxy image synthesis process using the current parameters
         set in this GalaxySynthesizer instance.
         """
-        # Ensure SSP data is ready
-        if self.use_precomputed_ssp:
-            self.generate_ssp_data() # No 'overwrite' argument anymore
+        # Ensure SSP data is ready (checks file existence if pre-computed)
+        self.generate_ssp_data()
 
         try:
-            # Call the generate_images function from galsyn.py
-            # Pass all relevant parameters from the current instance
-            generate_images(
-                sim_file=self.sim_file,
-                z=self.z,
-                filters=self.filters,
-                filter_transmission_path=self.filter_transmission_path, # Changed parameter
-                dim_kpc=self.dim_kpc,
-                pix_arcsec=self.pix_arcsec,
-                flux_unit=self.flux_unit,
-                polar_angle_deg=self.polar_angle_deg,
-                azimuth_angle_deg=self.azimuth_angle_deg,
-                name_out_img=self.name_out_img,
-                n_jobs=self.ncpu,
-                imf_type=self.imf_type,
-                imf_upper_limit = self.imf_upper_limit,
-                imf_lower_limit = self.imf_lower_limit,
-                imf1 = self.imf1,
-                imf2 = self.imf2,
-                imf3 = self.imf3,
-                vdmc = self.vdmc,
-                mdave = self.mdave,
-                add_neb_emission = self.add_neb_emission,
-                gas_logu = self.gas_logu,
-                add_igm_absorption = self.add_igm_absorption,
-                igm_type = self.igm_type,
-                dust_index_bc = self.dust_index_bc,
-                dust_index = self.dust_index,
-                t_esc = self.t_esc,
-                norm_dust_z = self.norm_dust_z,
-                norm_dust_tau = self.norm_dust_tau,
-                cosmo_str = self.cosmo_str,
-                cosmo_h = self.cosmo_h,
-                XH = self.XH,
-                dust_law = self.dust_law,
-                bump_amp = self.bump_amp,
-                dustindexAV_AV = self.dustindexAV_AV,
-                dustindexAV_dust_index = self.dustindexAV_dust_index,
-                salim_a0 = self.salim_a0,
-                salim_a1 = self.salim_a1,
-                salim_a2 = self.salim_a2,
-                salim_a3 = self.salim_a3,
-                salim_RV = self.salim_RV,
-                salim_B = self.salim_B,
-                initdim_kpc = self.initdim_kpc,
-                initdim_mass_fraction = self.initdim_mass_fraction,
-                use_precomputed_ssp = self.use_precomputed_ssp, 
-                ssp_filepath = self.ssp_filepath, 
-                ssp_interpolation_method = self.ssp_interpolation_method, 
-                output_pixel_spectra = self.output_pixel_spectra, 
-                rest_wave_min = self.rest_wave_min, 
-                rest_wave_max = self.rest_wave_max
-            )
-            #print("\nGalaxy image synthesis completed successfully.")
+            if self.ssp_code == 'FSPS':
+                # Call the generate_images function from galsyn_run_fsps
+                generate_images_func = galsyn_run_fsps.generate_images
+                # FSPS-specific IMF parameters are passed
+                ssp_params = {
+                    'imf_type': self.imf_type,
+                    'imf_upper_limit': self.imf_upper_limit,
+                    'imf_lower_limit': self.imf_lower_limit,
+                    'imf1': self.imf1,
+                    'imf2': self.imf2,
+                    'imf3': self.imf3,
+                    'vdmc': self.vdmc,
+                    'mdave': self.mdave,
+                }
+            elif self.ssp_code == 'BAGPIPES':
+                # Call the generate_images function from galsyn_run_bagpipes
+                generate_images_func = galsyn_run_bagpipes.generate_images
+                # Bagpipes does not use these IMF parameters directly for SSP generation
+                # but they are still part of the GalaxySynthesizer, so we pass only relevant ones.
+                ssp_params = {} # Bagpipes IMF type is fixed to Kroupa (2001)
+            else:
+                raise ValueError(f"Unsupported SSP code: {self.ssp_code}")
+
+            # Common parameters for both SSP codes
+            common_params = {
+                'sim_file': self.sim_file,
+                'z': self.z,
+                'filters': self.filters,
+                'filter_transmission_path': self.filter_transmission_path,
+                'dim_kpc': self.dim_kpc,
+                'pix_arcsec': self.pix_arcsec,
+                'flux_unit': self.flux_unit,
+                'polar_angle_deg': self.polar_angle_deg,
+                'azimuth_angle_deg': self.azimuth_angle_deg,
+                'name_out_img': self.name_out_img,
+                'n_jobs': self.ncpu,
+                'ssp_code': self.ssp_code, # Pass ssp_code to the run module for FITS header
+                'add_neb_emission': self.add_neb_emission,
+                'gas_logu': self.gas_logu,
+                'add_igm_absorption': self.add_igm_absorption,
+                'igm_type': self.igm_type,
+                'dust_index_bc': self.dust_index_bc,
+                'dust_index': self.dust_index,
+                't_esc': self.t_esc,
+                'norm_dust_z': self.norm_dust_z,
+                'norm_dust_tau': self.norm_dust_tau,
+                'cosmo_str': self.cosmo_str,
+                'cosmo_h': self.cosmo_h,
+                'XH': self.XH,
+                'dust_law': self.dust_law,
+                'bump_amp': self.bump_amp,
+                'dustindexAV_AV': self.dustindexAV_AV,
+                'dustindexAV_dust_index': self.dustindexAV_dust_index,
+                'salim_a0': self.salim_a0,
+                'salim_a1': self.salim_a1,
+                'salim_a2': self.salim_a2,
+                'salim_a3': self.salim_a3,
+                'salim_RV': self.salim_RV,
+                'salim_B': self.salim_B,
+                'initdim_kpc': self.initdim_kpc,
+                'initdim_mass_fraction': self.initdim_mass_fraction,
+                'use_precomputed_ssp': self.use_precomputed_ssp, 
+                'ssp_filepath': self.ssp_filepath, 
+                'ssp_interpolation_method': self.ssp_interpolation_method, 
+                'output_pixel_spectra': self.output_pixel_spectra, 
+                'rest_wave_min': self.rest_wave_min, 
+                'rest_wave_max': self.rest_wave_max
+            }
+            
+            # Merge SSP-specific parameters with common parameters
+            all_params = {**common_params, **ssp_params}
+
+            generate_images_func(**all_params)
+            
         except Exception as e:
             print(f"\nError during galaxy image synthesis: {e}")
             import traceback

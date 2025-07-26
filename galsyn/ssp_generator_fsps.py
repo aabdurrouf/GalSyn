@@ -224,6 +224,8 @@ def generate_ssp_grid(output_filename="ssp_spectra.hdf5",
         if imf_type == 4:
             f.attrs['mdave'] = mdave                     # Store new IMF parameter
         f.attrs['z_sun'] = FSPS_Z_SUN # Store Z_sun used by FSPS
+        f.attrs['flux_unit'] = 'L_sun/Angstrom'
+        f.attrs['code'] = 'FSPS'
 
     print(f"SSP grid generation complete. Saved to '{output_filename}'.")
     return output_filename

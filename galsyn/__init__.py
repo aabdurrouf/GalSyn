@@ -2,10 +2,11 @@ from . import config
 from . import utils 
 from . import imgutils
 from . import simutils_tng
-from . import galsyn_run
+from . import galsyn_run_fsps
+from . import galsyn_run_bagpipes
 from . import galsyn
 from .galsyn import GalaxySynthesizer
 
-__all__ = ['config', 'utils', 'imgutils', 'simutils_tng', 'galsyn_run', 'galsyn']
+__all__ = ['config', 'utils', 'imgutils', 'simutils_tng', 'galsyn_run_fsps', 'galsyn_run_bagpipes', 'galsyn']
 
 __version__ = "0.1.0"
