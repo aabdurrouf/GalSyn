@@ -5,6 +5,10 @@ from galsyn import config
 wave_V = 0.5500
 
 def tau_dust_given_z(z, norm_dust_z, norm_dust_tau):
+
+    norm_dust_z = np.asarray(norm_dust_z)
+    norm_dust_tau = np.asarray(norm_dust_tau)
+    
     from scipy.interpolate import interp1d
     
     # based on Vogelsberger+2020 (Table 3)
