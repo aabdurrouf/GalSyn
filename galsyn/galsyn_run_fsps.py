@@ -11,6 +11,7 @@ from tqdm_joblib import tqdm_joblib
 import multiprocessing
 from scipy.interpolate import interp1d, RegularGridInterpolator
 from scipy.integrate import simpson
+import importlib.resources # Added import
 
 import fsps
 
@@ -56,6 +57,12 @@ dust_Alambda_per_AV = None
 func_interp_dust_index = None
 use_precomputed_ssp = False
 ssp_interpolation_method = 'nearest'
+
+# Global variables for dustindexAV_AV and dustindexAV_dust_index
+# These will be set dynamically based on relation_AVslope_val in init_worker
+dustindexAV_AV = None
+dustindexAV_dust_index = None
+
 
 output_pixel_spectra_flag = False
 global_output_obs_wave = None
@@ -121,15 +128,14 @@ def _load_filter_transmission_from_paths(filters_list, filter_transmission_path_
 
 
 def init_worker(ssp_code_val, snap_z_val, pix_area_kpc2_val, mean_AV_unres_val, 
-                filters_list_val,
-                filter_transmission_path_val,
+                filters_list_val, filter_transmission_path_val,
                 imf_type_val, imf_upper_limit_val, imf_lower_limit_val, 
                 imf1_val, imf2_val, imf3_val, vdmc_val, mdave_val,     
                 add_neb_emission_val, gas_logu_val, 
                 add_igm_absorption_val, igm_type_val, dust_index_bc_val, 
                 dust_index_val, t_esc_val, scale_dust_tau_val, 
                 cosmo_str_val, cosmo_h_val, XH_val, 
-                dust_law_val, bump_amp_val, dustindexAV_AV_val, dustindexAV_dust_index_val, salim_a0_val, 
+                dust_law_val, bump_amp_val, relation_AVslope_val, salim_a0_val,
                 salim_a1_val, salim_a2_val, salim_a3_val, salim_RV_val, salim_B_val,
                 use_precomputed_ssp_val, ssp_filepath_val=None, ssp_interpolation_method_val='nearest', 
                 output_pixel_spectra_val=False, rest_wave_min_val=None, rest_wave_max_val=None): 
@@ -144,6 +150,7 @@ def init_worker(ssp_code_val, snap_z_val, pix_area_kpc2_val, mean_AV_unres_val,
     global output_pixel_spectra_flag, global_output_obs_wave 
     global _worker_filters, _worker_filter_transmission, _worker_filter_wave_eff, _worker_imf_type, _worker_cosmo
     global _worker_imf_upper_limit, _worker_imf_lower_limit, _worker_imf1, _worker_imf2, _worker_imf3, _worker_vdmc, _worker_mdave
+    global dustindexAV_AV, dustindexAV_dust_index # Declare these as global to be set here
 
     snap_z = snap_z_val
     pix_area_kpc2 = pix_area_kpc2_val
@@ -289,10 +296,34 @@ def init_worker(ssp_code_val, snap_z_val, pix_area_kpc2_val, mean_AV_unres_val,
                   f"Output spectra will be empty for this pixel.")
             global_output_obs_wave = np.array([])
 
+    # Handle relation_AVslope_val
+    if isinstance(relation_AVslope_val, str):
+        data_file_name = f"{relation_AVslope_val}_AV_dust_index.txt"
+        try:
+            # Use importlib.resources to get the path to the data file
+            # Assuming 'galsyn.data' is a package containing these text files
+            data_path = str(importlib.resources.files('galsyn.data').joinpath(data_file_name))
+            data = np.loadtxt(data_path)
+            dustindexAV_AV = data[:, 0]
+            dustindexAV_dust_index = data[:, 1]
+        except Exception as e:
+            print(f"Error loading dust relation data from {data_file_name}: {e}")
+            sys.exit(1) # Exit if data cannot be loaded.
+    elif isinstance(relation_AVslope_val, dict):
+        dustindexAV_AV = np.asarray(relation_AVslope_val["AV"])
+        dustindexAV_dust_index = np.asarray(relation_AVslope_val["dust_index"])
+    else:
+        # This case should ideally be caught by the setter in GalaxySynthesizer,
+        # but as a safeguard, assign empty arrays or raise an error.
+        print("Error: Invalid relation_AVslope_val type passed to init_worker.")
+        dustindexAV_AV = np.array([])
+        dustindexAV_dust_index = np.array([])
+        sys.exit(1)
+
+
     if dust_law <= 1:
         global func_interp_dust_index
-        dustindexAV_AV = dustindexAV_AV_val
-        dustindexAV_dust_index = dustindexAV_dust_index_val
+        # dustindexAV_AV and dustindexAV_dust_index are now set globally based on relation_AVslope_val
         func_interp_dust_index = interp1d(dustindexAV_AV, dustindexAV_dust_index, bounds_error=False, fill_value='extrapolate')
 
     elif dust_law == 2:
@@ -536,7 +567,7 @@ def generate_images(sim_file, z, filters, filter_transmission_path, dim_kpc=None
                     imf1=1.3, imf2=2.3, imf3=2.3, vdmc=0.08, mdave=0.5, add_neb_emission=1, gas_logu=-2.0, 
                     add_igm_absorption=1, igm_type=0, dust_index_bc=-0.7, dust_index=0.0, t_esc=0.01, 
                     norm_dust_z=[], norm_dust_tau=[], cosmo_str='Planck18', cosmo_h=0.6774, XH=0.76, 
-                    dust_law=0, bump_amp=0.85, dustindexAV_AV=[], dustindexAV_dust_index=[], salim_a0=-4.30, 
+                    dust_law=0, bump_amp=0.85, relation_AVslope="Salim18", salim_a0=-4.30, # Changed parameter
                     salim_a1=2.71, salim_a2= -0.191, salim_a3=0.0121, salim_RV=3.15, salim_B=1.57, 
                     initdim_kpc=200, initdim_mass_fraction=0.99, use_precomputed_ssp=True, 
                     ssp_filepath=None, ssp_interpolation_method='nearest', 
@@ -584,8 +615,10 @@ def generate_images(sim_file, z, filters, filter_transmission_path, dim_kpc=None
         XH (float, optional): Hydrogen mass fraction. Defaults to 0.76.
         dust_law (int, optional): Dust attenuation law type. Defaults to 0.
         bump_amp (float, optional): UV bump amplitude. Defaults to 0.85.
-        dustindexAV_AV (list, optional): A_V values for dust index interpolation. Defaults to [].
-        dustindexAV_dust_index (list, optional): Dust index values for interpolation. Defaults to [].
+        relation_AVslope (str or dict, optional): Defines the A_V vs dust_index relation.
+                                                  Can be a string ("Salim18", "Nagaraj22", "Battisti19")
+                                                  or a dictionary with "AV" and "dust_index" keys (1D arrays).
+                                                  Defaults to "Salim18".
         salim_a0, salim_a1, salim_a2, salim_a3, salim_RV, salim_B (float, optional): Parameters for Salim+2018 dust law.
         initdim_kpc (float, optional): Initial guess for image dimension in kpc. Defaults to 100.
         initdim_mass_fraction (float, optional): Mass fraction to determine initial image dimension. Defaults to 0.99. 
@@ -752,7 +785,7 @@ def generate_images(sim_file, z, filters, filter_transmission_path, dim_kpc=None
                                      imf1, imf2, imf3, vdmc, mdave, add_neb_emission, 
                                      gas_logu, add_igm_absorption, igm_type, dust_index_bc, 
                                      dust_index, t_esc, scale_dust_tau, cosmo_str, cosmo_h, XH, 
-                                     dust_law, bump_amp, list(dustindexAV_AV), list(dustindexAV_dust_index), 
+                                     dust_law, bump_amp, relation_AVslope, # Changed parameter
                                      salim_a0, salim_a1, salim_a2, salim_a3, salim_RV, salim_B,
                                      use_precomputed_ssp, ssp_filepath, ssp_interpolation_method, 
                                      output_pixel_spectra, rest_wave_min, rest_wave_max))( 
@@ -908,4 +941,3 @@ def generate_images(sim_file, z, filters, filter_transmission_path, dim_kpc=None
 
         except Exception as e:
             print(f"Error saving FITS file {name_out_img}: {e}")
-

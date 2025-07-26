@@ -9,8 +9,9 @@ from joblib import Parallel, delayed
 from tqdm.auto import tqdm
 from tqdm_joblib import tqdm_joblib
 import multiprocessing
-from scipy.interpolate import interp1d, RegularGridInterpolator # Ensure interp1d is here
+from scipy.interpolate import interp1d, RegularGridInterpolator
 from scipy.integrate import simpson
+import importlib.resources # Added import
 
 import bagpipes as pipes
 
@@ -59,6 +60,11 @@ func_interp_dust_index = None
 use_precomputed_ssp = False
 ssp_interpolation_method = 'nearest'
 
+# Global variables for dustindexAV_AV and dustindexAV_dust_index
+# These will be set dynamically based on relation_AVslope_val in init_worker
+dustindexAV_AV = None
+dustindexAV_dust_index = None
+
 output_pixel_spectra_flag = False
 global_output_obs_wave = None
 
@@ -67,16 +73,8 @@ _worker_filter_transmission = None
 _worker_filter_wave_eff = None
 _worker_cosmo = None
 
-# Define the common wavelength grid for on-the-fly SSP generation
-# This MUST be identical to the one used in ssp_generator_bagpipes.py if you generate pre-computed SSPs.
-_common_ssp_rest_wave = np.arange(100., 30000., 5.)
-
 
 def _load_filter_transmission_from_paths(filters_list, filter_transmission_path_dict):
-    """
-    Loads filter transmission data from specified text files and calculates
-    pivot wavelengths.
-    """
     filter_transmission_data = {}
     filter_wave_pivot_data = {}
 
@@ -86,7 +84,6 @@ def _load_filter_transmission_from_paths(filters_list, filter_transmission_path_
         
         file_path = filter_transmission_path_dict[f_name]
         try:
-            # Load data from the text file (assuming 2 columns: wavelength, transmission)
             data = np.loadtxt(file_path)
             if data.shape[1] != 2:
                 raise ValueError(f"Filter file {file_path} must have exactly two columns (wavelength, transmission).")
@@ -96,21 +93,16 @@ def _load_filter_transmission_from_paths(filters_list, filter_transmission_path_
 
             filter_transmission_data[f_name] = {'wave': wave, 'trans': trans}
 
-            # Calculate pivot wavelength
-            # Lambda_p = sqrt(integral(lambda * T(lambda) d_lambda) / integral(T(lambda) / lambda d_lambda))
-            # Numerator: integral(lambda * T(lambda) d_lambda)
             numerator = simpson(wave * trans, wave)
-            # Denominator: integral(T(lambda) / lambda d_lambda)
-            # Avoid division by zero if trans is zero or wave is zero at some points
             integrand_denominator = np.where(wave != 0, trans / wave, 0)
             denominator = simpson(integrand_denominator, wave)
 
             if denominator > 0:
                 pivot_wavelength = np.sqrt(numerator / denominator)
             else:
-                pivot_wavelength = np.nan # Or handle as an error/default value
+                pivot_wavelength = np.nan
 
-            filter_wave_pivot_data[f_name] = pivot_wavelength # Storing pivot wavelength
+            filter_wave_pivot_data[f_name] = pivot_wavelength
 
         except Exception as e:
             print(f"Error loading or processing filter file {file_path} for filter {f_name}: {e}")
@@ -121,11 +113,11 @@ def _load_filter_transmission_from_paths(filters_list, filter_transmission_path_
 
 def init_worker(ssp_code_val, snap_z_val, pix_area_kpc2_val, mean_AV_unres_val, 
                 filters_list_val, filter_transmission_path_val,
-                add_neb_emission_val, gas_logu_val, # Bagpipes-specific parameters
+                add_neb_emission_val, gas_logu_val,
                 add_igm_absorption_val, igm_type_val, dust_index_bc_val, 
                 dust_index_val, t_esc_val, scale_dust_tau_val, 
                 cosmo_str_val, cosmo_h_val, XH_val, 
-                dust_law_val, bump_amp_val, dustindexAV_AV_val, dustindexAV_dust_index_val, salim_a0_val, 
+                dust_law_val, bump_amp_val, relation_AVslope_val, salim_a0_val, # Changed parameter
                 salim_a1_val, salim_a2_val, salim_a3_val, salim_RV_val, salim_B_val,
                 use_precomputed_ssp_val, ssp_filepath_val=None, ssp_interpolation_method_val='nearest', 
                 output_pixel_spectra_val=False, rest_wave_min_val=None, rest_wave_max_val=None): 
@@ -139,7 +131,7 @@ def init_worker(ssp_code_val, snap_z_val, pix_area_kpc2_val, mean_AV_unres_val,
     global use_precomputed_ssp, ssp_interpolation_method 
     global output_pixel_spectra_flag, global_output_obs_wave 
     global _worker_filters, _worker_filter_transmission, _worker_filter_wave_eff, _worker_cosmo
-    global _common_ssp_rest_wave # Access the common wavelength grid
+    global dustindexAV_AV, dustindexAV_dust_index # Declare these as global to be set here
 
     snap_z = snap_z_val
     pix_area_kpc2 = pix_area_kpc2_val
@@ -180,7 +172,6 @@ def init_worker(ssp_code_val, snap_z_val, pix_area_kpc2_val, mean_AV_unres_val,
             sys.exit(1)
         try:
             with h5py.File(ssp_filepath_val, 'r') as f_ssp:
-                # Check if the SSP file is for Bagpipes
                 if f_ssp.attrs.get('code') != 'Bagpipes':
                     print(f"Error: SSP grid file '{ssp_filepath_val}' was generated with '{f_ssp.attrs.get('code', 'unknown')}' but 'Bagpipes' is selected for ssp_code.")
                     sys.exit(1)
@@ -190,16 +181,14 @@ def init_worker(ssp_code_val, snap_z_val, pix_area_kpc2_val, mean_AV_unres_val,
                 ssp_logzsol_grid = f_ssp['logzsol'][:]
                 ssp_spectra_grid = f_ssp['spectra'][:]
                 ssp_stellar_mass_grid = f_ssp['stellar_mass'][:]
-                ssp_code_z_sun = f_ssp.attrs['z_sun'] # This will be BAGPIPES_Z_SUN
+                ssp_code_z_sun = f_ssp.attrs['z_sun']
                 
-                # Consistency checks for Bagpipes-specific parameters
                 if f_ssp.attrs['add_neb_emission'] != add_neb_emission:
                     print(f"Warning: Nebular emission setting mismatch! SSP grid was generated with {f_ssp.attrs['add_neb_emission']}, but current setting is {add_neb_emission}.")
                 if f_ssp.attrs['gas_logu'] != gas_logu:
                     print(f"Warning: Gas LogU setting mismatch! SSP grid was generated with {f_ssp.attrs['gas_logu']}, but current setting is {gas_logu}.")
-                # IMF type is fixed to Kroupa (2001) for Bagpipes SSPs, so no check needed here.
 
-                if ssp_interpolation_method == 'linear': # Add 'cubic' if supported by RegularGridInterpolator
+                if ssp_interpolation_method == 'linear':
                     _global_ssp_spectra_interpolator = RegularGridInterpolator(
                         (ssp_ages_gyr, ssp_logzsol_grid), ssp_spectra_grid, 
                         method='linear', bounds_error=False, fill_value=0.0
@@ -221,11 +210,10 @@ def init_worker(ssp_code_val, snap_z_val, pix_area_kpc2_val, mean_AV_unres_val,
         except Exception as e:
             print(f"Error loading SSP grid from {ssp_filepath_val}: {e}")
             sys.exit(1)
-    else: # Generate on-the-fly using Bagpipes
-        # Initialize Bagpipes model components (dust and nebular)
+    else:
         dust = {}
         dust["type"] = "Calzetti"
-        dust["Av"] = 0.0  # No dust for SSP generation
+        dust["Av"] = 0.0
         dust["eta"] = 1.0
 
         nebular = {}
@@ -235,17 +223,24 @@ def init_worker(ssp_code_val, snap_z_val, pix_area_kpc2_val, mean_AV_unres_val,
             nebular = None
 
         model_components = {}
-        model_components["redshift"] = 0.0  # Always rest-frame
-        model_components["veldisp"] = 0     # No velocity dispersion applied
+        model_components["redshift"] = 0.0
+        model_components["veldisp"] = 0
         model_components["dust"] = dust
         if nebular:
             model_components["nebular"] = nebular
         
         _ssp_worker_bagpipes_model_components = model_components
 
-        # For on-the-fly, ssp_wave will be our common predefined grid
-        ssp_wave = _common_ssp_rest_wave
-        ssp_code_z_sun = BAGPIPES_Z_SUN # Set Z_sun for on-the-fly Bagpipes
+        # --- Start of modification in galsyn_run_bagpipes.py ---
+        # Remove spec_wavs from the dummy call to let Bagpipes use its default.
+        dummy_burst = {"age": 0.01, "massformed": 1.0, "metallicity": 1.0}
+        dummy_model_components = _ssp_worker_bagpipes_model_components.copy()
+        dummy_model_components["burst"] = dummy_burst
+        # Changed from: dummy_model = pipes.model_galaxy(dummy_model_components, spec_wavs=np.arange(100., 100000., 10.))
+        dummy_model = pipes.model_galaxy(dummy_model_components) # Let Bagpipes determine its default wavelengths
+        ssp_wave = dummy_model.wavelengths
+        # --- End of modification in galsyn_run_bagpipes.py ---
+        ssp_code_z_sun = BAGPIPES_Z_SUN
 
 
     if output_pixel_spectra_flag:
@@ -266,11 +261,33 @@ def init_worker(ssp_code_val, snap_z_val, pix_area_kpc2_val, mean_AV_unres_val,
                   f"Output spectra will be empty for this pixel.")
             global_output_obs_wave = np.array([])
 
+    # Handle relation_AVslope_val
+    if isinstance(relation_AVslope_val, str):
+        data_file_name = f"{relation_AVslope_val}_AV_dust_index.txt"
+        try:
+            # Use importlib.resources to get the path to the data file
+            # Assuming 'galsyn.data' is a package containing these text files
+            data_path = str(importlib.resources.files('galsyn.data').joinpath(data_file_name))
+            data = np.loadtxt(data_path)
+            dustindexAV_AV = data[:, 0]
+            dustindexAV_dust_index = data[:, 1]
+        except Exception as e:
+            print(f"Error loading dust relation data from {data_file_name}: {e}")
+            sys.exit(1) # Exit if data cannot be loaded.
+    elif isinstance(relation_AVslope_val, dict):
+        dustindexAV_AV = np.asarray(relation_AVslope_val["AV"])
+        dustindexAV_dust_index = np.asarray(relation_AVslope_val["dust_index"])
+    else:
+        # This case should ideally be caught by the setter in GalaxySynthesizer,
+        # but as a safeguard, assign empty arrays or raise an error.
+        print("Error: Invalid relation_AVslope_val type passed to init_worker.")
+        dustindexAV_AV = np.array([])
+        dustindexAV_dust_index = np.array([])
+        sys.exit(1)
 
     if dust_law <= 1:
         global func_interp_dust_index
-        dustindexAV_AV = dustindexAV_AV_val
-        dustindexAV_dust_index = dustindexAV_dust_index_val
+        # dustindexAV_AV and dustindexAV_dust_index are now set globally based on relation_AVslope_val
         func_interp_dust_index = interp1d(dustindexAV_AV, dustindexAV_dust_index, bounds_error=False, fill_value='extrapolate')
 
     elif dust_law == 2:
@@ -314,15 +331,7 @@ def dust_reddening_diffuse_ism(dust_AV, wave, dust_law):
 def _process_pixel_data(ii, jj, star_particle_membership_list, gas_particle_membership_list, 
                         stars_mass, stars_age, stars_zsol, stars_init_mass, 
                         gas_mass, gas_sfr_inst, gas_zsol, gas_log_temp, gas_mass_H):
-    """
-    ii=y jj=x
-    Worker function to process calculations for a single pixel (ii, jj).
-    This function will be executed in parallel.
     
-    star_particle_membership_list: List of (original_particle_index, line_of_sight_distance) for THIS pixel.
-    gas_particle_membership_list: List of (original_particle_index, line_of_sight_distance) for THIS pixel.
-    """
-
     pixel_results = {
         'map_stars_mass': 0.0,
         'map_mw_age': 0.0,
@@ -394,8 +403,7 @@ def _process_pixel_data(ii, jj, star_particle_membership_list, gas_particle_memb
         array_AV = []
         array_tauV = []
         
-        # 'wave' is already ssp_wave, which is set to _common_ssp_rest_wave for on-the-fly or loaded from HDF5
-        wave = ssp_wave 
+        wave = ssp_wave
 
         for i_sid in range(len(star_ids)):
             star_id = star_ids[i_sid]
@@ -428,18 +436,12 @@ def _process_pixel_data(ii, jj, star_particle_membership_list, gas_particle_memb
                 current_model_components = _ssp_worker_bagpipes_model_components.copy()
                 current_model_components["burst"] = burst
 
-                # Generate the full internal spectrum from Bagpipes (without specifying spec_wavs)
-                model = pipes.model_galaxy(current_model_components, spec_wavs=np.arange(1000., 10000., 5.))
-                full_wave = model.wavelengths
-                full_fluxes_erg_s_aa = model.spectrum_full
+                # Use the global ssp_wave determined in init_worker for consistent wavelength grid
+                model = pipes.model_galaxy(current_model_components, spec_wavs=wave) 
+                
+                rest_frame_fluxes_erg_s_aa = model.spectrum_full
 
-                # Convert to L_sun/Angstrom
-                full_fluxes_l_sun_aa = full_fluxes_erg_s_aa / L_SUN_ERG_S
-
-                # Interpolate onto the common predefined wavelength grid (ssp_wave)
-                interp_func = interp1d(full_wave, full_fluxes_l_sun_aa, kind='linear', 
-                                       bounds_error=False, fill_value=0.0)
-                spec = interp_func(ssp_wave) # The result 'spec' will now be on the correct grid
+                spec = rest_frame_fluxes_erg_s_aa / L_SUN_ERG_S
 
                 surv_stellar_mass = model.sfh.stellar_mass
                 ssp_mass_formed = surv_stellar_mass
@@ -533,7 +535,7 @@ def generate_images(sim_file, z, filters, filter_transmission_path, dim_kpc=None
                     name_out_img=None, n_jobs=-1, ssp_code='Bagpipes', add_neb_emission=1, gas_logu=-2.0, 
                     add_igm_absorption=1, igm_type=0, dust_index_bc=-0.7, dust_index=0.0, t_esc=0.01, 
                     norm_dust_z=[], norm_dust_tau=[], cosmo_str='Planck18', cosmo_h=0.6774, XH=0.76, 
-                    dust_law=0, bump_amp=0.85, dustindexAV_AV=[], dustindexAV_dust_index=[], salim_a0=-4.30, 
+                    dust_law=0, bump_amp=0.85, relation_AVslope="Salim18", salim_a0=-4.30, # Changed parameter
                     salim_a1=2.71, salim_a2= -0.191, salim_a3=0.0121, salim_RV=3.15, salim_B=1.57, 
                     initdim_kpc=200, initdim_mass_fraction=0.99, use_precomputed_ssp=True, 
                     ssp_filepath=None, ssp_interpolation_method='nearest', 
@@ -628,7 +630,7 @@ def generate_images(sim_file, z, filters, filter_transmission_path, dim_kpc=None
     nH = np.nansum(gas_mass_H[idxg_global])*1.247914e+14/dim_kpc/dim_kpc
 
     scale_dust_tau = tau_dust_given_z(snap_z, norm_dust_z, norm_dust_tau)
-    mean_tauV_res = scale_dust_tau*temp_mw_gas_zsol*nH/2.1e+21
+    mean_tauV_res = scale_dust_tau*temp_mw_gas_zsol*nH/2.1e+21 
 
     global mean_AV_unres
     if np.isnan(mean_tauV_res)==True or np.isinf(mean_tauV_res)==True:
@@ -691,7 +693,7 @@ def generate_images(sim_file, z, filters, filter_transmission_path, dim_kpc=None
                                      add_neb_emission, gas_logu,
                                      add_igm_absorption, igm_type, dust_index_bc, 
                                      dust_index, t_esc, scale_dust_tau, cosmo_str, cosmo_h, XH, 
-                                     dust_law, bump_amp, list(dustindexAV_AV), list(dustindexAV_dust_index), 
+                                     dust_law, bump_amp, relation_AVslope, # Changed parameter
                                      salim_a0, salim_a1, salim_a2, salim_a3, salim_RV, salim_B,
                                      use_precomputed_ssp, ssp_filepath, ssp_interpolation_method, 
                                      output_pixel_spectra, rest_wave_min, rest_wave_max))( 
