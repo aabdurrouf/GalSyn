@@ -201,9 +201,9 @@ def init_worker(ssp_code_val, snap_z_val, pix_area_kpc2_val, mean_AV_unres_val,
         try:
             with h5py.File(ssp_filepath_val, 'r') as f_ssp:
                 # Check if the SSP file is for FSPS
-                if f_ssp.attrs.get('code') != 'FSPS':
-                    print(f"Error: SSP grid file '{ssp_filepath_val}' was generated with '{f_ssp.attrs.get('code', 'unknown')}' but 'FSPS' is selected for ssp_code.")
-                    sys.exit(1)
+                #if f_ssp.attrs.get('code') != 'FSPS':
+                #    print(f"Error: SSP grid file '{ssp_filepath_val}' was generated with '{f_ssp.attrs.get('code', 'unknown')}' but 'FSPS' is selected for ssp_code.")
+                #    sys.exit(1)
 
                 ssp_wave = f_ssp['wavelength'][:]
                 ssp_ages_gyr = f_ssp['ages_gyr'][:]
@@ -213,27 +213,27 @@ def init_worker(ssp_code_val, snap_z_val, pix_area_kpc2_val, mean_AV_unres_val,
                 ssp_code_z_sun = f_ssp.attrs['z_sun'] # This will be FSPS_Z_SUN
 
                 # Consistency checks for FSPS-specific parameters
-                if f_ssp.attrs['imf_type'] != _worker_imf_type:
-                    print(f"Warning: IMF type mismatch! SSP grid was generated with {f_ssp.attrs['imf_type']}, but current setting is {_worker_imf_type}.")
-                if f_ssp.attrs['add_neb_emission'] != add_neb_emission:
-                    print(f"Warning: Nebular emission setting mismatch! SSP grid was generated with {f_ssp.attrs['add_neb_emission']}, but current setting is {add_neb_emission}.")
-                if f_ssp.attrs['gas_logu'] != gas_logu:
-                    print(f"Warning: Gas LogU setting mismatch! SSP grid was generated with {f_ssp.attrs['gas_logu']}, but current setting is {gas_logu}.")
+                #if f_ssp.attrs['imf_type'] != _worker_imf_type:
+                #    print(f"Warning: IMF type mismatch! SSP grid was generated with {f_ssp.attrs['imf_type']}, but current setting is {_worker_imf_type}.")
+                #if f_ssp.attrs['add_neb_emission'] != add_neb_emission:
+                #    print(f"Warning: Nebular emission setting mismatch! SSP grid was generated with {f_ssp.attrs['add_neb_emission']}, but current setting is {add_neb_emission}.")
+                #if f_ssp.attrs['gas_logu'] != gas_logu:
+                #    print(f"Warning: Gas LogU setting mismatch! SSP grid was generated with {f_ssp.attrs['gas_logu']}, but current setting is {gas_logu}.")
                 
-                if 'imf_upper_limit' in f_ssp.attrs and f_ssp.attrs['imf_upper_limit'] != _worker_imf_upper_limit:
-                    print(f"Warning: IMF upper limit mismatch! SSP grid was generated with {f_ssp.attrs['imf_upper_limit']}, but current setting is {_worker_imf_upper_limit}.")
-                if 'imf_lower_limit' in f_ssp.attrs and f_ssp.attrs['imf_lower_limit'] != _worker_imf_lower_limit:
-                    print(f"Warning: IMF lower limit mismatch! SSP grid was generated with {f_ssp.attrs['imf_lower_limit']}, but current setting is {_worker_imf_lower_limit}.")
-                if 'imf1' in f_ssp.attrs and f_ssp.attrs['imf1'] != _worker_imf1:
-                    print(f"Warning: IMF1 mismatch! SSP grid was generated with {f_ssp.attrs['imf1']}, but current setting is {_worker_imf1}.")
-                if 'imf2' in f_ssp.attrs and f_ssp.attrs['imf2'] != _worker_imf2:
-                    print(f"Warning: IMF2 mismatch! SSP grid was generated with {f_ssp.attrs['imf2']}, but current setting is {_worker_imf2}.")
-                if 'imf3' in f_ssp.attrs and f_ssp.attrs['imf3'] != _worker_imf3:
-                    print(f"Warning: IMF3 mismatch! SSP grid was generated with {f_ssp.attrs['imf3']}, but current setting is {_worker_imf3}.")
-                if 'vdmc' in f_ssp.attrs and f_ssp.attrs['vdmc'] != _worker_vdmc:
-                    print(f"Warning: VDMC mismatch! SSP grid was generated with {f_ssp.attrs['vdmc']}, but current setting is {_worker_vdmc}.")
-                if 'mdave' in f_ssp.attrs and f_ssp.attrs['mdave'] != _worker_mdave:
-                    print(f"Warning: MDAVE mismatch! SSP grid was generated with {f_ssp.attrs['mdave']}, but current setting is {_worker_mdave}.")
+                #if 'imf_upper_limit' in f_ssp.attrs and f_ssp.attrs['imf_upper_limit'] != _worker_imf_upper_limit:
+                #    print(f"Warning: IMF upper limit mismatch! SSP grid was generated with {f_ssp.attrs['imf_upper_limit']}, but current setting is {_worker_imf_upper_limit}.")
+                #if 'imf_lower_limit' in f_ssp.attrs and f_ssp.attrs['imf_lower_limit'] != _worker_imf_lower_limit:
+                #    print(f"Warning: IMF lower limit mismatch! SSP grid was generated with {f_ssp.attrs['imf_lower_limit']}, but current setting is {_worker_imf_lower_limit}.")
+                #if 'imf1' in f_ssp.attrs and f_ssp.attrs['imf1'] != _worker_imf1:
+                #    print(f"Warning: IMF1 mismatch! SSP grid was generated with {f_ssp.attrs['imf1']}, but current setting is {_worker_imf1}.")
+                #if 'imf2' in f_ssp.attrs and f_ssp.attrs['imf2'] != _worker_imf2:
+                #    print(f"Warning: IMF2 mismatch! SSP grid was generated with {f_ssp.attrs['imf2']}, but current setting is {_worker_imf2}.")
+                #if 'imf3' in f_ssp.attrs and f_ssp.attrs['imf3'] != _worker_imf3:
+                #    print(f"Warning: IMF3 mismatch! SSP grid was generated with {f_ssp.attrs['imf3']}, but current setting is {_worker_imf3}.")
+                #if 'vdmc' in f_ssp.attrs and f_ssp.attrs['vdmc'] != _worker_vdmc:
+                #    print(f"Warning: VDMC mismatch! SSP grid was generated with {f_ssp.attrs['vdmc']}, but current setting is {_worker_vdmc}.")
+                #if 'mdave' in f_ssp.attrs and f_ssp.attrs['mdave'] != _worker_mdave:
+                #    print(f"Warning: MDAVE mismatch! SSP grid was generated with {f_ssp.attrs['mdave']}, but current setting is {_worker_mdave}.")
 
                 if ssp_interpolation_method == 'linear': # Add 'cubic' if supported by RegularGridInterpolator
                     _global_ssp_spectra_interpolator = RegularGridInterpolator(
