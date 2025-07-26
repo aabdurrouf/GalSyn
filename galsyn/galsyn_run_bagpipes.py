@@ -15,7 +15,7 @@ from scipy.integrate import simpson
 import bagpipes as pipes # Import Bagpipes
 
 # Constants for solar metallicity (from Bagpipes documentation or common usage)
-BAGPIPES_Z_SUN = 0.0134
+BAGPIPES_Z_SUN = 0.02
 L_SUN_ERG_S = 3.828e33 # Solar luminosity in erg/s
 PRIMORDIAL_Z_SUN_VALUE = 0.0127 # This is likely a constant for the simulation data's metallicity definition
 

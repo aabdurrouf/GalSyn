@@ -12,9 +12,7 @@ import multiprocessing
 # L_sun = 3.828e33 erg/s
 L_SUN_ERG_S = 3.828e33
 
-# Solar metallicity (Z_sun) for Bagpipes. Bagpipes uses solar metallicity from Asplund et al. (2009)
-# which is Z_sun = 0.0134. This is for converting Z/Z_sun to log(Z/Z_sun).
-BAGPIPES_Z_SUN = 0.0134
+BAGPIPES_Z_SUN = 0.02
 
 # Global variable for the Bagpipes model_galaxy instance in each worker process
 # This will be initialized once per worker by the initializer function.
