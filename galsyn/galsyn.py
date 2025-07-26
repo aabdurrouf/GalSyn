@@ -65,8 +65,7 @@ class GalaxySynthesizer:
         self._igm_type = getattr(config, 'IGM_TYPE', 0)
 
         # Dust attenuation tau normalization as function of redshift
-        self._norm_dust_z = getattr(config, 'NORM_DUST_Z', [0, 2, 3, 4, 5, 6, 7, 8, 12])
-        self._norm_dust_tau = getattr(config, 'NORM_DUST_TAU', [0.46, 0.46, 0.20, 0.13, 0.08, 0.06, 0.04, 0.03, 0.03])
+        self._scale_dust_redshift = getattr(config, 'SCALE_DUST_REDSHIFT', "Vogelsberger20")
 
         # Dust attenuation setup
         self._dust_law = getattr(config, 'DUST_LAW', 0)
@@ -386,30 +385,29 @@ class GalaxySynthesizer:
         self._t_esc = value
 
     @property
-    def norm_dust_z(self):
-        return self._norm_dust_z
+    def scale_dust_redshift(self):
+        return self._scale_dust_redshift
 
-    @norm_dust_z.setter
-    def norm_dust_z(self, value):
-        if not isinstance(value, list):
-            raise ValueError("norm_dust_z must be a list.")
-        for i, item in enumerate(value):
-            if not isinstance(item, (int, float)):
-                raise ValueError(f"norm_dust_z list must contain only numbers. Item at index {i} is not a number ({type(item).__name__}).")
-        self._norm_dust_z = value[:]
-
-    @property
-    def norm_dust_tau(self):
-        return self._norm_dust_tau
-
-    @norm_dust_tau.setter
-    def norm_dust_tau(self, value):
-        if not isinstance(value, list):
-            raise ValueError("norm_dust_tau must be a list.")
-        for i, item in enumerate(value):
-            if not isinstance(item, (int, float)):
-                raise ValueError(f"norm_dust_tau list must contain only numbers. Item at index {i} is not a number ({type(item).__name__}).")
-        self._norm_dust_tau = value[:]
+    @scale_dust_redshift.setter
+    def scale_dust_redshift(self, value):
+        if isinstance(value, str):
+            if value not in ["Vogelsberger20"]:
+                raise ValueError("scale_dust_redshift string must be 'Vogelsberger20'.")
+        elif isinstance(value, dict):
+            if "z" not in value or "tau_dust" not in value:
+                raise ValueError("scale_dust_redshift dictionary must contain 'z' and 'tau_dust' keys.")
+            if not isinstance(value["z"], (list, np.ndarray)) or not isinstance(value["tau_dust"], (list, np.ndarray)):
+                raise ValueError("Both 'z' and 'tau_dust' in scale_dust_redshift dictionary must be lists or numpy arrays.")
+            if len(value["z"]) != len(value["tau_dust"]):
+                raise ValueError("'z' and 'tau_dust' arrays in scale_dust_redshift must have the same length.")
+            try:
+                np.asarray(value["z"], dtype=float)
+                np.asarray(value["tau_dust"], dtype=float)
+            except ValueError:
+                raise ValueError("All elements in 'z' and 'tau_dust' arrays must be numeric.")
+        else:
+            raise ValueError("scale_dust_redshift must be a string ('Vogelsberger20') or a dictionary with 'z' and 'tau_dust' keys.")
+        self._scale_dust_redshift = value
 
     @property
     def cosmo_str(self):
@@ -750,8 +748,7 @@ class GalaxySynthesizer:
                 'dust_index_bc': self.dust_index_bc,
                 'dust_index': self.dust_index,
                 't_esc': self.t_esc,
-                'norm_dust_z': self.norm_dust_z,
-                'norm_dust_tau': self.norm_dust_tau,
+                'scale_dust_redshift': self.scale_dust_redshift, # Pass the new parameter
                 'cosmo_str': self.cosmo_str,
                 'cosmo_h': self.cosmo_h,
                 'XH': self.XH,
