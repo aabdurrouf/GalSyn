@@ -44,7 +44,7 @@ igm_type = None
 dust_index_bc = None
 dust_index = None
 t_esc = None
-scale_dust_tau = None
+scale_dust_tau = None # This will now be calculated in init_worker
 dust_law = None
 bump_amp = None
 salim_a0 = None
@@ -62,6 +62,10 @@ ssp_interpolation_method = 'nearest'
 # These will be set dynamically based on relation_AVslope_val in init_worker
 dustindexAV_AV = None
 dustindexAV_dust_index = None
+
+# Global variables for dust_tau_normalization
+global_norm_dust_z = None
+global_norm_dust_tau = None
 
 
 output_pixel_spectra_flag = False
@@ -128,14 +132,15 @@ def _load_filter_transmission_from_paths(filters_list, filter_transmission_path_
 
 
 def init_worker(ssp_code_val, snap_z_val, pix_area_kpc2_val, mean_AV_unres_val, 
-                filters_list_val, filter_transmission_path_val,
+                filters_list_val,
+                filter_transmission_path_val,
                 imf_type_val, imf_upper_limit_val, imf_lower_limit_val, 
                 imf1_val, imf2_val, imf3_val, vdmc_val, mdave_val,     
                 add_neb_emission_val, gas_logu_val, 
                 add_igm_absorption_val, igm_type_val, dust_index_bc_val, 
-                dust_index_val, t_esc_val, scale_dust_tau_val, 
+                dust_index_val, t_esc_val, scale_dust_redshift_val,
                 cosmo_str_val, cosmo_h_val, XH_val, 
-                dust_law_val, bump_amp_val, relation_AVslope_val, salim_a0_val,
+                dust_law_val, bump_amp_val, relation_AVslope_val, salim_a0_val, 
                 salim_a1_val, salim_a2_val, salim_a3_val, salim_RV_val, salim_B_val,
                 use_precomputed_ssp_val, ssp_filepath_val=None, ssp_interpolation_method_val='nearest', 
                 output_pixel_spectra_val=False, rest_wave_min_val=None, rest_wave_max_val=None): 
@@ -151,6 +156,7 @@ def init_worker(ssp_code_val, snap_z_val, pix_area_kpc2_val, mean_AV_unres_val,
     global _worker_filters, _worker_filter_transmission, _worker_filter_wave_eff, _worker_imf_type, _worker_cosmo
     global _worker_imf_upper_limit, _worker_imf_lower_limit, _worker_imf1, _worker_imf2, _worker_imf3, _worker_vdmc, _worker_mdave
     global dustindexAV_AV, dustindexAV_dust_index # Declare these as global to be set here
+    global global_norm_dust_z, global_norm_dust_tau # Declare these as global to be set here
 
     snap_z = snap_z_val
     pix_area_kpc2 = pix_area_kpc2_val
@@ -171,7 +177,7 @@ def init_worker(ssp_code_val, snap_z_val, pix_area_kpc2_val, mean_AV_unres_val,
     igm_type = igm_type_val
     dust_index_bc = dust_index_bc_val
     t_esc = t_esc_val
-    scale_dust_tau = scale_dust_tau_val
+    # scale_dust_tau is now calculated later based on global_norm_dust_z and global_norm_dust_tau
     
     _worker_cosmo = define_cosmo(cosmo_str_val)
     
@@ -318,6 +324,31 @@ def init_worker(ssp_code_val, snap_z_val, pix_area_kpc2_val, mean_AV_unres_val,
         print("Error: Invalid relation_AVslope_val type passed to init_worker.")
         dustindexAV_AV = np.array([])
         dustindexAV_dust_index = np.array([])
+        sys.exit(1)
+
+    # Handle scale_dust_redshift_val
+    if isinstance(scale_dust_redshift_val, str):
+        if scale_dust_redshift_val == "Vogelsberger20":
+            data_file_name = "Vogelsberger20_scale_dust.txt"
+            try:
+                # Use importlib.resources to get the path to the data file
+                data_path = str(importlib.resources.files('galsyn.data').joinpath(data_file_name))
+                data = np.loadtxt(data_path)
+                global_norm_dust_z = data[:, 0]
+                global_norm_dust_tau = data[:, 1]
+            except Exception as e:
+                print(f"Error loading dust normalization data from {data_file_name}: {e}")
+                sys.exit(1) # Exit if data cannot be loaded.
+        else:
+            print(f"Error: Unknown string option for scale_dust_redshift_val: {scale_dust_redshift_val}")
+            sys.exit(1)
+    elif isinstance(scale_dust_redshift_val, dict):
+        global_norm_dust_z = np.asarray(scale_dust_redshift_val["z"])
+        global_norm_dust_tau = np.asarray(scale_dust_redshift_val["tau_dust"])
+    else:
+        print("Error: Invalid scale_dust_redshift_val type passed to init_worker.")
+        global_norm_dust_z = np.array([])
+        global_norm_dust_tau = np.array([])
         sys.exit(1)
 
 
@@ -486,7 +517,8 @@ def _process_pixel_data(ii, jj, star_particle_membership_list, gas_particle_memb
             if len(cold_front_gas_ids) > 0:
                 temp_mw_gas_zsol = np.nansum(gas_mass[cold_front_gas_ids]*gas_zsol[cold_front_gas_ids])/np.nansum(gas_mass[cold_front_gas_ids])
                 nH = np.nansum(gas_mass_H[cold_front_gas_ids])*1.247914e+14/pix_area_kpc2
-                tauV = scale_dust_tau * temp_mw_gas_zsol * nH / 2.1e+21
+                # Use the global_norm_dust_z and global_norm_dust_tau for tauV calculation
+                tauV = tau_dust_given_z(snap_z, global_norm_dust_z, global_norm_dust_tau) * temp_mw_gas_zsol * nH / 2.1e+21
                 dust_AV = -2.5*np.log10((1.0 - np.exp(-1.0*tauV))/tauV)
 
                 if np.isnan(dust_AV)==True or dust_AV==0.0:
@@ -566,8 +598,8 @@ def generate_images(sim_file, z, filters, filter_transmission_path, dim_kpc=None
                     name_out_img=None, n_jobs=-1, ssp_code='FSPS', imf_type=1, imf_upper_limit=120.0, imf_lower_limit=0.08,
                     imf1=1.3, imf2=2.3, imf3=2.3, vdmc=0.08, mdave=0.5, add_neb_emission=1, gas_logu=-2.0, 
                     add_igm_absorption=1, igm_type=0, dust_index_bc=-0.7, dust_index=0.0, t_esc=0.01, 
-                    norm_dust_z=[], norm_dust_tau=[], cosmo_str='Planck18', cosmo_h=0.6774, XH=0.76, 
-                    dust_law=0, bump_amp=0.85, relation_AVslope="Salim18", salim_a0=-4.30, # Changed parameter
+                    scale_dust_redshift="Vogelsberger20", cosmo_str='Planck18', cosmo_h=0.6774, XH=0.76, # Changed parameter
+                    dust_law=0, bump_amp=0.85, relation_AVslope="Salim18", salim_a0=-4.30, 
                     salim_a1=2.71, salim_a2= -0.191, salim_a3=0.0121, salim_RV=3.15, salim_B=1.57, 
                     initdim_kpc=200, initdim_mass_fraction=0.99, use_precomputed_ssp=True, 
                     ssp_filepath=None, ssp_interpolation_method='nearest', 
@@ -608,8 +640,9 @@ def generate_images(sim_file, z, filters, filter_transmission_path, dim_kpc=None
         dust_index_bc (float, optional): Dust index for birth clouds. Defaults to -0.7.
         dust_index (float, optional): Dust index for diffuse ISM (if applicable). Defaults to 0.0.
         t_esc (float, optional): Escape time for young stars. Defaults to 0.01.
-        norm_dust_z (list, optional): Redshift array for dust normalization. Defaults to [].
-        norm_dust_tau (list, optional): Tau array for dust normalization. Defaults to [].
+        scale_dust_redshift (str or dict, optional): Defines the dust_tau normalization vs redshift relation.
+                                                     Can be a string ("Vogelsberger20") or a dictionary with "z" and "tau_dust" keys (1D arrays).
+                                                     Defaults to "Vogelsberger20".
         cosmo_str (str, optional): Cosmology string. Defaults to 'Planck18'.
         cosmo_h (float, optional): Hubble parameter h. Defaults to 0.6774.
         XH (float, optional): Hydrogen mass fraction. Defaults to 0.76.
@@ -723,7 +756,9 @@ def generate_images(sim_file, z, filters, filter_transmission_path, dim_kpc=None
         temp_mw_gas_zsol = 0.0
     nH = np.nansum(gas_mass_H[idxg_global])*1.247914e+14/dim_kpc/dim_kpc
 
-    scale_dust_tau = tau_dust_given_z(snap_z, norm_dust_z, norm_dust_tau)
+    # Calculate scale_dust_tau using the global_norm_dust_z and global_norm_dust_tau
+    global scale_dust_tau
+    scale_dust_tau = tau_dust_given_z(snap_z, global_norm_dust_z, global_norm_dust_tau)
     mean_tauV_res = scale_dust_tau*temp_mw_gas_zsol*nH/2.1e+21 
 
     global mean_AV_unres
@@ -779,13 +814,13 @@ def generate_images(sim_file, z, filters, filter_transmission_path, dim_kpc=None
 
     with tqdm_joblib(total=len(processed_tasks_args), desc="Processing pixels") as progress_bar:
         results = Parallel(n_jobs=num_cores, verbose=0, initializer=init_worker,
-                           initargs=(ssp_code, snap_z, pix_area_kpc2, mean_AV_unres, # Pass ssp_code
+                           initargs=(ssp_code, snap_z, pix_area_kpc2, mean_AV_unres,
                                      filters, filter_transmission_path,
-                                     imf_type, imf_upper_limit, imf_lower_limit, 
-                                     imf1, imf2, imf3, vdmc, mdave, add_neb_emission, 
-                                     gas_logu, add_igm_absorption, igm_type, dust_index_bc, 
-                                     dust_index, t_esc, scale_dust_tau, cosmo_str, cosmo_h, XH, 
-                                     dust_law, bump_amp, relation_AVslope, # Changed parameter
+                                     add_neb_emission, gas_logu,
+                                     add_igm_absorption, igm_type, dust_index_bc, 
+                                     dust_index, t_esc, scale_dust_redshift,
+                                     cosmo_str, cosmo_h, XH, 
+                                     dust_law, bump_amp, relation_AVslope, 
                                      salim_a0, salim_a1, salim_a2, salim_a3, salim_RV, salim_B,
                                      use_precomputed_ssp, ssp_filepath, ssp_interpolation_method, 
                                      output_pixel_spectra, rest_wave_min, rest_wave_max))( 
@@ -855,7 +890,7 @@ def generate_images(sim_file, z, filters, filter_transmission_path, dim_kpc=None
                 prihdr['PIXSIZE'] = pix_arcsec
                 prihdr['BUNIT'] = flux_unit
                 prihdr['SCALE'] = flux_scale
-                prihdr['SSP_CODE'] = ssp_code # Add SSP code to FITS header
+                prihdr['SSP_CODE'] = ssp_code
 
                 primary_hdu = fits.PrimaryHDU(data=primary_data, header=prihdr)
                 hdul.append(primary_hdu)
