@@ -2,17 +2,15 @@ import os, sys
 import numpy as np
 from . import config
 from .galsyn_run import generate_images
-from .ssp_generator import generate_ssp_grid, FSPS_Z_SUN # Import the new function and constant
-
+import importlib.resources
 
 class GalaxySynthesizer:
 
-    def __init__(self, sim_file=None, z=0.01, filters=[], filter_transmission={}, filter_wave_eff={}):
+    def __init__(self, sim_file=None, z=0.01, filters=[], filter_transmission_path={}): # Changed: filter_transmission_path
         self._sim_file = sim_file
         self._z = z
         self._filters = filters
-        self._filter_transmission = filter_transmission
-        self._filter_wave_eff = filter_wave_eff
+        self._filter_transmission_path = filter_transmission_path # Changed: storing paths directly
 
         # Initialize with default values from config.py
         self._load_config_defaults()
@@ -23,21 +21,16 @@ class GalaxySynthesizer:
         self._flux_unit = 'MJy/sr'
         self._polar_angle_deg = 0
         self._azimuth_angle_deg = 0
-        self._ncpu = 4 # Default to 4, can be overridden by config or set_params
-
+        self._ncpu = 4
         self._initdim_kpc = 100
         self._initdim_mass_fraction = 0.99
-
         self._name_out_img = None
-        self._ssp_filepath = "ssp_spectra.hdf5" # Default SSP file path
-        self._use_precomputed_ssp = True # New flag, default to True
-        self._ssp_interpolation_method = 'nearest' # options are: 'nearest', 'linear', and 'cubic'
-
-        # New parameters for pixel spectra output
-        self._output_pixel_spectra = False # Default to not output spectra
-        self._rest_wave_min = 1000.0 # Default min wavelength in Angstrom
-        self._rest_wave_max = 16000.0 # Default max wavelength in Angstrom
-
+        self._use_precomputed_ssp = True
+        self._ssp_filepath = None
+        self._ssp_interpolation_method = 'nearest'
+        self._output_pixel_spectra = False
+        self._rest_wave_min = 1000.0
+        self._rest_wave_max = 16000.0
 
     def _load_config_defaults(self):
         """
@@ -50,8 +43,17 @@ class GalaxySynthesizer:
         self._cosmo_str = getattr(config, 'COSMO', "Planck18")
         self._cosmo_h = getattr(config, 'COSMO_LITTLE_H', 0.6774)
 
-        # SPS setup
+        # IMF setup
         self._imf_type = getattr(config, 'IMF_TYPE', 1)
+        self._imf_upper_limit = getattr(config, 'IMF_UPPER_LIMIT', 120.0)
+        self._imf_lower_limit = getattr(config, 'IMF_LOWER_LIMIT', 0.08)
+        self._imf1 = getattr(config, 'IMF1', 1.3)
+        self._imf2 = getattr(config, 'IMF2', 2.3)
+        self._imf3 = getattr(config, 'IMF3', 2.3)
+        self._vdmc = getattr(config, 'VDMC', 0.08)
+        self._mdave = getattr(config, 'MDAVE', 0.5)
+
+        # nebular emission
         self._add_neb_emission = getattr(config, 'ADD_NEB_EMISSION', 1)
         self._gas_logu = getattr(config, 'GAS_LOGU', -2.0)
 
@@ -80,7 +82,6 @@ class GalaxySynthesizer:
         self._salim_a3 = getattr(config, 'SALIM_A3', 0.0121)
         self._salim_RV = getattr(config, 'SALIM_RV', 3.15)
         self._salim_B = getattr(config, 'SALIM_B', 1.57)
-        
 
     @property
     def sim_file(self):
@@ -116,24 +117,19 @@ class GalaxySynthesizer:
         self._filters = value[:]
 
     @property
-    def filter_transmission(self):
-        return self._filter_transmission
+    def filter_transmission_path(self): # New property
+        return self._filter_transmission_path
 
-    @filter_transmission.setter
-    def filter_transmission(self, value):
+    @filter_transmission_path.setter
+    def filter_transmission_path(self, value):
         if not isinstance(value, dict):
-            raise ValueError("filter_transmission must be a dictionary.")
-        self._filter_transmission = value
-
-    @property
-    def filter_wave_eff(self):
-        return self._filter_wave_eff
-
-    @filter_wave_eff.setter
-    def filter_wave_eff(self, value):
-        if not isinstance(value, dict):
-            raise ValueError("filter_wave_eff must be a dictionary.")
-        self._filter_wave_eff = value
+            raise ValueError("filter_transmission_path must be a dictionary.")
+        for key, path in value.items():
+            if not isinstance(key, str) or not isinstance(path, str):
+                raise ValueError("Keys and values in filter_transmission_path must be strings.")
+            if not os.path.exists(path):
+                raise FileNotFoundError(f"Filter transmission file not found at: {path}")
+        self._filter_transmission_path = value
 
     @property
     def dim_kpc(self):
@@ -233,9 +229,79 @@ class GalaxySynthesizer:
 
     @imf_type.setter
     def imf_type(self, value):
-        if not isinstance(value, int) or value not in [0, 1, 2]:
-            raise ValueError("imf_type must be an integer (e.g., 0, 1, or 2).")
+        if not isinstance(value, int) or value not in [0, 1, 2, 3, 4]:
+            raise ValueError("imf_type must be an integer (0, 1, 2, 3, or 4).")
         self._imf_type = value
+
+    @property
+    def imf_upper_limit(self):
+        return self._imf_upper_limit
+
+    @imf_upper_limit.setter
+    def imf_upper_limit(self, value):
+        if not isinstance(value, (int, float)) or value <= 0:
+            raise ValueError("imf_upper_limit must be a positive number.")
+        self._imf_upper_limit = value
+
+    @property
+    def imf_lower_limit(self):
+        return self._imf_lower_limit
+
+    @imf_lower_limit.setter
+    def imf_lower_limit(self, value):
+        if not isinstance(value, (int, float)) or value <= 0:
+            raise ValueError("imf_lower_limit must be a positive number.")
+        self._imf_lower_limit = value
+
+    @property
+    def imf1(self):
+        return self._imf1
+
+    @imf1.setter
+    def imf1(self, value):
+        if not isinstance(value, (int, float)):
+            raise ValueError("imf1 must be a number.")
+        self._imf1 = value
+
+    @property
+    def imf2(self):
+        return self._imf2
+
+    @imf2.setter
+    def imf2(self, value):
+        if not isinstance(value, (int, float)):
+            raise ValueError("imf2 must be a number.")
+        self._imf2 = value
+
+    @property
+    def imf3(self):
+        return self._imf3
+
+    @imf3.setter
+    def imf3(self, value):
+        if not isinstance(value, (int, float)):
+            raise ValueError("imf3 must be a number.")
+        self._imf3 = value
+
+    @property
+    def vdmc(self):
+        return self._vdmc
+
+    @vdmc.setter
+    def vdmc(self, value):
+        if not isinstance(value, (int, float)):
+            raise ValueError("vdmc must be a number.")
+        self._vdmc = value
+
+    @property
+    def mdave(self):
+        return self._mdave
+
+    @mdave.setter
+    def mdave(self, value):
+        if not isinstance(value, (int, float)):
+            raise ValueError("mdave must be a number.")
+        self._mdave = value
 
     @property
     def add_neb_emission(self):
@@ -342,7 +408,7 @@ class GalaxySynthesizer:
         accepted_cosmo_models = ["planck18", "planck15", "planck13", "wmap5", "wmap7", "wmap9"]
         if not isinstance(value, str) or value.lower() not in accepted_cosmo_models:
             raise ValueError(f"cosmo_str must be one of {accepted_cosmo_models}.")
-        self._cosmo_str = value.lower() # Store in lowercase for consistency
+        self._cosmo_str = value.lower()
 
     @property
     def cosmo_h(self):
@@ -350,7 +416,7 @@ class GalaxySynthesizer:
 
     @cosmo_h.setter
     def cosmo_h(self, value):
-        if not isinstance(value, (int, float)) or value <= 0:
+        if not isinstance(value, (int, float)):
             raise ValueError("cosmo_h must be a positive number.")
         self._cosmo_h = value
 
@@ -394,7 +460,7 @@ class GalaxySynthesizer:
             raise ValueError("dustindexAV_AV must be a list.")
         for i, item in enumerate(value):
             if not isinstance(item, (int, float)):
-                raise ValueError(f"norm_dust_z list must contain only numbers. Item at index {i} is not a number ({type(item).__name__}).")
+                raise ValueError(f"dustindexAV_AV list must contain only numbers. Item at index {i} is not a number ({type(item).__name__}).")
         self._dustindexAV_AV = value[:]
 
     @property
@@ -476,8 +542,8 @@ class GalaxySynthesizer:
 
     @ssp_filepath.setter
     def ssp_filepath(self, value):
-        if not isinstance(value, str):
-            raise ValueError("ssp_filepath must be a string.")
+        if value is not None and not isinstance(value, str):
+            raise ValueError("ssp_filepath must be a string or None.")
         self._ssp_filepath = value
 
     @property
@@ -534,7 +600,6 @@ class GalaxySynthesizer:
 
 
     # --- Convenience method for setting multiple parameters ---
-
     def set_params(self, **kwargs):
         """
         Sets multiple parameters at once using keyword arguments.
@@ -566,33 +631,44 @@ class GalaxySynthesizer:
                     else:
                         params_list.append(f"{key}={val}")
                 except AttributeError:
-                    # This can happen if a property raises an error during access (e.g., if a required init param is missing)
+                    # This can happen if a property raises an error during access (e.e., if a required init param is missing)
                     pass
         return f"GalaxySynthesizer({', '.join(params_list)})"
 
-    def generate_ssp_data(self, overwrite=False):
+    def generate_ssp_data(self):
         """
-        Generates the SSP spectra grid and saves it to the specified ssp_filepath.
-        Parameters like imf_type, add_neb_emission, gas_logu from the synthesizer
-        instance are used for SSP generation to ensure consistency.
-        This method is only called if use_precomputed_ssp is True.
+        Determines the SSP spectra grid filepath and ensures it exists.
+        If _ssp_filepath is None, it defaults to the packaged data file.
+        If the determined SSP file does not exist, it raises a FileNotFoundError.
         """
         if not self.use_precomputed_ssp:
-            print("Skipping SSP grid generation as use_precomputed_ssp is False.")
+            print("Skipping SSP grid check as use_precomputed_ssp is False.")
             return
 
-        print(f"Checking for pre-computed SSP spectra at: {self.ssp_filepath}")
-        if not os.path.exists(self.ssp_filepath) or overwrite:
-            print("Pre-computed SSP spectra not found or overwrite requested. Generating now...")
-            self.ssp_filepath = generate_ssp_grid(
-                output_filename=self.ssp_filepath,
-                imf_type=self.imf_type,
-                add_neb_emission=self.add_neb_emission,
-                gas_logu=self.gas_logu,
-                overwrite=overwrite
+        # Determine the effective SSP filepath
+        if self._ssp_filepath is None:
+            try:
+                # Use importlib.resources to get the path to the packaged data file
+                effective_ssp_filepath = str(importlib.resources.files('galsyn.data').joinpath('ssp_spectra.hdf5'))
+                print("Using packaged SSP data, which was calculated using FSPS assumming Chabrier et al. (2003) IMF, MIST isochrone, MILES spectral library, and Cloudy nebular emission")
+            except Exception as e:
+                # Fallback if packaged data path cannot be determined (e.g., package not installed correctly)
+                print(f"Warning: Could not locate packaged SSP data via importlib.resources. Error: {e}. Falling back to a direct filename check.")
+                effective_ssp_filepath = "ssp_spectra.hdf5" # Assume it's in the current working directory or a known location
+        else:
+            effective_ssp_filepath = self._ssp_filepath
+            print(f"Using specified SSP filepath: {effective_ssp_filepath}")
+
+        # Check if the SSP file exists
+        if not os.path.exists(effective_ssp_filepath):
+            raise FileNotFoundError(
+                f"SSP file not found at '{effective_ssp_filepath}'. "
+                f"Please ensure the SSP data file exists at this path or is correctly packaged within 'galsyn.data'."
             )
         else:
-            print("Pre-computed SSP spectra found. Skipping generation.")
+            # Ensure _ssp_filepath is set to the resolved path if it was initially None
+            if self._ssp_filepath is None:
+                self._ssp_filepath = effective_ssp_filepath
         
         pass
 
@@ -603,9 +679,9 @@ class GalaxySynthesizer:
         Executes the galaxy image synthesis process using the current parameters
         set in this GalaxySynthesizer instance.
         """
-        # Ensure SSP data is generated/available if pre-computed option is chosen
+        # Ensure SSP data is ready
         if self.use_precomputed_ssp:
-            self.generate_ssp_data()
+            self.generate_ssp_data() # No 'overwrite' argument anymore
 
         try:
             # Call the generate_images function from galsyn.py
@@ -614,8 +690,7 @@ class GalaxySynthesizer:
                 sim_file=self.sim_file,
                 z=self.z,
                 filters=self.filters,
-                filter_transmission=self.filter_transmission,
-                filter_wave_eff=self.filter_wave_eff,
+                filter_transmission_path=self.filter_transmission_path, # Changed parameter
                 dim_kpc=self.dim_kpc,
                 pix_arcsec=self.pix_arcsec,
                 flux_unit=self.flux_unit,
@@ -624,6 +699,13 @@ class GalaxySynthesizer:
                 name_out_img=self.name_out_img,
                 n_jobs=self.ncpu,
                 imf_type=self.imf_type,
+                imf_upper_limit = self.imf_upper_limit,
+                imf_lower_limit = self.imf_lower_limit,
+                imf1 = self.imf1,
+                imf2 = self.imf2,
+                imf3 = self.imf3,
+                vdmc = self.vdmc,
+                mdave = self.mdave,
                 add_neb_emission = self.add_neb_emission,
                 gas_logu = self.gas_logu,
                 add_igm_absorption = self.add_igm_absorption,
@@ -648,15 +730,15 @@ class GalaxySynthesizer:
                 salim_B = self.salim_B,
                 initdim_kpc = self.initdim_kpc,
                 initdim_mass_fraction = self.initdim_mass_fraction,
-                use_precomputed_ssp = self.use_precomputed_ssp, # Pass the new flag
-                ssp_filepath = self.ssp_filepath, # Pass the SSP file path
-                ssp_interpolation_method = self.ssp_interpolation_method, # Pass new interpolation method
-                output_pixel_spectra = self.output_pixel_spectra, # Pass new flag
-                rest_wave_min = self.rest_wave_min, # Pass new param
-                rest_wave_max = self.rest_wave_max # Pass new param
+                use_precomputed_ssp = self.use_precomputed_ssp, 
+                ssp_filepath = self.ssp_filepath, 
+                ssp_interpolation_method = self.ssp_interpolation_method, 
+                output_pixel_spectra = self.output_pixel_spectra, 
+                rest_wave_min = self.rest_wave_min, 
+                rest_wave_max = self.rest_wave_max
             )
             #print("\nGalaxy image synthesis completed successfully.")
         except Exception as e:
             print(f"\nError during galaxy image synthesis: {e}")
             import traceback
-            traceback.print_exc() # Print full traceback for debugging
+            traceback.print_exc()
