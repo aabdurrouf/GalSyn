@@ -46,7 +46,7 @@ igm_type = None
 dust_index_bc = None
 dust_index = None
 t_esc = None
-scale_dust_tau = None # This will now be calculated in init_worker
+# Removed: scale_dust_tau = None # This will now be calculated in init_worker
 dust_law = None
 bump_amp = None
 salim_a0 = None
@@ -65,9 +65,12 @@ ssp_interpolation_method = 'nearest'
 dustindexAV_AV = None
 dustindexAV_dust_index = None
 
-# Global variables for dust_tau_normalization
-global_norm_dust_z = None
-global_norm_dust_tau = None
+# Removed: Global variables for dust_tau_normalization
+# global_norm_dust_z = None
+# global_norm_dust_tau = None
+
+# New global variable to hold the pre-calculated scale_dust_tau
+_worker_scale_dust_tau = None
 
 output_pixel_spectra_flag = False
 global_output_obs_wave = None
@@ -119,7 +122,7 @@ def init_worker(ssp_code_val, snap_z_val, pix_area_kpc2_val, mean_AV_unres_val,
                 filters_list_val, filter_transmission_path_val,
                 add_neb_emission_val, gas_logu_val,
                 add_igm_absorption_val, igm_type_val, dust_index_bc_val, 
-                dust_index_val, t_esc_val, scale_dust_redshift_val,
+                dust_index_val, t_esc_val, precomputed_scale_dust_tau_val, # Changed: now receiving precomputed_scale_dust_tau_val
                 cosmo_str_val, cosmo_h_val, XH_val, 
                 dust_law_val, bump_amp_val, relation_AVslope_val, salim_a0_val, 
                 salim_a1_val, salim_a2_val, salim_a3_val, salim_RV_val, salim_B_val,
@@ -127,16 +130,17 @@ def init_worker(ssp_code_val, snap_z_val, pix_area_kpc2_val, mean_AV_unres_val,
                 output_pixel_spectra_val=False, rest_wave_min_val=None, rest_wave_max_val=None): 
     
     global ssp_wave, ssp_ages_gyr, ssp_logzsol_grid, ssp_spectra_grid, ssp_stellar_mass_grid, ssp_code_z_sun
-    global _global_ssp_spectra_interpolator, _global_ssp_stellar_mass_interpolator 
+    global _global_ssp_spectra_interpolator, _global_ssp_stellar_mass_interpolator
     global _ssp_worker_bagpipes_model_components, igm_trans, snap_z, pix_area_kpc2
     global mean_AV_unres, add_neb_emission, gas_logu, add_igm_absorption, igm_type
-    global dust_index_bc, dust_index, t_esc, scale_dust_tau, dust_law, bump_amp, salim_a0, salim_a1, salim_a2, salim_a3 
+    global dust_index_bc, dust_index, t_esc, dust_law, bump_amp, salim_a0, salim_a1, salim_a2, salim_a3
     global salim_RV, salim_B, dust_Alambda_per_AV, func_interp_dust_index
-    global use_precomputed_ssp, ssp_interpolation_method 
-    global output_pixel_spectra_flag, global_output_obs_wave 
+    global use_precomputed_ssp, ssp_interpolation_method
+    global output_pixel_spectra_flag, global_output_obs_wave
     global _worker_filters, _worker_filter_transmission, _worker_filter_wave_eff, _worker_cosmo
-    global dustindexAV_AV, dustindexAV_dust_index # Declare these as global to be set here
-    global global_norm_dust_z, global_norm_dust_tau # Declare these as global to be set here
+    global dustindexAV_AV, dustindexAV_dust_index
+    # Removed: global global_norm_dust_z, global_norm_dust_tau
+    global _worker_scale_dust_tau # Declare the new global variable here
 
     snap_z = snap_z_val
     pix_area_kpc2 = pix_area_kpc2_val
@@ -148,7 +152,7 @@ def init_worker(ssp_code_val, snap_z_val, pix_area_kpc2_val, mean_AV_unres_val,
     igm_type = igm_type_val
     dust_index_bc = dust_index_bc_val
     t_esc = t_esc_val
-    # scale_dust_tau is now calculated later based on global_norm_dust_z and global_norm_dust_tau
+    _worker_scale_dust_tau = precomputed_scale_dust_tau_val # Assign the precomputed value
     
     _worker_cosmo = define_cosmo(cosmo_str_val)
     
@@ -161,8 +165,8 @@ def init_worker(ssp_code_val, snap_z_val, pix_area_kpc2_val, mean_AV_unres_val,
     salim_B = salim_B_val
     dust_index = dust_index_val
     bump_amp = bump_amp_val
-    use_precomputed_ssp = use_precomputed_ssp_val 
-    ssp_interpolation_method = ssp_interpolation_method_val 
+    use_precomputed_ssp = use_precomputed_ssp_val
+    ssp_interpolation_method = ssp_interpolation_method_val
 
     _worker_filters = filters_list_val
     _worker_filter_transmission, _worker_filter_wave_eff = _load_filter_transmission_from_paths(
@@ -290,30 +294,8 @@ def init_worker(ssp_code_val, snap_z_val, pix_area_kpc2_val, mean_AV_unres_val,
         dustindexAV_dust_index = np.array([])
         sys.exit(1)
 
-    # Handle scale_dust_redshift_val
-    if isinstance(scale_dust_redshift_val, str):
-        if scale_dust_redshift_val == "Vogelsberger20":
-            data_file_name = "Vogelsberger20_scale_dust.txt"
-            try:
-                # Use importlib.resources to get the path to the data file
-                data_path = str(importlib.resources.files('galsyn.data').joinpath(data_file_name))
-                data = np.loadtxt(data_path)
-                global_norm_dust_z = data[:, 0]
-                global_norm_dust_tau = data[:, 1]
-            except Exception as e:
-                print(f"Error loading dust normalization data from {data_file_name}: {e}")
-                sys.exit(1) # Exit if data cannot be loaded.
-        else:
-            print(f"Error: Unknown string option for scale_dust_redshift_val: {scale_dust_redshift_val}")
-            sys.exit(1)
-    elif isinstance(scale_dust_redshift_val, dict):
-        global_norm_dust_z = np.asarray(scale_dust_redshift_val["z"])
-        global_norm_dust_tau = np.asarray(scale_dust_redshift_val["tau_dust"])
-    else:
-        print("Error: Invalid scale_dust_redshift_val type passed to init_worker.")
-        global_norm_dust_z = np.array([])
-        global_norm_dust_tau = np.array([])
-        sys.exit(1)
+    # Removed: Handle scale_dust_redshift_val (moved to generate_images)
+    # This section is removed from init_worker
 
 
     if dust_law <= 1:
@@ -468,7 +450,7 @@ def _process_pixel_data(ii, jj, star_particle_membership_list, gas_particle_memb
                 current_model_components["burst"] = burst
 
                 # Use the global ssp_wave determined in init_worker for consistent wavelength grid
-                model = pipes.model_galaxy(current_model_components, spec_wavs=wave) 
+                model = pipes.model_galaxy(current_model_components, spec_wavs=wave)
                 
                 rest_frame_fluxes_erg_s_aa = model.spectrum_full
 
@@ -486,8 +468,8 @@ def _process_pixel_data(ii, jj, star_particle_membership_list, gas_particle_memb
             if len(cold_front_gas_ids) > 0:
                 temp_mw_gas_zsol = np.nansum(gas_mass[cold_front_gas_ids]*gas_zsol[cold_front_gas_ids])/np.nansum(gas_mass[cold_front_gas_ids])
                 nH = np.nansum(gas_mass_H[cold_front_gas_ids])*1.247914e+14/pix_area_kpc2
-                # Use the global_norm_dust_z and global_norm_dust_tau for tauV calculation
-                tauV = tau_dust_given_z(snap_z, global_norm_dust_z, global_norm_dust_tau) * temp_mw_gas_zsol * nH / 2.1e+21
+                # Use the new global variable _worker_scale_dust_tau
+                tauV = _worker_scale_dust_tau * temp_mw_gas_zsol * nH / 2.1e+21
                 dust_AV = -2.5*np.log10((1.0 - np.exp(-1.0*tauV))/tauV)
 
                 if np.isnan(dust_AV)==True or dust_AV==0.0:
@@ -661,12 +643,37 @@ def generate_images(sim_file, z, filters, filter_transmission_path, dim_kpc=None
         temp_mw_gas_zsol = 0.0
     nH = np.nansum(gas_mass_H[idxg_global])*1.247914e+14/dim_kpc/dim_kpc
 
-    # Calculate scale_dust_tau using the global_norm_dust_z and global_norm_dust_tau
-    global scale_dust_tau
-    scale_dust_tau = tau_dust_given_z(snap_z, global_norm_dust_z, global_norm_dust_tau)
-    mean_tauV_res = scale_dust_tau*temp_mw_gas_zsol*nH/2.1e+21 
+    # --- Moved the dust normalization loading here ---
+    norm_dust_z = None
+    norm_dust_tau = None
+    if isinstance(scale_dust_redshift, str):
+        if scale_dust_redshift == "Vogelsberger20":
+            data_file_name = "Vogelsberger20_scale_dust.txt"
+            try:
+                data_path = str(importlib.resources.files('galsyn.data').joinpath(data_file_name))
+                data = np.loadtxt(data_path)
+                norm_dust_z = data[:,0]
+                norm_dust_tau = data[:,1]
+            except Exception as e:
+                print(f"Error loading dust normalization data from {data_file_name}: {e}")
+                sys.exit(1)
+        else:
+            print(f"Error: Unknown string option for scale_dust_redshift: {scale_dust_redshift}")
+            sys.exit(1)
+    elif isinstance(scale_dust_redshift, dict):
+        norm_dust_z = np.asarray(scale_dust_redshift["z"])
+        norm_dust_tau = np.asarray(scale_dust_redshift["tau_dust"])
+    else:
+        print("Error: Invalid scale_dust_redshift type passed to generate_images.")
+        sys.exit(1)
 
-    global mean_AV_unres
+    # Calculate scale_dust_tau here in the main process
+    scale_dust_tau = tau_dust_given_z(snap_z, norm_dust_z, norm_dust_tau)
+    # --- End of dust normalization loading and calculation ---
+
+    mean_tauV_res = scale_dust_tau*temp_mw_gas_zsol*nH/2.1e+21
+
+    global mean_AV_unres # Still need to declare global for modification
     if np.isnan(mean_tauV_res)==True or np.isinf(mean_tauV_res)==True:
         mean_tauV_res, mean_AV_unres = 0.0, 0.0
     else:
@@ -726,7 +733,7 @@ def generate_images(sim_file, z, filters, filter_transmission_path, dim_kpc=None
                                      filters, filter_transmission_path,
                                      add_neb_emission, gas_logu,
                                      add_igm_absorption, igm_type, dust_index_bc, 
-                                     dust_index, t_esc, scale_dust_redshift,
+                                     dust_index, t_esc, scale_dust_tau, # Passed precomputed scale_dust_tau
                                      cosmo_str, cosmo_h, XH, 
                                      dust_law, bump_amp, relation_AVslope, 
                                      salim_a0, salim_a1, salim_a2, salim_a3, salim_RV, salim_B,
@@ -737,9 +744,9 @@ def generate_images(sim_file, z, filters, filter_transmission_path, dim_kpc=None
     print("\nFinished parallel pixel processing.")
 
     for k, pixel_result_tuple in enumerate(results):
-        ii, jj, pixel_data = pixel_result_tuple 
+        ii, jj, pixel_data = pixel_result_tuple
         
-        original_ii, original_jj = ii, jj 
+        original_ii, original_jj = ii, jj
         
         map_stars_mass[original_ii][original_jj] = pixel_data['map_stars_mass']
         map_mw_age[original_ii][original_jj] = pixel_data['map_mw_age']
@@ -764,7 +771,7 @@ def generate_images(sim_file, z, filters, filter_transmission_path, dim_kpc=None
 
     print("All calculations complete. Maps populated.")
 
-    for i_band in range(len(filters)): 
+    for i_band in range(len(filters)):
         map_flux[:,:,i_band] = convert_flux_map(map_flux[:,:,i_band], filter_wave_pivot_data_global[filters[i_band]], to_unit=flux_unit, pixel_scale_arcsec=pix_arcsec)
         map_flux_dust[:,:,i_band] = convert_flux_map(map_flux_dust[:,:,i_band], filter_wave_pivot_data_global[filters[i_band]], to_unit=flux_unit, pixel_scale_arcsec=pix_arcsec)
 
@@ -805,17 +812,17 @@ def generate_images(sim_file, z, filters, filter_transmission_path, dim_kpc=None
 
                 for i_band in range(len(filters)):
                     ext_hdr = fits.Header()
-                    ext_hdr['EXTNAME'] = 'NODUST_'+filters[i_band].upper() 
-                    ext_hdr['FILTER'] = filters[i_band] 
-                    ext_hdr['COMMENT'] = f'Flux for filter: {filters[i_band]}' 
+                    ext_hdr['EXTNAME'] = 'NODUST_'+filters[i_band].upper()
+                    ext_hdr['FILTER'] = filters[i_band]
+                    ext_hdr['COMMENT'] = f'Flux for filter: {filters[i_band]}'
                     ext_hdu = fits.ImageHDU(data=map_flux[:, :, i_band], header=ext_hdr)
                     hdul.append(ext_hdu)
 
                 for i_band in range(len(filters)):
                     ext_hdr = fits.Header()
-                    ext_hdr['EXTNAME'] = 'DUST_'+filters[i_band].upper() 
-                    ext_hdr['FILTER'] = filters[i_band] 
-                    ext_hdr['COMMENT'] = f'Flux (with dust) for filter: {filters[i_band]}' 
+                    ext_hdr['EXTNAME'] = 'DUST_'+filters[i_band].upper()
+                    ext_hdr['FILTER'] = filters[i_band]
+                    ext_hdr['COMMENT'] = f'Flux (with dust) for filter: {filters[i_band]}'
                     ext_hdu = fits.ImageHDU(data=map_flux_dust[:, :, i_band], header=ext_hdr)
                     hdul.append(ext_hdu)
             else:
@@ -844,28 +851,28 @@ def generate_images(sim_file, z, filters, filter_transmission_path, dim_kpc=None
 
             if output_pixel_spectra:
                 ext_hdr_nodust_spec = fits.Header()
-                ext_hdr_nodust_spec['EXTNAME'] = 'OBS_SPEC_NODUST' 
-                ext_hdr_nodust_spec['COMMENT'] = 'Observed-frame spectra (no dust attenuation)' 
-                ext_hdr_nodust_spec['CRPIX1'] = dimx / 2.0 + 0.5 
-                ext_hdr_nodust_spec['CRPIX2'] = dimy / 2.0 + 0.5 
-                ext_hdr_nodust_spec['CDELT1'] = pix_kpc 
-                ext_hdr_nodust_spec['CDELT2'] = pix_kpc 
+                ext_hdr_nodust_spec['EXTNAME'] = 'OBS_SPEC_NODUST'
+                ext_hdr_nodust_spec['COMMENT'] = 'Observed-frame spectra (no dust attenuation)'
+                ext_hdr_nodust_spec['CRPIX1'] = dimx / 2.0 + 0.5
+                ext_hdr_nodust_spec['CRPIX2'] = dimy / 2.0 + 0.5
+                ext_hdr_nodust_spec['CDELT1'] = pix_kpc
+                ext_hdr_nodust_spec['CDELT2'] = pix_kpc
                 ext_hdr_nodust_spec['CUNIT1'] = 'kpc'
                 ext_hdr_nodust_spec['CUNIT2'] = 'kpc'
-                ext_hdr_nodust_spec['CRPIX3'] = 1.0 
-                ext_hdr_nodust_spec['CDELT3'] = (global_output_obs_wave[1] - global_output_obs_wave[0]) if global_output_obs_wave.size > 1 else 0.0 
-                ext_hdr_nodust_spec['CRVAL3'] = global_output_obs_wave[0] if global_output_obs_wave.size > 0 else 0.0 
+                ext_hdr_nodust_spec['CRPIX3'] = 1.0
+                ext_hdr_nodust_spec['CDELT3'] = (global_output_obs_wave[1] - global_output_obs_wave[0]) if global_output_obs_wave.size > 1 else 0.0
+                ext_hdr_nodust_spec['CRVAL3'] = global_output_obs_wave[0] if global_output_obs_wave.size > 0 else 0.0
                 ext_hdr_nodust_spec['CUNIT3'] = 'Angstrom'
-                ext_hdr_nodust_spec['BUNIT'] = 'erg/s/cm2/Angstrom' 
+                ext_hdr_nodust_spec['BUNIT'] = 'erg/s/cm2/Angstrom'
                 hdul.append(fits.ImageHDU(data=map_spectra_nodust, header=ext_hdr_nodust_spec))
 
                 ext_hdr_dust_spec = fits.Header()
-                ext_hdr_dust_spec['EXTNAME'] = 'OBS_SPEC_DUST' 
-                ext_hdr_dust_spec['COMMENT'] = 'Observed-frame spectra (with dust attenuation)' 
-                ext_hdr_dust_spec['CRPIX1'] = dimx / 2.0 + 0.5 
-                ext_hdr_dust_spec['CRPIX2'] = dimy / 2.0 + 0.5 
-                ext_hdr_dust_spec['CDELT1'] = pix_kpc 
-                ext_hdr_dust_spec['CDELT2'] = pix_kpc 
+                ext_hdr_dust_spec['EXTNAME'] = 'OBS_SPEC_DUST'
+                ext_hdr_dust_spec['COMMENT'] = 'Observed-frame spectra (with dust attenuation)'
+                ext_hdr_dust_spec['CRPIX1'] = dimx / 2.0 + 0.5
+                ext_hdr_dust_spec['CRPIX2'] = dimy / 2.0 + 0.5
+                ext_hdr_dust_spec['CDELT1'] = pix_kpc
+                ext_hdr_dust_spec['CDELT2'] = pix_kpc
                 ext_hdr_dust_spec['CUNIT1'] = 'kpc'
                 ext_hdr_dust_spec['CUNIT2'] = 'kpc'
                 ext_hdr_dust_spec['CRPIX3'] = 1.0

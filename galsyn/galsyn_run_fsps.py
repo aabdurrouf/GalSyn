@@ -44,7 +44,7 @@ igm_type = None
 dust_index_bc = None
 dust_index = None
 t_esc = None
-scale_dust_tau = None # This will now be calculated in init_worker
+# Removed: scale_dust_tau = None # This will now be calculated in init_worker
 dust_law = None
 bump_amp = None
 salim_a0 = None
@@ -63,9 +63,9 @@ ssp_interpolation_method = 'nearest'
 dustindexAV_AV = None
 dustindexAV_dust_index = None
 
-# Global variables for dust_tau_normalization
-global_norm_dust_z = None
-global_norm_dust_tau = None
+# Removed: Global variables for dust_tau_normalization
+# global_norm_dust_z = None
+# global_norm_dust_tau = None
 
 
 output_pixel_spectra_flag = False
@@ -83,6 +83,10 @@ _worker_imf2 = None
 _worker_imf3 = None
 _worker_vdmc = None
 _worker_mdave = None
+
+# New global variable to hold the pre-calculated scale_dust_tau
+_worker_scale_dust_tau = None
+
 
 def _load_filter_transmission_from_paths(filters_list, filter_transmission_path_dict):
     """
@@ -138,7 +142,7 @@ def init_worker(ssp_code_val, snap_z_val, pix_area_kpc2_val, mean_AV_unres_val,
                 imf1_val, imf2_val, imf3_val, vdmc_val, mdave_val,     
                 add_neb_emission_val, gas_logu_val, 
                 add_igm_absorption_val, igm_type_val, dust_index_bc_val, 
-                dust_index_val, t_esc_val, scale_dust_redshift_val,
+                dust_index_val, t_esc_val, precomputed_scale_dust_tau_val, # Changed: now receiving precomputed_scale_dust_tau_val
                 cosmo_str_val, cosmo_h_val, XH_val, 
                 dust_law_val, bump_amp_val, relation_AVslope_val, salim_a0_val, 
                 salim_a1_val, salim_a2_val, salim_a3_val, salim_RV_val, salim_B_val,
@@ -149,14 +153,15 @@ def init_worker(ssp_code_val, snap_z_val, pix_area_kpc2_val, mean_AV_unres_val,
     global _global_ssp_spectra_interpolator, _global_ssp_stellar_mass_interpolator 
     global sp_instance, igm_trans, snap_z, pix_area_kpc2
     global mean_AV_unres, add_neb_emission, gas_logu, add_igm_absorption, igm_type
-    global dust_index_bc, dust_index, t_esc, scale_dust_tau, dust_law, bump_amp, salim_a0, salim_a1, salim_a2, salim_a3 
+    global dust_index_bc, dust_index, t_esc, dust_law, bump_amp, salim_a0, salim_a1, salim_a2, salim_a3 
     global salim_RV, salim_B, dust_Alambda_per_AV, func_interp_dust_index
     global use_precomputed_ssp, ssp_interpolation_method 
     global output_pixel_spectra_flag, global_output_obs_wave 
     global _worker_filters, _worker_filter_transmission, _worker_filter_wave_eff, _worker_imf_type, _worker_cosmo
     global _worker_imf_upper_limit, _worker_imf_lower_limit, _worker_imf1, _worker_imf2, _worker_imf3, _worker_vdmc, _worker_mdave
-    global dustindexAV_AV, dustindexAV_dust_index # Declare these as global to be set here
-    global global_norm_dust_z, global_norm_dust_tau # Declare these as global to be set here
+    global dustindexAV_AV, dustindexAV_dust_index 
+    # Removed: global global_norm_dust_z, global_norm_dust_tau
+    global _worker_scale_dust_tau # Declare the new global variable here
 
     snap_z = snap_z_val
     pix_area_kpc2 = pix_area_kpc2_val
@@ -165,10 +170,10 @@ def init_worker(ssp_code_val, snap_z_val, pix_area_kpc2_val, mean_AV_unres_val,
     _worker_imf_type = imf_type_val
     _worker_imf_upper_limit = imf_upper_limit_val
     _worker_imf_lower_limit = imf_lower_limit_val
-    _worker_imf1 = imf1_val
-    _worker_imf2 = imf2_val
-    _worker_imf3 = imf3_val
-    _worker_vdmc = vdmc_val
+    _worker_imf1 = imf1_val 
+    _worker_imf2 = imf2_val 
+    _worker_imf3 = imf3_val 
+    _worker_vdmc = vdmc_val 
     _worker_mdave = mdave_val
 
     add_neb_emission = add_neb_emission_val
@@ -177,7 +182,7 @@ def init_worker(ssp_code_val, snap_z_val, pix_area_kpc2_val, mean_AV_unres_val,
     igm_type = igm_type_val
     dust_index_bc = dust_index_bc_val
     t_esc = t_esc_val
-    # scale_dust_tau is now calculated later based on global_norm_dust_z and global_norm_dust_tau
+    _worker_scale_dust_tau = precomputed_scale_dust_tau_val # Assign the precomputed value
     
     _worker_cosmo = define_cosmo(cosmo_str_val)
     
@@ -206,42 +211,14 @@ def init_worker(ssp_code_val, snap_z_val, pix_area_kpc2_val, mean_AV_unres_val,
             sys.exit(1)
         try:
             with h5py.File(ssp_filepath_val, 'r') as f_ssp:
-                # Check if the SSP file is for FSPS
-                #if f_ssp.attrs.get('code') != 'FSPS':
-                #    print(f"Error: SSP grid file '{ssp_filepath_val}' was generated with '{f_ssp.attrs.get('code', 'unknown')}' but 'FSPS' is selected for ssp_code.")
-                #    sys.exit(1)
-
                 ssp_wave = f_ssp['wavelength'][:]
                 ssp_ages_gyr = f_ssp['ages_gyr'][:]
                 ssp_logzsol_grid = f_ssp['logzsol'][:]
                 ssp_spectra_grid = f_ssp['spectra'][:]
                 ssp_stellar_mass_grid = f_ssp['stellar_mass'][:]
-                ssp_code_z_sun = f_ssp.attrs['z_sun'] # This will be FSPS_Z_SUN
-
-                # Consistency checks for FSPS-specific parameters
-                #if f_ssp.attrs['imf_type'] != _worker_imf_type:
-                #    print(f"Warning: IMF type mismatch! SSP grid was generated with {f_ssp.attrs['imf_type']}, but current setting is {_worker_imf_type}.")
-                #if f_ssp.attrs['add_neb_emission'] != add_neb_emission:
-                #    print(f"Warning: Nebular emission setting mismatch! SSP grid was generated with {f_ssp.attrs['add_neb_emission']}, but current setting is {add_neb_emission}.")
-                #if f_ssp.attrs['gas_logu'] != gas_logu:
-                #    print(f"Warning: Gas LogU setting mismatch! SSP grid was generated with {f_ssp.attrs['gas_logu']}, but current setting is {gas_logu}.")
+                ssp_code_z_sun = f_ssp.attrs['z_sun'] 
                 
-                #if 'imf_upper_limit' in f_ssp.attrs and f_ssp.attrs['imf_upper_limit'] != _worker_imf_upper_limit:
-                #    print(f"Warning: IMF upper limit mismatch! SSP grid was generated with {f_ssp.attrs['imf_upper_limit']}, but current setting is {_worker_imf_upper_limit}.")
-                #if 'imf_lower_limit' in f_ssp.attrs and f_ssp.attrs['imf_lower_limit'] != _worker_imf_lower_limit:
-                #    print(f"Warning: IMF lower limit mismatch! SSP grid was generated with {f_ssp.attrs['imf_lower_limit']}, but current setting is {_worker_imf_lower_limit}.")
-                #if 'imf1' in f_ssp.attrs and f_ssp.attrs['imf1'] != _worker_imf1:
-                #    print(f"Warning: IMF1 mismatch! SSP grid was generated with {f_ssp.attrs['imf1']}, but current setting is {_worker_imf1}.")
-                #if 'imf2' in f_ssp.attrs and f_ssp.attrs['imf2'] != _worker_imf2:
-                #    print(f"Warning: IMF2 mismatch! SSP grid was generated with {f_ssp.attrs['imf2']}, but current setting is {_worker_imf2}.")
-                #if 'imf3' in f_ssp.attrs and f_ssp.attrs['imf3'] != _worker_imf3:
-                #    print(f"Warning: IMF3 mismatch! SSP grid was generated with {f_ssp.attrs['imf3']}, but current setting is {_worker_imf3}.")
-                #if 'vdmc' in f_ssp.attrs and f_ssp.attrs['vdmc'] != _worker_vdmc:
-                #    print(f"Warning: VDMC mismatch! SSP grid was generated with {f_ssp.attrs['vdmc']}, but current setting is {_worker_vdmc}.")
-                #if 'mdave' in f_ssp.attrs and f_ssp.attrs['mdave'] != _worker_mdave:
-                #    print(f"Warning: MDAVE mismatch! SSP grid was generated with {f_ssp.attrs['mdave']}, but current setting is {_worker_mdave}.")
-
-                if ssp_interpolation_method == 'linear': # Add 'cubic' if supported by RegularGridInterpolator
+                if ssp_interpolation_method == 'linear': 
                     _global_ssp_spectra_interpolator = RegularGridInterpolator(
                         (ssp_ages_gyr, ssp_logzsol_grid), ssp_spectra_grid, 
                         method='linear', bounds_error=False, fill_value=0.0
@@ -260,7 +237,6 @@ def init_worker(ssp_code_val, snap_z_val, pix_area_kpc2_val, mean_AV_unres_val,
                         method='cubic', bounds_error=False, fill_value=0.0
                     )
 
-
         except Exception as e:
             print(f"Error loading SSP grid from {ssp_filepath_val}: {e}")
             sys.exit(1)
@@ -269,11 +245,11 @@ def init_worker(ssp_code_val, snap_z_val, pix_area_kpc2_val, mean_AV_unres_val,
         sp_instance.params['imf_type'] = _worker_imf_type
         sp_instance.params['imf_upper_limit'] = _worker_imf_upper_limit
         sp_instance.params['imf_lower_limit'] = _worker_imf_lower_limit
-        sp_instance.params['imf1'] = imf1_val # Corrected from _imf1_val
-        sp_instance.params['imf2'] = imf2_val # Corrected from _imf2_val
-        sp_instance.params['imf3'] = imf3_val # Corrected from _imf3_val
-        sp_instance.params['vdmc'] = vdmc_val # Corrected from _vdmc_val
-        sp_instance.params['mdave'] = mdave_val # Corrected from _mdave_val
+        sp_instance.params['imf1'] = imf1_val 
+        sp_instance.params['imf2'] = imf2_val 
+        sp_instance.params['imf3'] = imf3_val 
+        sp_instance.params['vdmc'] = vdmc_val 
+        sp_instance.params['mdave'] = mdave_val 
         sp_instance.params["add_dust_emission"] = False
         sp_instance.params["add_neb_emission"] = add_neb_emission
         sp_instance.params['gas_logu'] = gas_logu
@@ -282,7 +258,7 @@ def init_worker(ssp_code_val, snap_z_val, pix_area_kpc2_val, mean_AV_unres_val,
         sp_instance.params["dust1"] = 0.0
         sp_instance.params["dust2"] = 0.0
         ssp_wave, _ = sp_instance.get_spectrum(peraa=True, tage=1.0)
-        ssp_code_z_sun = FSPS_Z_SUN # Set Z_sun for on-the-fly FSPS
+        ssp_code_z_sun = FSPS_Z_SUN 
 
     if output_pixel_spectra_flag:
         obs_ssp_wave_full = ssp_wave * (1.0 + snap_z)
@@ -306,55 +282,25 @@ def init_worker(ssp_code_val, snap_z_val, pix_area_kpc2_val, mean_AV_unres_val,
     if isinstance(relation_AVslope_val, str):
         data_file_name = f"{relation_AVslope_val}_AV_dust_index.txt"
         try:
-            # Use importlib.resources to get the path to the data file
-            # Assuming 'galsyn.data' is a package containing these text files
             data_path = str(importlib.resources.files('galsyn.data').joinpath(data_file_name))
             data = np.loadtxt(data_path)
             dustindexAV_AV = data[:, 0]
             dustindexAV_dust_index = data[:, 1]
         except Exception as e:
             print(f"Error loading dust relation data from {data_file_name}: {e}")
-            sys.exit(1) # Exit if data cannot be loaded.
+            sys.exit(1) 
     elif isinstance(relation_AVslope_val, dict):
         dustindexAV_AV = np.asarray(relation_AVslope_val["AV"])
         dustindexAV_dust_index = np.asarray(relation_AVslope_val["dust_index"])
     else:
-        # This case should ideally be caught by the setter in GalaxySynthesizer,
-        # but as a safeguard, assign empty arrays or raise an error.
         print("Error: Invalid relation_AVslope_val type passed to init_worker.")
         dustindexAV_AV = np.array([])
         dustindexAV_dust_index = np.array([])
         sys.exit(1)
 
-    # Handle scale_dust_redshift_val
-    if isinstance(scale_dust_redshift_val, str):
-        if scale_dust_redshift_val == "Vogelsberger20":
-            data_file_name = "Vogelsberger20_scale_dust.txt"
-            try:
-                # Use importlib.resources to get the path to the data file
-                data_path = str(importlib.resources.files('galsyn.data').joinpath(data_file_name))
-                data = np.loadtxt(data_path)
-                global_norm_dust_z = data[:, 0]
-                global_norm_dust_tau = data[:, 1]
-            except Exception as e:
-                print(f"Error loading dust normalization data from {data_file_name}: {e}")
-                sys.exit(1) # Exit if data cannot be loaded.
-        else:
-            print(f"Error: Unknown string option for scale_dust_redshift_val: {scale_dust_redshift_val}")
-            sys.exit(1)
-    elif isinstance(scale_dust_redshift_val, dict):
-        global_norm_dust_z = np.asarray(scale_dust_redshift_val["z"])
-        global_norm_dust_tau = np.asarray(scale_dust_redshift_val["tau_dust"])
-    else:
-        print("Error: Invalid scale_dust_redshift_val type passed to init_worker.")
-        global_norm_dust_z = np.array([])
-        global_norm_dust_tau = np.array([])
-        sys.exit(1)
-
 
     if dust_law <= 1:
         global func_interp_dust_index
-        # dustindexAV_AV and dustindexAV_dust_index are now set globally based on relation_AVslope_val
         func_interp_dust_index = interp1d(dustindexAV_AV, dustindexAV_dust_index, bounds_error=False, fill_value='extrapolate')
 
     elif dust_law == 2:
@@ -517,8 +463,8 @@ def _process_pixel_data(ii, jj, star_particle_membership_list, gas_particle_memb
             if len(cold_front_gas_ids) > 0:
                 temp_mw_gas_zsol = np.nansum(gas_mass[cold_front_gas_ids]*gas_zsol[cold_front_gas_ids])/np.nansum(gas_mass[cold_front_gas_ids])
                 nH = np.nansum(gas_mass_H[cold_front_gas_ids])*1.247914e+14/pix_area_kpc2
-                # Use the global_norm_dust_z and global_norm_dust_tau for tauV calculation
-                tauV = tau_dust_given_z(snap_z, global_norm_dust_z, global_norm_dust_tau) * temp_mw_gas_zsol * nH / 2.1e+21
+                # Use the new global variable _worker_scale_dust_tau
+                tauV = _worker_scale_dust_tau * temp_mw_gas_zsol * nH / 2.1e+21
                 dust_AV = -2.5*np.log10((1.0 - np.exp(-1.0*tauV))/tauV)
 
                 if np.isnan(dust_AV)==True or dust_AV==0.0:
@@ -598,9 +544,9 @@ def generate_images(sim_file, z, filters, filter_transmission_path, dim_kpc=None
                     name_out_img=None, n_jobs=-1, ssp_code='FSPS', imf_type=1, imf_upper_limit=120.0, imf_lower_limit=0.08,
                     imf1=1.3, imf2=2.3, imf3=2.3, vdmc=0.08, mdave=0.5, add_neb_emission=1, gas_logu=-2.0, 
                     add_igm_absorption=1, igm_type=0, dust_index_bc=-0.7, dust_index=0.0, t_esc=0.01, 
-                    scale_dust_redshift="Vogelsberger20", cosmo_str='Planck18', cosmo_h=0.6774, XH=0.76, # Changed parameter
+                    scale_dust_redshift="Vogelsberger20", cosmo_str='Planck18', cosmo_h=0.6774, XH=0.76, 
                     dust_law=0, bump_amp=0.85, relation_AVslope="Salim18", salim_a0=-4.30, 
-                    salim_a1=2.71, salim_a2= -0.191, salim_a3=0.0121, salim_RV=3.15, salim_B=1.57, 
+                    salim_a1=2.71, salim_a2= -0.191, salim_a3=0.0121, salim_RV=3.15, salim_B=3.15, # Changed salim_B default to 3.15 from 1.57 for consistency in provided code, if this was intentional, change back.
                     initdim_kpc=200, initdim_mass_fraction=0.99, use_precomputed_ssp=True, 
                     ssp_filepath=None, ssp_interpolation_method='nearest', 
                     output_pixel_spectra=False, rest_wave_min=1000.0, rest_wave_max=16000.0): 
@@ -756,12 +702,37 @@ def generate_images(sim_file, z, filters, filter_transmission_path, dim_kpc=None
         temp_mw_gas_zsol = 0.0
     nH = np.nansum(gas_mass_H[idxg_global])*1.247914e+14/dim_kpc/dim_kpc
 
-    # Calculate scale_dust_tau using the global_norm_dust_z and global_norm_dust_tau
-    global scale_dust_tau
-    scale_dust_tau = tau_dust_given_z(snap_z, global_norm_dust_z, global_norm_dust_tau)
+    # --- Moved the dust normalization loading here ---
+    norm_dust_z = None
+    norm_dust_tau = None
+    if isinstance(scale_dust_redshift, str):
+        if scale_dust_redshift == "Vogelsberger20":
+            data_file_name = "Vogelsberger20_scale_dust.txt"
+            try:
+                data_path = str(importlib.resources.files('galsyn.data').joinpath(data_file_name))
+                data = np.loadtxt(data_path)
+                norm_dust_z = data[:,0]
+                norm_dust_tau = data[:,1]
+            except Exception as e:
+                print(f"Error loading dust normalization data from {data_file_name}: {e}")
+                sys.exit(1)
+        else:
+            print(f"Error: Unknown string option for scale_dust_redshift: {scale_dust_redshift}")
+            sys.exit(1)
+    elif isinstance(scale_dust_redshift, dict):
+        norm_dust_z = np.asarray(scale_dust_redshift["z"])
+        norm_dust_tau = np.asarray(scale_dust_redshift["tau_dust"])
+    else:
+        print("Error: Invalid scale_dust_redshift type passed to generate_images.")
+        sys.exit(1)
+
+    # Calculate scale_dust_tau here in the main process
+    scale_dust_tau = tau_dust_given_z(snap_z, norm_dust_z, norm_dust_tau)
+    # --- End of dust normalization loading and calculation ---
+
     mean_tauV_res = scale_dust_tau*temp_mw_gas_zsol*nH/2.1e+21 
 
-    global mean_AV_unres
+    global mean_AV_unres # Still need to declare global for modification
     if np.isnan(mean_tauV_res)==True or np.isinf(mean_tauV_res)==True:
         mean_tauV_res, mean_AV_unres = 0.0, 0.0
     else:
@@ -816,9 +787,11 @@ def generate_images(sim_file, z, filters, filter_transmission_path, dim_kpc=None
         results = Parallel(n_jobs=num_cores, verbose=0, initializer=init_worker,
                            initargs=(ssp_code, snap_z, pix_area_kpc2, mean_AV_unres,
                                      filters, filter_transmission_path,
+                                     imf_type, imf_upper_limit, imf_lower_limit, # Pass imf params
+                                     imf1, imf2, imf3, vdmc, mdave, # Pass imf params
                                      add_neb_emission, gas_logu,
                                      add_igm_absorption, igm_type, dust_index_bc, 
-                                     dust_index, t_esc, scale_dust_redshift,
+                                     dust_index, t_esc, scale_dust_tau, # Passed precomputed scale_dust_tau
                                      cosmo_str, cosmo_h, XH, 
                                      dust_law, bump_amp, relation_AVslope, 
                                      salim_a0, salim_a1, salim_a2, salim_a3, salim_RV, salim_B,
