@@ -1,4 +1,4 @@
-import sys
+import sys, os
 import numpy as np
 from operator import itemgetter
 
@@ -505,20 +505,61 @@ def construct_SFH_TNG(stars_form_lbt, stars_init_mass, stars_metallicity, del_t=
     return sfh
 
 
-def get_filter_transmission_pixedfit(filters):
-    from piXedfit.utils.filtering import get_filter_curve, cwave_filters
+def make_filter_transmission_text_pixedfit(filters, output_dir="filters"):
+    """
+    Creates text files containing filter transmission functions and stores them
+    in a specified directory. It uses the piXedfit library to get the filter curves.
 
-    filter_transmission = {}
-    filter_wave_eff = {}
+    Parameters:
+    -----------
+    filters : list of str
+        List of filter names recognized in piXedfit.
+    output_dir : str, optional
+        The directory where the filter transmission text files will be saved.
+        Defaults to "filters".
+
+    Returns:
+    --------
+    filter_transmission_path : dict
+        A dictionary where keys are filter names and values are the paths to
+        the generated text files containing the transmission function.
+    """
+    try:
+        from piXedfit.utils.filtering import get_filter_curve
+    except ImportError:
+        print("Error: piXedfit library not found. Please install it to use this function.")
+        sys.exit(1)
+
+    # Create the output directory if it doesn't exist
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+        print(f"Created directory: {output_dir}")
+    else:
+        print(f"Directory '{output_dir}' already exists.")
+
+    filter_transmission_path = {}
+
     for ff in filters:
-        filter_wave_eff[ff] = cwave_filters(ff)
+        try:
+            # Get filter curve from piXedfit
+            w, t = get_filter_curve(ff)
+            
+            # Define the output file path for this filter
+            file_name = f"{ff}.txt"
+            file_path = os.path.join(output_dir, file_name)
 
-        w, t = get_filter_curve(ff)
-        filter_transmission[ff] = {}
-        filter_transmission[ff]['wave'] = w
-        filter_transmission[ff]['trans'] = t
+            # Save the wavelength and transmission to a text file
+            np.savetxt(file_path, np.column_stack((w, t)), fmt='%.6e', header='Wavelength (Angstrom) Transmission')
+            
+            filter_transmission_path[ff] = file_path
+            print(f"Saved filter transmission for '{ff}' to: {file_path}")
 
-    return filter_transmission, filter_wave_eff
+        except Exception as e:
+            print(f"Error processing filter '{ff}': {e}")
+            # Continue to next filter even if one fails, but log the error
+            continue
+
+    return filter_transmission_path
 
 
 def get_2d_density_projection_no_los_binning(star_coords, particle_masses, pixel_size, output_dimension,
