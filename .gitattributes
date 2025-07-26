@@ -1,2 +1,5 @@
 galsyn/data/ssp_spectra.hdf5 filter=lfs diff=lfs merge=lfs -text
+<<<<<<< HEAD
 *.hdf5 filter=lfs diff=lfs merge=lfs -text
+=======
+>>>>>>> d7cd7c52647c242ed556a56d62104b5bd9c63eb8
