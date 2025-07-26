@@ -75,9 +75,8 @@ class GalaxySynthesizer:
         self._dust_index_bc = getattr(config, 'DUST_INDEX_BC', -0.7)
         self._t_esc = getattr(config, 'T_ESC', 0.01)
 
-        self._dustindexAV_AV = getattr(config, 'DUSTINDEXAV_AV', [0.0, 0.2, 0.4, 0.6, 0.8, 1.0, 1.2, 1.4, 1.6, 1.8, 2.0, 2.2, 2.4, 2.6, 2.8, 3.0, 3.2, 3.4, 3.6, 3.8, 4.0])
-        self._dustindexAV_dust_index = getattr(config, 'DUSTINDEXAV_DUST_INDEX', [-1.005, -0.548, -0.264, -0.135, -0.067, 0.048, 0.166, 0.217, 0.239, 0.261, 0.283, 0.306, 
-                                                                                  0.328, 0.35, 0.373, 0.395, 0.417, 0.44, 0.462, 0.484, 0.507])
+        # New parameter: A_V vs dust_index relation
+        self._relation_AVslope = getattr(config, 'RELATION_AVSLOPE', "Salim18")
 
         self._salim_a0 = getattr(config, 'SALIM_A0', -4.30)
         self._salim_a1 = getattr(config, 'SALIM_A1', 2.71)
@@ -464,30 +463,30 @@ class GalaxySynthesizer:
         self._bump_amp = value
 
     @property
-    def dustindexAV_AV(self):
-        return self._dustindexAV_AV
+    def relation_AVslope(self):
+        return self._relation_AVslope
 
-    @dustindexAV_AV.setter
-    def dustindexAV_AV(self, value):
-        if not isinstance(value, list):
-            raise ValueError("dustindexAV_AV must be a list.")
-        for i, item in enumerate(value):
-            if not isinstance(item, (int, float)):
-                raise ValueError(f"dustindexAV_AV list must contain only numbers. Item at index {i} is not a number ({type(item).__name__}).")
-        self._dustindexAV_AV = value[:]
-
-    @property
-    def dustindexAV_dust_index(self):
-        return self._dustindexAV_dust_index
-
-    @dustindexAV_dust_index.setter
-    def dustindexAV_dust_index(self, value):
-        if not isinstance(value, list):
-            raise ValueError("dustindexAV_dust_index must be a list.")
-        for i, item in enumerate(value):
-            if not isinstance(item, (int, float)):
-                raise ValueError(f"dustindexAV_dust_index list must contain only numbers. Item at index {i} is not a number ({type(item).__name__}).")
-        self._dustindexAV_dust_index = value[:]
+    @relation_AVslope.setter
+    def relation_AVslope(self, value):
+        if isinstance(value, str):
+            if value not in ["Salim18", "Nagaraj22", "Battisti19"]:
+                raise ValueError("relation_AVslope string must be 'Salim18', 'Nagaraj22', or 'Battisti19'.")
+        elif isinstance(value, dict):
+            if "AV" not in value or "dust_index" not in value:
+                raise ValueError("relation_AVslope dictionary must contain 'AV' and 'dust_index' keys.")
+            if not isinstance(value["AV"], (list, np.ndarray)) or not isinstance(value["dust_index"], (list, np.ndarray)):
+                raise ValueError("Both 'AV' and 'dust_index' in relation_AVslope dictionary must be lists or numpy arrays.")
+            if len(value["AV"]) != len(value["dust_index"]):
+                raise ValueError("'AV' and 'dust_index' arrays in relation_AVslope must have the same length.")
+            try:
+                # Attempt to convert to numpy arrays and check if elements are numeric
+                np.asarray(value["AV"], dtype=float)
+                np.asarray(value["dust_index"], dtype=float)
+            except ValueError:
+                raise ValueError("All elements in 'AV' and 'dust_index' arrays must be numeric.")
+        else:
+            raise ValueError("relation_AVslope must be a string ('Salim18', 'Nagaraj22', 'Battisti19') or a dictionary with 'AV' and 'dust_index' keys.")
+        self._relation_AVslope = value
 
     @property
     def salim_a0(self):
@@ -758,8 +757,7 @@ class GalaxySynthesizer:
                 'XH': self.XH,
                 'dust_law': self.dust_law,
                 'bump_amp': self.bump_amp,
-                'dustindexAV_AV': self.dustindexAV_AV,
-                'dustindexAV_dust_index': self.dustindexAV_dust_index,
+                'relation_AVslope': self.relation_AVslope,
                 'salim_a0': self.salim_a0,
                 'salim_a1': self.salim_a1,
                 'salim_a2': self.salim_a2,
