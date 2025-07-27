@@ -10,7 +10,6 @@ import multiprocessing
 
 # Import necessary functions from galsyn's existing modules
 from . import config
-# Changed: Renamed construct_SFH_TNG to construct_SFH
 from .utils import define_cosmo, interp_age_univ_from_z, get_2d_density_projection_no_los_binning, construct_SFH
 from .imgutils import angular_to_physical, determine_image_size
 
@@ -62,9 +61,6 @@ class SFHReconstructor:
         """
         self._cosmo_str = getattr(config, 'COSMO', "Planck18")
         self._cosmo_h = getattr(config, 'COSMO_LITTLE_H', 0.6774)
-        # Note: SFH_DEL_T and SFH_MAX_LBT are handled by properties directly
-        # self._sfh_del_t = getattr(config, 'SFH_DEL_T', 0.05) # Default SFH bin width in Gyr
-        # self._sfh_max_lbt = getattr(config, 'SFH_MAX_LBT', 14.0) # Default maximum lookback time for SFH in Gyr
 
     @property
     def sim_file(self):
@@ -281,10 +277,10 @@ class SFHReconstructor:
         # and the full lbt midpoints (which are also consistent across pixels)
         if sfh_dict['mass'].sum() > 0: # Check if there is any mass in this pixel
             pixel_total_initial_mass = sfh_dict['mass'].sum()
-            cumulative_mass_formed = sfh_dict['cumul_mass'] # This is already cumulative mass formed at end of each bin
+            cumulative_mass_formed_for_interp = sfh_dict['cumul_mass'] # This is already cumulative mass formed at end of each bin
             
             x_interp = sfh_dict['lbt'] # Lookback time midpoints for all bins
-            y_interp = cumulative_mass_formed # Cumulative mass formed at end of each bin
+            y_interp = cumulative_mass_formed_for_interp # Cumulative mass formed at end of each bin
 
             for p in percentages:
                 target_mass = p * pixel_total_initial_mass
@@ -385,9 +381,9 @@ class SFHReconstructor:
         print(f"Cutout size: {dimx} x {dimy} pix or {self.dim_kpc:.2f} x {self.dim_kpc:.2f} kpc")
 
         # Define common lookback time bins for all pixels
-        # Ensure max_lbt does not exceed the age of the universe at z=0 (approx 13.8 Gyr for Planck18)
-        age_universe_at_z0 = cosmo.age(0).value # Age of the universe at z=0
-        self.sfh_max_lbt = min(self.sfh_max_lbt, age_universe_at_z0)
+        # Ensure max_lbt does not exceed the age of the universe at the galaxy's redshift
+        age_universe_at_galaxy_z = cosmo.age(self.z).value # Age of the universe at the galaxy's redshift
+        self.sfh_max_lbt = min(self.sfh_max_lbt, age_universe_at_galaxy_z)
 
         sfh_lbt_bins = np.arange(0, self.sfh_max_lbt + self.sfh_del_t, self.sfh_del_t)
         # Midpoints of the bins for FITS header
@@ -445,16 +441,6 @@ class SFHReconstructor:
         # Populate the 3D maps with results from parallel processing
         for pixel_result_tuple in results:
             ii, jj, sfh_data = pixel_result_tuple
-
-            # The `sfh_data['cumul_mass']` is the cumulative mass formed *up to the end of each bin*.
-            # To make it "increasing with decreasing lookback time" (i.e., increasing with cosmic time),
-            # we need to reverse the order of lookback time bins for output.
-            # However, the current structure of `sfh_dict['lbt']` is increasing lookback time (oldest to youngest).
-            # If 'cumul_mass' is defined as "cumulative initial stellar mass formed",
-            # it should naturally be increasing with decreasing lookback time (i.e., increasing with cosmic age).
-            # Let's verify the definition in construct_SFH.
-            # If `construct_SFH`'s `cumul_mass` is already cumulative mass formed from oldest to youngest,
-            # then it's already increasing with decreasing lookback time when mapped to `sfh_lbt_midpoints`.
 
             # Ensure data is correctly assigned based on the common sfh_lbt_midpoints order
             map_sfr[ii, jj, :] = sfh_data['sfr']
