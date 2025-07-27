@@ -33,7 +33,7 @@ class GalaxySynthesizer:
         self._output_pixel_spectra = False
         self._rest_wave_min = 1000.0
         self._rest_wave_max = 16000.0
-        self._ssp_code = 'FSPS' # New parameter: default to FSPS
+        self._ssp_code = 'FSPS'
 
     def _load_config_defaults(self):
         """

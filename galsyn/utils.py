@@ -370,13 +370,13 @@ def igm_att_inoue(wave,z):
 	return np.exp(-1.0*tau)
 
 
-def construct_SFH_TNG(stars_form_lbt, stars_init_mass, stars_metallicity, del_t=0.3, max_lbt=14.0):
+def construct_SFH(stars_form_lbt, stars_init_mass, stars_metallicity, del_t=0.1, max_lbt=14.0):
     """
     Constructs the Star Formation History (SFH) from stellar formation times,
     initial masses, and metallicities using vectorized NumPy operations for efficiency.
 
-    Calculates the mass-weighted average metallicity and mass-weighted average age
-    within each lookback time bin.
+    Calculates the mass-weighted average metallicity within each lookback time bin.
+    Ensures all bins are returned, even if empty, to maintain consistent binning across pixels.
 
     Args:
         stars_form_lbt (array-like): Array of stellar formation lookback times in Gyr.
@@ -390,13 +390,12 @@ def construct_SFH_TNG(stars_form_lbt, stars_init_mass, stars_metallicity, del_t=
 
     Returns:
         dict: A dictionary containing:
-              - 'lbt' (np.ndarray): Midpoints of lookback time bins where stars formed.
+              - 'lbt' (np.ndarray): Midpoints of all lookback time bins.
               - 'sfr' (np.ndarray): Star formation rate in solar mass per year.
               - 'nstars' (np.ndarray): Number of stars formed in each bin.
               - 'mass' (np.ndarray): Total initial stellar mass formed within each bin.
-              - 'cumul_mass' (np.ndarray): Stellar mass growth history (total initial mass not yet formed).
+              - 'cumul_mass' (np.ndarray): Cumulative initial stellar mass formed.
               - 'metallicity' (np.ndarray): Mass-weighted average metallicity in each bin.
-              - 'mass_weighted_age' (np.ndarray): Mass-weighted average stellar population age (lookback time) in each bin.
 
     Raises:
         ValueError: If input arrays have incompatible shapes or invalid values.
@@ -413,92 +412,57 @@ def construct_SFH_TNG(stars_form_lbt, stars_init_mass, stars_metallicity, del_t=
     if max_lbt <= 0:
         raise ValueError("max_lbt (maximum lookback time) must be positive.")
 
-    # Handle empty particle set
-    if stars_form_lbt.shape[0] == 0:
-        print("Warning: No star particles provided. Returning empty SFH.")
-        return {
-            'lbt': np.array([]),
-            'sfr': np.array([]),
-            'nstars': np.array([]),
-            'mass': np.array([]),
-            'cumul_mass': np.array([]),
-            'metallicity': np.array([]),
-            'mass_weighted_age': np.array([])
-        }
-
     # Define the bins for lookback time.
     # The bins are inclusive of the lower bound and exclusive of the upper bound [t, t + del_t).
     # We add a small epsilon to max_lbt to ensure that max_lbt itself is included in a bin
     # if it falls exactly on a bin edge.
     bins = np.arange(0, max_lbt + del_t, del_t)
+    sfh_lbt_midpoints = bins[:-1] + 0.5 * del_t
 
-    # Calculate total initial mass for SMGH calculation
-    total_initial_mass = np.nansum(stars_init_mass)
+    # Handle empty particle set: return arrays of correct size filled with zeros/NaNs
+    if stars_form_lbt.shape[0] == 0:
+        num_bins = len(sfh_lbt_midpoints)
+        return {
+            'lbt': sfh_lbt_midpoints,
+            'sfr': np.zeros(num_bins, dtype=np.float32),
+            'nstars': np.zeros(num_bins, dtype=np.int32),
+            'mass': np.zeros(num_bins, dtype=np.float32),
+            'cumul_mass': np.zeros(num_bins, dtype=np.float32), # Will be filled later
+            'metallicity': np.full(num_bins, np.nan, dtype=np.float32)
+        }
+
+    # Calculate total initial mass for cumulative mass calculation
+    total_initial_mass_formed = np.nansum(stars_init_mass)
 
     # Use np.histogram to efficiently bin the data
-    # mass_in_bins: Sum of initial masses in each time bin
-    # nstars_in_bins: Count of stars in each time bin
     mass_in_bins, _ = np.histogram(stars_form_lbt, bins=bins, weights=stars_init_mass)
     nstars_in_bins, _ = np.histogram(stars_form_lbt, bins=bins)
-
-    # Calculate sum of (mass * metallicity) in each bin for mass-weighted average metallicity
     mass_times_metallicity_in_bins, _ = np.histogram(stars_form_lbt, bins=bins, weights=stars_init_mass * stars_metallicity)
-
-    # Calculate sum of (mass * lookback_time) in each bin for mass-weighted average age
-    mass_times_lbt_in_bins, _ = np.histogram(stars_form_lbt, bins=bins, weights=stars_init_mass * stars_form_lbt)
-
-    # Identify valid bins (where at least one star was formed, or mass is non-zero)
-    # Using mass_in_bins > 0 is more robust for mass-weighted averages.
-    valid_bins_mask = mass_in_bins > 0
-
-    # Extract data for valid bins
-    valid_masses = mass_in_bins[valid_bins_mask]
-    valid_nstars = nstars_in_bins[valid_bins_mask]
-    valid_mass_times_metallicity = mass_times_metallicity_in_bins[valid_bins_mask]
-    valid_mass_times_lbt = mass_times_lbt_in_bins[valid_bins_mask] # Extract for valid bins
-
-    # Calculate lookback time midpoints for the sfh dictionary
-    # bins[:-1] gives the start times of the bins
-    sfh_lbt_midpoints = bins[:-1][valid_bins_mask] + 0.5 * del_t
 
     # Calculate Star Formation Rate (SFR)
     # SFR is mass formed per unit time, converted to solar mass per year (1e9 for Gyr to year)
-    sfh_sfr = valid_masses / del_t / 1e9
+    sfh_sfr = mass_in_bins / del_t / 1e9
 
     # Total stellar mass in each bin
-    sfh_total_stellar_mass_in_bin = valid_masses
+    sfh_total_stellar_mass_in_bin = mass_in_bins
 
-    # Calculate Stellar Mass Growth History (SMGH)
-    # SMGH represents the total initial mass of stars that have *not yet formed*
-    # at the start of each bin.
-    # First, calculate the cumulative mass formed up to the end of each bin (including empty ones)
-    cumulative_mass_formed_at_end_of_bin = np.cumsum(mass_in_bins)
-    # Then, subtract this from the total initial mass.
-    # For the first bin, the mass not yet formed is the total_initial_mass.
-    # For subsequent bins, it's total_initial_mass - (mass formed up to previous bin's end).
-    smgh_all_bins = total_initial_mass - np.concatenate(([0], cumulative_mass_formed_at_end_of_bin[:-1]))
-    # Filter for only the valid bins
-    sfh_smgh = smgh_all_bins[valid_bins_mask]
+    # Calculate Cumulative Mass Formed
+    # This is the total initial mass formed up to the *end* of each bin.
+    sfh_cumul_mass = np.cumsum(mass_in_bins)
 
     # Calculate Mass-Weighted Average Metallicity
-    # Avoid division by zero for bins with no mass (though valid_bins_mask should handle this)
-    sfh_metallicity = np.zeros_like(valid_masses)
-    non_zero_mass_mask = valid_masses > 0
-    sfh_metallicity[non_zero_mass_mask] = valid_mass_times_metallicity[non_zero_mass_mask] / valid_masses[non_zero_mass_mask]
-
-    # Calculate Mass-Weighted Average Age
-    sfh_mass_weighted_age = np.zeros_like(valid_masses)
-    sfh_mass_weighted_age[non_zero_mass_mask] = valid_mass_times_lbt[non_zero_mass_mask] / valid_masses[non_zero_mass_mask]
+    sfh_metallicity = np.full_like(mass_in_bins, np.nan, dtype=np.float32)
+    non_zero_mass_mask = mass_in_bins > 0
+    sfh_metallicity[non_zero_mass_mask] = mass_times_metallicity_in_bins[non_zero_mass_mask] / mass_in_bins[non_zero_mass_mask]
 
     # Construct the sfh dictionary
     sfh = {
         'lbt': sfh_lbt_midpoints,
         'sfr': sfh_sfr,
-        'nstars': valid_nstars,
+        'nstars': nstars_in_bins,
         'mass': sfh_total_stellar_mass_in_bin,
-        'cumul_mass': sfh_smgh,
-        'metallicity': sfh_metallicity,
-        'mass_weighted_age': sfh_mass_weighted_age
+        'cumul_mass': sfh_cumul_mass,
+        'metallicity': sfh_metallicity
     }
 
     return sfh
