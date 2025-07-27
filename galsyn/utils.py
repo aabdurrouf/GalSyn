@@ -370,7 +370,7 @@ def igm_att_inoue(wave,z):
 	return np.exp(-1.0*tau)
 
 
-def construct_SFH(stars_form_lbt, stars_init_mass, stars_metallicity, del_t=0.1, max_lbt=14.0):
+def construct_SFH(stars_form_lbt, stars_init_mass, stars_metallicity, del_t=0.3, max_lbt=14.0):
     """
     Constructs the Star Formation History (SFH) from stellar formation times,
     initial masses, and metallicities using vectorized NumPy operations for efficiency.
@@ -420,8 +420,8 @@ def construct_SFH(stars_form_lbt, stars_init_mass, stars_metallicity, del_t=0.1,
     sfh_lbt_midpoints = bins[:-1] + 0.5 * del_t
 
     # Handle empty particle set: return arrays of correct size filled with zeros/NaNs
+    num_bins = len(sfh_lbt_midpoints)
     if stars_form_lbt.shape[0] == 0:
-        num_bins = len(sfh_lbt_midpoints)
         return {
             'lbt': sfh_lbt_midpoints,
             'sfr': np.zeros(num_bins, dtype=np.float32),
@@ -431,24 +431,26 @@ def construct_SFH(stars_form_lbt, stars_init_mass, stars_metallicity, del_t=0.1,
             'metallicity': np.full(num_bins, np.nan, dtype=np.float32)
         }
 
-    # Calculate total initial mass for cumulative mass calculation
-    total_initial_mass_formed = np.nansum(stars_init_mass)
-
     # Use np.histogram to efficiently bin the data
+    # mass_in_bins will correspond to bins from youngest LBT to oldest LBT
     mass_in_bins, _ = np.histogram(stars_form_lbt, bins=bins, weights=stars_init_mass)
     nstars_in_bins, _ = np.histogram(stars_form_lbt, bins=bins)
     mass_times_metallicity_in_bins, _ = np.histogram(stars_form_lbt, bins=bins, weights=stars_init_mass * stars_metallicity)
 
     # Calculate Star Formation Rate (SFR)
-    # SFR is mass formed per unit time, converted to solar mass per year (1e9 for Gyr to year)
     sfh_sfr = mass_in_bins / del_t / 1e9
 
     # Total stellar mass in each bin
     sfh_total_stellar_mass_in_bin = mass_in_bins
 
-    # Calculate Cumulative Mass Formed
-    # This is the total initial mass formed up to the *end* of each bin.
-    sfh_cumul_mass = np.cumsum(mass_in_bins)
+    # Calculate Cumulative Mass Formed (increasing with decreasing lookback time)
+    # The bins are ordered from youngest lookback time to oldest lookback time.
+    # To get cumulative mass from Big Bang towards present, we need to:
+    # 1. Reverse the mass_in_bins array to get mass from oldest to youngest.
+    # 2. Compute cumulative sum on this reversed array.
+    # 3. Reverse the result back to match the original lbt order (youngest to oldest).
+    sfh_cumul_mass = np.cumsum(mass_in_bins[::-1])[::-1]
+
 
     # Calculate Mass-Weighted Average Metallicity
     sfh_metallicity = np.full_like(mass_in_bins, np.nan, dtype=np.float32)
