@@ -456,7 +456,6 @@ class SFHReconstructor:
                 map_t_75[ii, jj] = sfh_data['mass_assembly_times'].get('t_75', np.nan)
                 map_t_95[ii, jj] = sfh_data['mass_assembly_times'].get('t_95', np.nan)
 
-
         print("All SFH calculations complete. Maps populated.")
 
         # --- Save results to FITS file ---
@@ -531,6 +530,17 @@ class SFHReconstructor:
             add_2d_map_hdu(map_t_50, 'T_50_PERCENT', 'Lookback time for 50% mass assembly', 'Gyr')
             add_2d_map_hdu(map_t_75, 'T_75_PERCENT', 'Lookback time for 75% mass assembly', 'Gyr')
             add_2d_map_hdu(map_t_95, 'T_95_PERCENT', 'Lookback time for 95% mass assembly', 'Gyr')
+
+            # Add Lookback Time bins as a 1D extension
+            ext_hdr_lbt_bins = fits.Header()
+            ext_hdr_lbt_bins['EXTNAME'] = 'LOOKBACK_TIME_BINS'
+            ext_hdr_lbt_bins['COMMENT'] = 'Midpoints of lookback time bins for SFH'
+            ext_hdr_lbt_bins['BUNIT'] = 'Gyr'
+            ext_hdr_lbt_bins['CRPIX1'] = 1.0
+            ext_hdr_lbt_bins['CDELT1'] = self.sfh_del_t
+            ext_hdr_lbt_bins['CRVAL1'] = sfh_lbt_midpoints[0] if num_lbt_bins > 0 else 0.0
+            ext_hdr_lbt_bins['CUNIT1'] = 'Gyr'
+            hdul.append(fits.ImageHDU(data=sfh_lbt_midpoints, header=ext_hdr_lbt_bins))
 
             output_dir = os.path.dirname(self.name_out_sfh)
             if output_dir and not os.path.exists(output_dir):
