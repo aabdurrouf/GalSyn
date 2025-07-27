@@ -39,11 +39,12 @@ setup(
         'joblib',           # For CPU-based parallel processing
         'tqdm',             # For progress bars (includes tqdm.joblib)
         'tqdm_joblib',
-        #'fsps',             # For Flexible Stellar Population Synthesis (requires setup, see notes below)
-        #'mpi4py',           # For MPI-based parallel processing (requires MPI installation)
-        #'importlib_metadata', # Explicitly added due to previous traceback, though often a transitive dep
+        'fsps',             # Explicitly include FSPS if it's a direct dependency and not just a note
+        # 'mpi4py',           # For MPI-based parallel processing (requires MPI installation)
+        # 'importlib_metadata', # Not strictly needed as importlib.resources is standard in Python 3.9+
         'psutil',           # If you use it for memory monitoring/debugging
         'ipywidgets',
+        'photutils',
         # 'illustris_python', # NOTE: This package is typically installed directly from its GitHub repository
                               # as it's not available on PyPI. If your code strictly depends on it,
                               # users will need to install it separately, e.g.:
@@ -51,6 +52,11 @@ setup(
                               # If it's a local module you've included, ensure it's part of your
                               # 'galsyn' package structure.
     ],
+    # --- IMPORTANT: Add package_data to include the ssp_spectra.hdf5 file ---
+    package_data={
+        'galsyn': ['data/*.hdf5'], # Include all .hdf5 files in galsyn/data/
+    },
+    include_package_data=True, # Essential for package_data to be respected
     # If you have command-line scripts, you can define them here.
     # For example, if you want to run your main generation function from the command line:
     # entry_points={
