@@ -473,7 +473,6 @@ class SFHReconstructor:
             prihdr['PIX_KPC'] = pix_kpc
             prihdr['PIXSIZE'] = self.pix_arcsec
             prihdr['SFH_DELT'] = self.sfh_del_t
-            prihdr['SFH_MAXLBT'] = self.sfh_max_lbt
             prihdr['COSMO'] = self.cosmo_str
             prihdr['H0'] = cosmo.H0.value
             prihdr['OM0'] = cosmo.Om0

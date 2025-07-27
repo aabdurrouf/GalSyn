@@ -36,14 +36,14 @@ def get_tng_snaps_info(sim='TNG50-1', api_key="api-key"):
     snaps = get(sim_info['snapshots'])
     return snaps
 
-def get_snap_z(snap_number, sim='TNG50-1', snaps_info=None):
+def get_snap_z(snap_number, sim='TNG50-1', snaps_info=None, api_key="api-key"):
     if snaps_info is None:
-        snaps_info = get_tng_snaps_info(sim)
+        snaps_info = get_tng_snaps_info(sim, api_key=api_key)
     return snaps_info[int(snap_number)]['redshift']
 
-def get_snap_z_batch(snap_numbers, sim='TNG50-1', snaps_info=None):
+def get_snap_z_batch(snap_numbers, sim='TNG50-1', snaps_info=None, api_key="api-key"):
     if snaps_info is None:
-        snaps_info = get_tng_snaps_info(sim)
+        snaps_info = get_tng_snaps_info(sim, api_key=api_key)
 
     snap_z = []
     for ii in snap_numbers:
@@ -51,32 +51,32 @@ def get_snap_z_batch(snap_numbers, sim='TNG50-1', snaps_info=None):
  
     return np.asarray(snap_z)
 
-def get_num_subhalos(snap_number, sim='TNG50-1', snaps_info=None):
+def get_num_subhalos(snap_number, sim='TNG50-1', snaps_info=None, api_key="api-key"):
     if snaps_info is None:
-        snaps_info = get_tng_snaps_info(sim)
+        snaps_info = get_tng_snaps_info(sim, api_key=api_key)
     return snaps_info[int(snap_number)]['num_groups_subfind']
 
-def cosmic_times_snapshots(sim='TNG50-1',snaps_info=None, cosmo='Planck18'):
+def cosmic_times_snapshots(sim='TNG50-1',snaps_info=None, cosmo='Planck18', api_key="api-key"):
 
     if snaps_info is None:
-        snaps_info = get_tng_snaps_info(sim)
+        snaps_info = get_tng_snaps_info(sim, api_key=api_key)
 
     nsnaps = 100
     cosmic_times = np.zeros(nsnaps)
     for ii in range(nsnaps):
-        snap_z = get_snap_z(ii, sim=sim, snaps_info=snaps_info)
+        snap_z = get_snap_z(ii, sim=sim, snaps_info=snaps_info, api_key=api_key)
         cosmic_times[ii] = cosmo.age(snap_z).value
 
     return cosmic_times
 
-def cosmic_times_of_snapshots(snaps, sim='TNG50-1', snaps_info=None, cosmo='Planck18'):
+def cosmic_times_of_snapshots(snaps, sim='TNG50-1', snaps_info=None, cosmo='Planck18', api_key="api-key"):
 
     if snaps_info is None:
-        snaps_info = get_tng_snaps_info(sim)
+        snaps_info = get_tng_snaps_info(sim, api_key=api_key)
 
     cosmic_times = []
     for ii in snaps:
-        snap_z = get_snap_z(ii, sim=sim, snaps_info=snaps_info)
+        snap_z = get_snap_z(ii, sim=sim, snaps_info=snaps_info, api_key=api_key)
         cosmic_times.append(cosmo.age(snap_z).value)
 
     return np.asarray(cosmic_times)
