@@ -1,11 +1,12 @@
+import os
 import numpy as np
 from astropy.io import fits
 from astropy.convolution import convolve_fft
-from photutils.psf import resize_psf
+from photutils.psf.matching import resize_psf
 from scipy.ndimage import gaussian_filter
-import os
 from scipy.integrate import simpson
-from scipy import stats # New import for Poisson distribution
+from scipy import stats
+from imgutils import *
 
 class GalSynMockObservation:
     """
