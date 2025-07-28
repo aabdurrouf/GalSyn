@@ -6,7 +6,7 @@ from photutils.psf.matching import resize_psf
 from scipy.ndimage import gaussian_filter
 from scipy.integrate import simpson
 from scipy import stats
-from imgutils import *
+from .imgutils import *
 
 class GalSynMockObservation:
     """
