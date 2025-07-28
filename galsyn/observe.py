@@ -8,6 +8,9 @@ from scipy.integrate import simpson
 from scipy import stats
 from .imgutils import *
 
+# Directly import convert_flux_map using a relative import
+from .imgutils import convert_flux_map # <--- CHANGE THIS LINE
+
 class GalSynMockObservation:
     """
     A class to simulate observational effects on synthetic galaxy images,
@@ -411,41 +414,3 @@ class GalSynMockObservation:
         hdul_out.writeto(output_fits_path, overwrite=True, output_verify='fix')
         hdul_out.close()
         print(f"Results saved to {output_fits_path}")
-
-try:
-    from imgutils import convert_flux_map
-except ImportError:
-    # If imgutils is not found via direct import, attempt relative import or define it.
-    # This block is here for robustness in different execution environments.
-    print("Warning: Could not import convert_flux_map directly. Attempting relative import or using local definition.")
-    try:
-        from .imgutils import convert_flux_map
-    except ImportError:
-        # Define convert_flux_map locally if it cannot be imported (for standalone testing)
-        def convert_flux_map(flux_map, wave_eff, to_unit='nJy', pixel_scale_arcsec=None):
-            c = 2.99792458e18  # speed of light in Angstrom/s
-
-            if to_unit == 'erg/s/cm2/A':
-                return flux_map
-
-            elif to_unit == 'nJy':
-                f_nu = flux_map * wave_eff**2 / c
-                return f_nu / 1e-23 * 1e9  # nJy
-
-            elif to_unit == 'AB magnitude':
-                f_nu = flux_map * wave_eff**2 / c
-                mag = -2.5 * np.log10(np.clip(f_nu, 1e-50, None)) - 48.6
-                return mag
-
-            elif to_unit == 'MJy/sr':
-                if pixel_scale_arcsec is None:
-                    raise ValueError("pixel_scale_arcsec is required for conversion to MJy/sr")
-
-                f_nu = flux_map * wave_eff**2 / c
-                f_nu_jy = f_nu / 1e-23
-
-                pixel_area_sr = (pixel_scale_arcsec * np.pi / (180.0 * 3600.0))**2
-                return f_nu_jy / pixel_area_sr / 1e6
-
-            else:
-                raise ValueError(f"Unsupported target unit: {to_unit}")
