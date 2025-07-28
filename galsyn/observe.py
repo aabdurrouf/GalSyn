@@ -8,9 +8,6 @@ from scipy.integrate import simpson
 from scipy import stats
 from .imgutils import *
 
-# Directly import convert_flux_map using a relative import
-from .imgutils import convert_flux_map # <--- CHANGE THIS LINE
-
 class GalSynMockObservation:
     """
     A class to simulate observational effects on synthetic galaxy images,
