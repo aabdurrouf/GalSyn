@@ -1,0 +1,49 @@
+/* docs/_static/custom.css */
+
+/* Hide the default conestack logo */
+.navbar-brand img[src*="conestack.svg"] {
+    display: none;
+}
+
+/* Ensure your custom logo is displayed (even if it's already there) */
+.navbar-brand img:not([src*="conestack.svg"]) {
+    display: inline-block; /* Or 'block' depending on desired layout */
+    /* You might need to adjust max-height/width here if your logo is too big/small */
+    max-height: 40px; /* Example: adjust as needed */
+    width: auto;
+}
+
+/* Reduce the width of the left sidebar */
+.bd-sidebar-primary {
+    flex: 0 0 180px; /* Adjust this value as needed. 200px is a common narrower width. */
+    max-width: 180px; /* Ensure it doesn't grow larger than this */
+    min-width: 150px; /* Ensure it doesn't shrink smaller than this */
+}
+
+/* Adjust the content area to take up more space */
+.bd-content {
+    flex: 1; /* Allow content to grow and take available space */
+    max-width: calc(100% - 220px); /* Adjust based on your sidebar width + margin */
+    /* This value should be roughly 100% minus the fixed width of your sidebar plus any desired margin.
+       If your sidebar is 200px, 220px gives it 20px margin. */
+}
+
+/* If the TOC within the sidebar also has issues, you might need to adjust its padding */
+.bd-toc .contents {
+    padding-left: 0.5rem; /* Adjust padding for nested list items if necessary */
+    padding-right: 0.5rem;
+}
+
+/* Further minor adjustments if text is still wrapping poorly in the sidebar */
+.sidebar-scroll .toctree-l1,
+.sidebar-scroll .toctree-l2 {
+    white-space: nowrap; /* Prevent text wrapping in sidebar links if they are short */
+    overflow: hidden; /* Hide overflow if text is too long */
+    text-overflow: ellipsis; /* Add ellipsis for overflowing text */
+}
+
+/* You might also need to adjust font-size within the sidebar if reducing width makes text too cramped */
+.bd-sidebar-primary .toctree-l1 > a,
+.bd-sidebar-primary .toctree-l2 > a {
+    font-size: 0.9em; /* Slightly smaller font for links */
+}
