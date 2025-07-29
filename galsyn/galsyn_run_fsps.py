@@ -439,9 +439,6 @@ def _process_pixel_data(ii, jj, star_particle_membership_list, gas_particle_memb
         lw_wave_idx = np.where((wave >= _lw_wave_min_rest) & (wave <= _lw_wave_max_rest))[0]
         if lw_wave_idx.size == 0:
             # If no wavelengths fall in range, light-weighted quantities will be NaN
-            # and integration will result in 0 luminosity.
-            # Handle this case by ensuring relevant arrays are empty or contain NaNs
-            # print("Warning: No SSP wavelengths fall within the light-weighting range.")
             pass
 
         for i_sid in range(len(star_ids)):
@@ -559,6 +556,7 @@ def _process_pixel_data(ii, jj, star_particle_membership_list, gas_particle_memb
                     # If the target output grid is empty, ensure the output spectra arrays are also empty
                     pixel_results['obs_spectra_nodust_igm'] = np.zeros(0)
                     pixel_results['obs_spectra_dust_igm'] = np.zeros(0)
+
 
             nbands = len(_worker_filters)
             redshift_flux = np.zeros(nbands)
@@ -1024,38 +1022,63 @@ def generate_images(sim_file, z, filters, filter_transmission_path, dim_kpc=None
                     hdul.append(fits.ImageHDU(data=data_array, header=ext_hdr))
 
             if output_pixel_spectra:
+                # Transpose the data cube from (dim_y, dim_x, wavelength) to (wavelength, dim_y, dim_x)
+                transposed_map_spectra_nodust = map_spectra_nodust.transpose((2, 0, 1))
+                transposed_map_spectra_dust = map_spectra_dust.transpose((2, 0, 1))
+
                 ext_hdr_nodust_spec = fits.Header()
                 ext_hdr_nodust_spec['EXTNAME'] = 'OBS_SPEC_NODUST' 
                 ext_hdr_nodust_spec['COMMENT'] = 'Observed-frame spectra (no dust attenuation)' 
-                ext_hdr_nodust_spec['CRPIX1'] = dimx / 2.0 + 0.5 
-                ext_hdr_nodust_spec['CRPIX2'] = dimy / 2.0 + 0.5 
-                ext_hdr_nodust_spec['CDELT1'] = pix_kpc 
-                ext_hdr_nodust_spec['CDELT2'] = pix_kpc 
-                ext_hdr_nodust_spec['CUNIT1'] = 'kpc'
+                
+                # Update CRPIX, CDELT, CUNIT to reflect new axis order
+                ext_hdr_nodust_spec['CRPIX1'] = 1.0 # Wavelength axis becomes the first axis
+                ext_hdr_nodust_spec['CRVAL1'] = fixed_global_output_obs_wave[0] if fixed_global_output_obs_wave.size > 0 else 0.0
+                ext_hdr_nodust_spec['CDELT1'] = (fixed_global_output_obs_wave[1] - fixed_global_output_obs_wave[0]) if fixed_global_output_obs_wave.size > 1 else 0.0
+                ext_hdr_nodust_spec['CUNIT1'] = 'Angstrom'
+
+                ext_hdr_nodust_spec['CRPIX2'] = dimy / 2.0 + 0.5 # dim_y becomes the second axis
+                ext_hdr_nodust_spec['CDELT2'] = pix_kpc
                 ext_hdr_nodust_spec['CUNIT2'] = 'kpc'
-                ext_hdr_nodust_spec['CRPIX3'] = 1.0 
-                # Use the fixed_global_output_obs_wave for header info
-                ext_hdr_nodust_spec['CDELT3'] = (fixed_global_output_obs_wave[1] - fixed_global_output_obs_wave[0]) if fixed_global_output_obs_wave.size > 1 else 0.0 
-                ext_hdr_nodust_spec['CRVAL3'] = fixed_global_output_obs_wave[0] if fixed_global_output_obs_wave.size > 0 else 0.0 
-                ext_hdr_nodust_spec['CUNIT3'] = 'Angstrom'
+
+                ext_hdr_nodust_spec['CRPIX3'] = dimx / 2.0 + 0.5 # dim_x becomes the third axis
+                ext_hdr_nodust_spec['CDELT3'] = pix_kpc
+                ext_hdr_nodust_spec['CUNIT3'] = 'kpc'
+                
                 ext_hdr_nodust_spec['BUNIT'] = 'erg/s/cm2/Angstrom' 
-                hdul.append(fits.ImageHDU(data=map_spectra_nodust, header=ext_hdr_nodust_spec))
+                hdul.append(fits.ImageHDU(data=transposed_map_spectra_nodust, header=ext_hdr_nodust_spec))
 
                 ext_hdr_dust_spec = fits.Header()
                 ext_hdr_dust_spec['EXTNAME'] = 'OBS_SPEC_DUST' 
                 ext_hdr_dust_spec['COMMENT'] = 'Observed-frame spectra (with dust attenuation)' 
-                ext_hdr_dust_spec['CRPIX1'] = dimx / 2.0 + 0.5 
-                ext_hdr_dust_spec['CRPIX2'] = dimy / 2.0 + 0.5 
-                ext_hdr_dust_spec['CDELT1'] = pix_kpc 
-                ext_hdr_dust_spec['CDELT2'] = pix_kpc 
-                ext_hdr_dust_spec['CUNIT1'] = 'kpc'
+                
+                # Update CRPIX, CDELT, CUNIT to reflect new axis order
+                ext_hdr_dust_spec['CRPIX1'] = 1.0 # Wavelength axis becomes the first axis
+                ext_hdr_dust_spec['CRVAL1'] = fixed_global_output_obs_wave[0] if fixed_global_output_obs_wave.size > 0 else 0.0
+                ext_hdr_dust_spec['CDELT1'] = (fixed_global_output_obs_wave[1] - fixed_global_output_obs_wave[0]) if fixed_global_output_obs_wave.size > 1 else 0.0
+                ext_hdr_dust_spec['CUNIT1'] = 'Angstrom'
+
+                ext_hdr_dust_spec['CRPIX2'] = dimy / 2.0 + 0.5 # dim_y becomes the second axis
+                ext_hdr_dust_spec['CDELT2'] = pix_kpc
                 ext_hdr_dust_spec['CUNIT2'] = 'kpc'
-                ext_hdr_dust_spec['CRPIX3'] = 1.0
-                ext_hdr_dust_spec['CDELT3'] = (fixed_global_output_obs_wave[1] - fixed_global_output_obs_wave[0]) if fixed_global_output_obs_wave.size > 1 else 0.0
-                ext_hdr_dust_spec['CRVAL3'] = fixed_global_output_obs_wave[0] if fixed_global_output_obs_wave.size > 0 else 0.0
-                ext_hdr_dust_spec['CUNIT3'] = 'Angstrom'
+
+                ext_hdr_dust_spec['CRPIX3'] = dimx / 2.0 + 0.5 # dim_x becomes the third axis
+                ext_hdr_dust_spec['CDELT3'] = pix_kpc
+                ext_hdr_dust_spec['CUNIT3'] = 'kpc'
+
                 ext_hdr_dust_spec['BUNIT'] = 'erg/s/cm2/Angstrom'
-                hdul.append(fits.ImageHDU(data=map_spectra_dust, header=ext_hdr_dust_spec))
+                hdul.append(fits.ImageHDU(data=transposed_map_spectra_dust, header=ext_hdr_dust_spec))
+                
+                # --- Add wavelength array as a binary table extension ---
+                if fixed_global_output_obs_wave.size > 0:
+                    col = fits.Column(name='WAVELENGTH', format='D', array=fixed_global_output_obs_wave)
+                    cols = fits.ColDefs([col])
+                    wavelength_hdu = fits.BinTableHDU.from_columns(cols, name='WAVELENGTH_GRID')
+                    wavelength_hdu.header['BUNIT'] = 'Angstrom'
+                    wavelength_hdu.header['COMMENT'] = 'Wavelength grid for OBS_SPEC_NODUST and OBS_SPEC_DUST'
+                    hdul.append(wavelength_hdu)
+                else:
+                    print("Warning: No wavelength grid data to save for WAVELENGTH_GRID extension.")
+
 
             output_dir = os.path.dirname(name_out_img)
             if output_dir and not os.path.exists(output_dir):
