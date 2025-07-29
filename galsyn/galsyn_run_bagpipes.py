@@ -1,4 +1,3 @@
-# --- galsyn_run_bagpipes.py ---
 import h5py
 import os, sys
 import numpy as np
@@ -67,7 +66,11 @@ dustindexAV_dust_index = None
 _worker_scale_dust_tau = None
 
 output_pixel_spectra_flag = False
-global_output_obs_wave = None
+# Renamed from global_output_obs_wave to _worker_output_obs_wave_grid
+# as it's defined and used within each worker for interpolation.
+# The actual common output grid is 'fixed_global_output_obs_wave'
+# determined in the main process.
+_worker_output_obs_wave_grid = None 
 
 _worker_filters = None
 _worker_filter_transmission = None
@@ -125,7 +128,7 @@ def init_worker(ssp_code_val, snap_z_val, pix_area_kpc2_val, mean_AV_unres_val,
                 dust_law_val, bump_amp_val, relation_AVslope_val, salim_a0_val, 
                 salim_a1_val, salim_a2_val, salim_a3_val, salim_RV_val, salim_B_val,
                 use_precomputed_ssp_val, ssp_filepath_val=None, ssp_interpolation_method_val='nearest', 
-                output_pixel_spectra_val=False, rest_wave_min_val=None, rest_wave_max_val=None): 
+                output_pixel_spectra_val=False, output_obs_wave_grid_val=None): 
     
     global ssp_wave, ssp_ages_gyr, ssp_logzsol_grid, ssp_spectra_grid, ssp_stellar_mass_grid, ssp_code_z_sun
     global _global_ssp_spectra_interpolator, _global_ssp_stellar_mass_interpolator
@@ -134,7 +137,7 @@ def init_worker(ssp_code_val, snap_z_val, pix_area_kpc2_val, mean_AV_unres_val,
     global dust_index_bc, dust_index, t_esc, dust_law, bump_amp, salim_a0, salim_a1, salim_a2, salim_a3
     global salim_RV, salim_B, dust_Alambda_per_AV, func_interp_dust_index
     global use_precomputed_ssp, ssp_interpolation_method
-    global output_pixel_spectra_flag, global_output_obs_wave
+    global output_pixel_spectra_flag, _worker_output_obs_wave_grid
     global _worker_filters, _worker_filter_transmission, _worker_filter_wave_eff, _worker_cosmo
     global dustindexAV_AV, dustindexAV_dust_index
     global _worker_scale_dust_tau
@@ -171,6 +174,7 @@ def init_worker(ssp_code_val, snap_z_val, pix_area_kpc2_val, mean_AV_unres_val,
     )
 
     output_pixel_spectra_flag = output_pixel_spectra_val
+    _worker_output_obs_wave_grid = output_obs_wave_grid_val # Set the global worker wave grid
     
     if use_precomputed_ssp:
         if ssp_filepath_val is None:
@@ -235,25 +239,6 @@ def init_worker(ssp_code_val, snap_z_val, pix_area_kpc2_val, mean_AV_unres_val,
         dummy_model = pipes.model_galaxy(dummy_model_components)
         ssp_wave = dummy_model.wavelengths
         ssp_code_z_sun = BAGPIPES_Z_SUN
-
-
-    if output_pixel_spectra_flag:
-        obs_ssp_wave_full = ssp_wave * (1.0 + snap_z)
-        
-        obs_min_boundary = rest_wave_min_val * (1.0 + snap_z)
-        obs_max_boundary = rest_wave_max_val * (1.0 + snap_z)
-        
-        idx_valid_obs_wave = np.where((obs_ssp_wave_full >= obs_min_boundary) & 
-                                      (obs_ssp_wave_full <= obs_max_boundary))
-        
-        global_output_obs_wave = obs_ssp_wave_full[idx_valid_obs_wave]
-
-        if global_output_obs_wave.size == 0:
-            print(f"Warning: No observed wavelengths from SSP grid fall within the requested rest-frame range "
-                  f"[{rest_wave_min_val}-{rest_wave_max_val}] Angstroms at z={snap_z}. "
-                  f"Observed range: [{obs_min_boundary:.1f}-{obs_max_boundary:.1f}] Angstroms. "
-                  f"Output spectra will be empty for this pixel.")
-            global_output_obs_wave = np.array([])
 
     # Handle relation_AVslope_val
     if isinstance(relation_AVslope_val, str):
@@ -329,6 +314,8 @@ def _process_pixel_data(ii, jj, star_particle_membership_list, gas_particle_memb
     star_particle_membership_list: List of (original_particle_index, line_of_sight_distance) for THIS pixel.
     gas_particle_membership_list: List of (original_particle_index, line_of_sight_distance) for THIS pixel.
     """
+    # Use the pre-defined _worker_output_obs_wave_grid for the output spectra dimensions
+    current_num_obs_wave_points = len(_worker_output_obs_wave_grid) if output_pixel_spectra_flag else 0
 
     pixel_results = {
         'map_stars_mass': 0.0,
@@ -344,8 +331,8 @@ def _process_pixel_data(ii, jj, star_particle_membership_list, gas_particle_memb
         'map_dust_mean_AV': 0.0,
         'map_flux': np.zeros(len(_worker_filters)),
         'map_flux_dust': np.zeros(len(_worker_filters)),
-        'obs_spectra_nodust_igm': np.zeros(len(global_output_obs_wave)) if output_pixel_spectra_flag and global_output_obs_wave.size > 0 else np.zeros(0),
-        'obs_spectra_dust_igm': np.zeros(len(global_output_obs_wave)) if output_pixel_spectra_flag and global_output_obs_wave.size > 0 else np.zeros(0),
+        'obs_spectra_nodust_igm': np.zeros(current_num_obs_wave_points),
+        'obs_spectra_dust_igm': np.zeros(current_num_obs_wave_points),
         'map_lw_age_nodust': np.nan,
         'map_lw_age_dust': np.nan,
         'map_lw_zsol_nodust': np.nan,
@@ -546,14 +533,19 @@ def _process_pixel_data(ii, jj, star_particle_membership_list, gas_particle_memb
             spec_flux_dust_obs_igm = spec_flux_dust_obs * igm_trans
 
             if output_pixel_spectra_flag:
-                if global_output_obs_wave.size > 0:
+                # Interpolate onto the fixed output observed-frame wavelength grid
+                if _worker_output_obs_wave_grid.size > 0:
                     interp_func_nodust = interp1d(spec_wave_obs, spec_flux_obs_igm, kind='linear', 
                                                   bounds_error=False, fill_value=0.0)
                     interp_func_dust = interp1d(spec_wave_obs, spec_flux_dust_obs_igm, kind='linear', 
                                                 bounds_error=False, fill_value=0.0)
                     
-                    pixel_results['obs_spectra_nodust_igm'] = interp_func_nodust(global_output_obs_wave)
-                    pixel_results['obs_spectra_dust_igm'] = interp_func_dust(global_output_obs_wave)
+                    pixel_results['obs_spectra_nodust_igm'] = interp_func_nodust(_worker_output_obs_wave_grid)
+                    pixel_results['obs_spectra_dust_igm'] = interp_func_dust(_worker_output_obs_wave_grid)
+                else:
+                    # If the target output grid is empty, ensure the output spectra arrays are also empty
+                    pixel_results['obs_spectra_nodust_igm'] = np.zeros(0)
+                    pixel_results['obs_spectra_dust_igm'] = np.zeros(0)
 
             nbands = len(_worker_filters)
             redshift_flux = np.zeros(nbands)
@@ -727,6 +719,21 @@ def generate_images(sim_file, z, filters, filter_transmission_path, dim_kpc=None
 
     nbands = len(filters)
 
+    # --- Define the fixed observed-frame wavelength grid for output spectra ---
+    fixed_global_output_obs_wave = np.array([])
+    if output_pixel_spectra:
+        obs_min_boundary = rest_wave_min * (1.0 + snap_z)
+        obs_max_boundary = rest_wave_max * (1.0 + snap_z)
+        # Create a linear wavelength grid with 5 Angstrom increment
+        fixed_global_output_obs_wave = np.arange(obs_min_boundary, obs_max_boundary + 5.0, 5.0)
+        if fixed_global_output_obs_wave.size == 0:
+            print(f"Warning: Calculated output observed wavelength grid is empty for rest-frame range "
+                  f"[{rest_wave_min}-{rest_wave_max}] Angstroms at z={snap_z}. "
+                  f"Observed range: [{obs_min_boundary:.1f}-{obs_max_boundary:.1f}] Angstroms. "
+                  f"Output spectra will be empty for all pixels.")
+
+    num_obs_wave_points = fixed_global_output_obs_wave.size if output_pixel_spectra else 0
+
     map_mw_age = np.zeros((dimy,dimx))
     map_stars_mw_zsol = np.zeros((dimy,dimx))
     map_stars_mass = np.zeros((dimy,dimx))
@@ -741,7 +748,7 @@ def generate_images(sim_file, z, filters, filter_transmission_path, dim_kpc=None
     map_flux = np.zeros((dimy,dimx,nbands))
     map_flux_dust = np.zeros((dimy,dimx,nbands))
     
-    num_obs_wave_points = len(global_output_obs_wave) if output_pixel_spectra else 0
+    # Initialize spectra maps directly with the fixed size
     map_spectra_nodust = np.zeros((dimy, dimx, num_obs_wave_points)) if output_pixel_spectra else None
     map_spectra_dust = np.zeros((dimy, dimx, num_obs_wave_points)) if output_pixel_spectra else None
 
@@ -795,7 +802,7 @@ def generate_images(sim_file, z, filters, filter_transmission_path, dim_kpc=None
                                      dust_law, bump_amp, relation_AVslope, 
                                      salim_a0, salim_a1, salim_a2, salim_a3, salim_RV, salim_B,
                                      use_precomputed_ssp, ssp_filepath, ssp_interpolation_method, 
-                                     output_pixel_spectra, rest_wave_min, rest_wave_max))( 
+                                     output_pixel_spectra, fixed_global_output_obs_wave))( # Pass the fixed grid
             delayed(_process_pixel_data)(*task_args) for task_args in processed_tasks_args
         )
     print("\nFinished parallel pixel processing.")
@@ -823,6 +830,7 @@ def generate_images(sim_file, z, filters, filter_transmission_path, dim_kpc=None
         map_flux_dust[original_ii][original_jj] = pixel_data['map_flux_dust']
 
         if output_pixel_spectra:
+            # Directly assign as map_spectra_nodust is pre-allocated with correct size
             map_spectra_nodust[original_ii][original_jj] = pixel_data['obs_spectra_nodust_igm']
             map_spectra_dust[original_ii][original_jj] = pixel_data['obs_spectra_dust_igm']
 
@@ -948,8 +956,9 @@ def generate_images(sim_file, z, filters, filter_transmission_path, dim_kpc=None
                 ext_hdr_nodust_spec['CUNIT1'] = 'kpc'
                 ext_hdr_nodust_spec['CUNIT2'] = 'kpc'
                 ext_hdr_nodust_spec['CRPIX3'] = 1.0
-                ext_hdr_nodust_spec['CDELT3'] = (global_output_obs_wave[1] - global_output_obs_wave[0]) if global_output_obs_wave.size > 1 else 0.0
-                ext_hdr_nodust_spec['CRVAL3'] = global_output_obs_wave[0] if global_output_obs_wave.size > 0 else 0.0
+                # Use the fixed_global_output_obs_wave for header info
+                ext_hdr_nodust_spec['CDELT3'] = (fixed_global_output_obs_wave[1] - fixed_global_output_obs_wave[0]) if fixed_global_output_obs_wave.size > 1 else 0.0
+                ext_hdr_nodust_spec['CRVAL3'] = fixed_global_output_obs_wave[0] if fixed_global_output_obs_wave.size > 0 else 0.0
                 ext_hdr_nodust_spec['CUNIT3'] = 'Angstrom'
                 ext_hdr_nodust_spec['BUNIT'] = 'erg/s/cm2/Angstrom'
                 hdul.append(fits.ImageHDU(data=map_spectra_nodust, header=ext_hdr_nodust_spec))
@@ -964,8 +973,8 @@ def generate_images(sim_file, z, filters, filter_transmission_path, dim_kpc=None
                 ext_hdr_dust_spec['CUNIT1'] = 'kpc'
                 ext_hdr_dust_spec['CUNIT2'] = 'kpc'
                 ext_hdr_dust_spec['CRPIX3'] = 1.0
-                ext_hdr_dust_spec['CDELT3'] = (global_output_obs_wave[1] - global_output_obs_wave[0]) if global_output_obs_wave.size > 1 else 0.0
-                ext_hdr_dust_spec['CRVAL3'] = global_output_obs_wave[0] if global_output_obs_wave.size > 0 else 0.0
+                ext_hdr_dust_spec['CDELT3'] = (fixed_global_output_obs_wave[1] - fixed_global_output_obs_wave[0]) if fixed_global_output_obs_wave.size > 1 else 0.0
+                ext_hdr_dust_spec['CRVAL3'] = fixed_global_output_obs_wave[0] if fixed_global_output_obs_wave.size > 0 else 0.0
                 ext_hdr_dust_spec['CUNIT3'] = 'Angstrom'
                 ext_hdr_dust_spec['BUNIT'] = 'erg/s/cm2/Angstrom'
                 hdul.append(fits.ImageHDU(data=map_spectra_dust, header=ext_hdr_dust_spec))
