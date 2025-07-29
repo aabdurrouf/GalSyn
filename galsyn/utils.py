@@ -1,3 +1,4 @@
+# --- utils.py ---
 import sys, os
 import numpy as np
 from operator import itemgetter
@@ -157,10 +158,13 @@ def get_effective_range(profile, mass_percentage_threshold=0.95):
 def determine_image_size(star_coords, particle_masses, pixel_size, output_dimension, polar_angle_deg, 
                          azimuth_angle_deg, gas_coords, gas_masses, mass_percentage=0.98, max_img_dim=100):
 
+    # Temporarily call get_2d_density_projection_no_los_binning to get grid info for image sizing
+    # Pass dummy velocity arrays as they are not needed for image sizing
     out = get_2d_density_projection_no_los_binning(star_coords, particle_masses, pixel_size, output_dimension, 
                                                    polar_angle_deg=polar_angle_deg, azimuth_angle_deg=azimuth_angle_deg, 
-                                                   gas_coords=gas_coords, gas_masses=gas_masses)
-    star_particle_membership, star_mass_density_map, central_pixel_coords, grid_info, gas_particle_membership, gas_mass_density_map = out
+                                                   gas_coords=gas_coords, gas_masses=gas_masses, 
+                                                   star_vels=np.zeros_like(star_coords), gas_vels=np.zeros_like(gas_coords) if gas_coords is not None else None)
+    star_particle_membership, star_mass_density_map, central_pixel_coords, grid_info, gas_particle_membership, gas_mass_density_map, _, _ = out
 
     # Summing along columns (axis=0) gives profile along X-axis
     mass_profile_x = np.sum(star_mass_density_map, axis=0)
@@ -315,7 +319,7 @@ def tau_DLA_LC(wave,z):
 		idx0 = np.where(wave<3.0*lL)
 		tau[idx0[0]] = 0.634 + 4.70e-2*np.power(1.0+z,3.0) - 1.78e-2*np.power(1.0+z,3.3)*np.power(wave[idx0[0]]/lL,-0.3) - 0.135*np.power(wave[idx0[0]]/lL,2.0) - 0.291*np.power(wave[idx0[0]]/lL,-0.3)
 
-		idx1 = np.where((wave>=3.0*lL) & (wave<lL*(1.0+z)))
+		idx1 = np.where((wave>=3.0*lL) & (wave<lL*(1+z)))
 		tau[idx1[0]] = 4.70e-2*np.power(1.0+z,3.0) - 1.78e-2*np.power(1.0+z,3.3)*np.power(wave[idx1[0]]/lL,-0.3) - 2.92e-2*np.power(wave[idx1[0]]/lL,3)
 
 		idx2 = np.where(wave>=lL*(1.0+z))
@@ -528,13 +532,14 @@ def make_filter_transmission_text_pixedfit(filters, output_dir="filters"):
 
 
 def get_2d_density_projection_no_los_binning(star_coords, particle_masses, pixel_size, output_dimension,
-                                             polar_angle_deg=0, azimuth_angle_deg=0, gas_coords=None, gas_masses=None):
+                                             polar_angle_deg=0, azimuth_angle_deg=0, gas_coords=None, gas_masses=None,
+                                             star_vels=None, gas_vels=None):
     """
     Calculates the 2D mass density projection of star particles given 3D coordinates,
     their masses, a fixed pixel size, and a desired output dimension (cutout size).
     The output grid is geometrically centered around the most massive pixel of the
     full projected star data. It also calculates the projected distance along the line of sight
-    for each star particle within its 2D pixel, and outputs the geometric central pixel coordinate of the cutout.
+    for each star particles within its 2D pixel, and outputs the geometric central pixel coordinate of the cutout.
 
     If `gas_coords` and `gas_masses` are provided, it also calculates the membership of gas particles
     and their mass density within the *same* projected pixel gridding defined by the star particles.
@@ -567,6 +572,13 @@ def get_2d_density_projection_no_los_binning(star_coords, particle_masses, pixel
         gas_masses (np.ndarray, optional): A NumPy array of shape (M,) representing the
                                            masses of M gas particles. Must be provided if
                                            `gas_coords` is provided. Defaults to None.
+        star_vels (np.ndarray, optional): A NumPy array of shape (N, 3) representing the
+                                          (vx, vy, vz) velocities of N star particles.
+                                          Defaults to None.
+        gas_vels (np.ndarray, optional): A NumPy array of shape (M, 3) representing the
+                                         (vx, vy, vz) velocities of M gas particles.
+                                         Defaults to None.
+
 
     Returns:
         tuple: A tuple containing:
@@ -592,6 +604,8 @@ def get_2d_density_projection_no_los_binning(star_coords, particle_masses, pixel
             - gas_mass_density_map (np.ndarray or None): A 2D NumPy array representing the mass
               density map for gas particles. Its shape is (num_pixels_y, num_pixels_x).
               None if `gas_coords` not provided.
+            - stars_vel_los_proj (np.ndarray): 1D array of projected line-of-sight velocities for stars.
+            - gas_vel_los_proj (np.ndarray): 1D array of projected line-of-sight velocities for gas.
 
     Raises:
         ValueError: If star_coords/particle_masses are invalid, pixel_size is not positive,
@@ -617,12 +631,18 @@ def get_2d_density_projection_no_los_binning(star_coords, particle_masses, pixel
         if not (isinstance(gas_masses, np.ndarray) or gas_masses.ndim != 1 or gas_masses.shape[0] != gas_coords.shape[0]):
             raise ValueError("gas_masses must be a 1D NumPy array of shape (M,) matching gas_coords.")
 
+    if (star_vels is not None and star_vels.shape != star_coords.shape):
+        raise ValueError("star_vels must have the same shape as star_coords if provided.")
+    if (gas_vels is not None and gas_vels.shape != gas_coords.shape):
+        raise ValueError("gas_vels must have the same shape as gas_coords if provided.")
+
 
     # --- Handle Empty Particle Set (Stars) ---
     if star_coords.shape[0] == 0:
         print("Warning: No star particles provided. Returning empty results for no LOS binning.")
-        return [], np.array([[]]), (0, 0), {'min_x_proj': 0, 'min_y_proj': 0, 'num_pixels_x': 0, 'num_pixels_y': 0,
-                                            'effective_pixel_size_x': pixel_size, 'effective_pixel_size_y': pixel_size}, [], np.array([[]])
+        return ([], np.array([[]]), (0, 0), {'min_x_proj': 0, 'min_y_proj': 0, 'num_pixels_x': 0, 'num_pixels_y': 0,
+                                            'effective_pixel_size_x': pixel_size, 'effective_pixel_size_y': pixel_size}, 
+                [], np.array([[]]), np.array([]), np.array([]))
 
     # --- Determine transformation based on polar and azimuth angles ---
     polar_rad = np.deg2rad(polar_angle_deg)
@@ -668,8 +688,19 @@ def get_2d_density_projection_no_los_binning(star_coords, particle_masses, pixel
 
     # Apply the rotation to star and gas coordinates
     rotated_star_coords = np.dot(star_coords, rotation_matrix.T)
+    
+    stars_vel_los_proj = np.array([])
+    if star_vels is not None:
+        rotated_star_vels = np.dot(star_vels, rotation_matrix.T)
+        stars_vel_los_proj = rotated_star_vels[:, 2] # Z' component of velocity
+
+    gas_vel_los_proj = np.array([])
     if gas_coords is not None:
         rotated_gas_coords = np.dot(gas_coords, rotation_matrix.T)
+        if gas_vels is not None:
+            rotated_gas_vels = np.dot(gas_vels, rotation_matrix.T)
+            gas_vel_los_proj = rotated_gas_vels[:, 2] # Z' component of velocity
+
 
     # --- Extract projected 2D coordinates and raw line-of-sight distances for STARS ---
     projected_star_2d_coords = rotated_star_coords[:, :2] # X' and Y'
@@ -796,4 +827,52 @@ def get_2d_density_projection_no_los_binning(star_coords, particle_masses, pixel
         'effective_pixel_size_y': pixel_size
     }
 
-    return star_particle_membership, star_mass_density_map, central_pixel_coords, grid_info, gas_particle_membership, gas_mass_density_map
+    return star_particle_membership, star_mass_density_map, central_pixel_coords, grid_info, gas_particle_membership, gas_mass_density_map, stars_vel_los_proj, gas_vel_los_proj
+
+def doppler_shift_spectrum(wave_rest, flux_rest, vel_los_km_s):
+    """
+    Applies a Doppler shift to a spectrum.
+
+    Parameters
+    ----------
+    wave_rest : np.ndarray
+        Rest-frame wavelength array in Angstroms.
+    flux_rest : np.ndarray
+        Rest-frame flux array.
+    vel_los_km_s : float
+        Line-of-sight velocity in km/s. Positive for redshift (recession),
+        negative for blueshift (approach).
+
+    Returns
+    -------
+    tuple:
+        - wave_shifted (np.ndarray): Doppler-shifted wavelength array.
+        - flux_shifted (np.ndarray): Corresponding flux array (intensity is conserved).
+    """
+    c = 299792.458 # Speed of light in km/s
+
+    # Calculate the Doppler factor (1 + z_doppler)
+    doppler_factor = 1 + (vel_los_km_s / c)
+
+    wave_shifted = wave_rest * doppler_factor
+    # Flux is conserved per unit frequency, F_nu, and not F_lambda.
+    # F_lambda d_lambda = F_nu d_nu
+    # Since lambda = c/nu, d_lambda = -c/nu^2 d_nu = -lambda/nu d_nu
+    # d_lambda / d_nu = -lambda/nu
+    # F_lambda = F_nu * |d_nu/d_lambda| = F_nu * nu/lambda
+    # F_lambda_shifted / F_lambda_rest = (nu_shifted/lambda_shifted) / (nu_rest/lambda_rest)
+    # nu_shifted/nu_rest = 1/doppler_factor
+    # lambda_shifted/lambda_rest = doppler_factor
+    # F_lambda_shifted / F_lambda_rest = (1/doppler_factor) / doppler_factor = 1 / doppler_factor^2
+    # For a simple Doppler shift where the total energy is conserved, the flux per unit wavelength
+    # should be divided by the doppler factor because d(lambda_shifted) = doppler_factor * d(lambda_rest)
+    # The total energy in a band is integral(F_lambda d_lambda). If F_nu is conserved, then F_lambda scales inversely with doppler factor.
+    # However, for just applying the shift to the spectrum for a single particle, the intensity
+    # is generally assumed to be conserved, and the spectral features just shift.
+    # If a redshift is applied, the observed flux is lower by (1+z) factor.
+    # Here, we are only shifting the *wavelengths* of the emitted spectrum for a single particle *before* cosmological redshift.
+    # The flux values themselves (per unit Angstrom) are effectively conserved in this transformation,
+    # as we are just moving the spectral features. The overall observed flux will then be handled by the cosmological redshift.
+    flux_shifted = flux_rest # Intensity is conserved when just shifting wavelength.
+
+    return wave_shifted, flux_shifted

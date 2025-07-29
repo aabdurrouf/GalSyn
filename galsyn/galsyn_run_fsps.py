@@ -303,6 +303,7 @@ def init_worker(ssp_code_val, snap_z_val, pix_area_kpc2_val, mean_AV_unres_val,
         dust_Alambda_per_AV = modified_calzetti_dust_Alambda_per_AV(ssp_wave, dust_index=dust_index, bump_amp=bump_amp)
 
     elif dust_law == 3:
+        bump_amp = bump_amp
         dust_Alambda_per_AV = modified_calzetti_dust_Alambda_per_AV(ssp_wave, dust_index=dust_index, bump_amp=bump_amp)
 
     elif dust_law == 4:
@@ -337,8 +338,8 @@ def dust_reddening_diffuse_ism(dust_AV, wave, dust_law):
 
 
 def _process_pixel_data(ii, jj, star_particle_membership_list, gas_particle_membership_list, 
-                        stars_mass, stars_age, stars_zsol, stars_init_mass, 
-                        gas_mass, gas_sfr_inst, gas_zsol, gas_log_temp, gas_mass_H):
+                        stars_mass, stars_age, stars_zsol, stars_init_mass, stars_vel_los_proj, 
+                        gas_mass, gas_sfr_inst, gas_zsol, gas_log_temp, gas_mass_H, gas_vel_los_proj):
     """
     ii=y jj=x
     Worker function to process calculations for a single pixel (ii, jj).
@@ -367,7 +368,13 @@ def _process_pixel_data(ii, jj, star_particle_membership_list, gas_particle_memb
         'map_lw_age_nodust': np.nan,
         'map_lw_age_dust': np.nan,
         'map_lw_zsol_nodust': np.nan,
-        'map_lw_zsol_dust': np.nan
+        'map_lw_zsol_dust': np.nan,
+        'map_stars_mw_vel_los': np.nan,
+        'map_gas_mw_vel_los': np.nan,
+        'map_stars_vel_disp_los': np.nan,
+        'map_gas_vel_disp_los': np.nan,
+        'map_lw_vel_los_nodust': np.nan,
+        'map_lw_vel_los_dust': np.nan
     }
 
     star_ids0 = np.asarray([x[0] for x in star_particle_membership_list], dtype=int)
@@ -375,14 +382,16 @@ def _process_pixel_data(ii, jj, star_particle_membership_list, gas_particle_memb
 
     idx_valid_stars_in_pixel = np.where((np.isnan(stars_mass[star_ids0]) == False) &
                                         (np.isnan(stars_age[star_ids0]) == False) &
-                                        (np.isnan(stars_zsol[star_ids0]) == False))[0]
+                                        (np.isnan(stars_zsol[star_ids0]) == False) &
+                                        (np.isnan(stars_vel_los_proj[star_ids0]) == False))[0]
     star_ids = star_ids0[idx_valid_stars_in_pixel]
     star_los_dist = star_los_dist0[idx_valid_stars_in_pixel]
 
     gas_ids0 = np.asarray([x[0] for x in gas_particle_membership_list], dtype=int)
     gas_los_dist0 = np.asarray([x[1] for x in gas_particle_membership_list])
     
-    idxg = np.where(np.isnan(gas_mass[gas_ids0]) == False)[0]
+    idxg = np.where((np.isnan(gas_mass[gas_ids0]) == False) &
+                    (np.isnan(gas_vel_los_proj[gas_ids0]) == False))[0]
     gas_ids = gas_ids0[idxg]
     gas_los_dist = gas_los_dist0[idxg]
 
@@ -392,9 +401,13 @@ def _process_pixel_data(ii, jj, star_particle_membership_list, gas_particle_memb
     if current_stars_mass_sum > 0:
         pixel_results['map_mw_age'] = np.nansum(stars_mass[star_ids] * stars_age[star_ids]) / current_stars_mass_sum
         pixel_results['map_stars_mw_zsol'] = np.nansum(stars_mass[star_ids] * stars_zsol[star_ids]) / current_stars_mass_sum
+        pixel_results['map_stars_mw_vel_los'] = np.nansum(stars_mass[star_ids] * stars_vel_los_proj[star_ids]) / current_stars_mass_sum
+        pixel_results['map_stars_vel_disp_los'] = np.sqrt(np.nansum(stars_mass[star_ids] * (stars_vel_los_proj[star_ids] - pixel_results['map_stars_mw_vel_los'])**2) / current_stars_mass_sum)
     else:
         pixel_results['map_mw_age'] = np.nan
         pixel_results['map_stars_mw_zsol'] = np.nan
+        pixel_results['map_stars_mw_vel_los'] = np.nan
+        pixel_results['map_stars_vel_disp_los'] = np.nan
 
     idxs3_100 = np.where((np.isnan(stars_init_mass[star_ids]) == False) & (stars_age[star_ids] <= 0.1))[0]
     pixel_results['map_sfr_100'] = np.nansum(stars_init_mass[star_ids[idxs3_100]]) / 0.1 / 1e+9
@@ -411,8 +424,12 @@ def _process_pixel_data(ii, jj, star_particle_membership_list, gas_particle_memb
 
     if current_gas_mass_sum > 0:
         pixel_results['map_gas_mw_zsol'] = np.nansum(gas_mass[gas_ids] * gas_zsol[gas_ids]) / current_gas_mass_sum
+        pixel_results['map_gas_mw_vel_los'] = np.nansum(gas_mass[gas_ids] * gas_vel_los_proj[gas_ids]) / current_gas_mass_sum
+        pixel_results['map_gas_vel_disp_los'] = np.sqrt(np.nansum(gas_mass[gas_ids] * (gas_vel_los_proj[gas_ids] - pixel_results['map_gas_mw_vel_los'])**2) / current_gas_mass_sum)
     else:
         pixel_results['map_gas_mw_zsol'] = np.nan
+        pixel_results['map_gas_mw_vel_los'] = np.nan
+        pixel_results['map_gas_vel_disp_los'] = np.nan
 
     if len(star_ids) > 0:
 
@@ -424,6 +441,7 @@ def _process_pixel_data(ii, jj, star_particle_membership_list, gas_particle_memb
         # New arrays for light-weighted calculations
         array_L_nodust = []
         array_L_dust = []
+        array_vel_los = [] # For light-weighted velocity
 
         wave = ssp_wave
 
@@ -438,6 +456,7 @@ def _process_pixel_data(ii, jj, star_particle_membership_list, gas_particle_memb
 
         for i_sid in range(len(star_ids)):
             star_id = star_ids[i_sid]
+            star_vel_los_current = stars_vel_los_proj[star_id]
 
             if use_precomputed_ssp:
                 # Convert simulation metallicity (Z/Z_primordial_solar) to log(Z/Z_ssp_code_solar)
@@ -464,6 +483,10 @@ def _process_pixel_data(ii, jj, star_particle_membership_list, gas_particle_memb
 
                 _, spec = sp_instance.get_spectrum(peraa=True, tage=stars_age[star_id])
                 ssp_mass_formed = sp_instance.stellar_mass
+
+            # Apply Doppler shift to the spectrum
+            wave_doppler, spec_doppler = doppler_shift_spectrum(wave, spec, star_vel_los_current)
+            spec = interp1d(wave_doppler, spec_doppler, kind='linear', bounds_error=False, fill_value=0.0)(wave)
 
             idxg_front = np.where(gas_los_dist < star_los_dist[i_sid])[0]
             front_gas_ids = gas_ids[idxg_front]
@@ -510,6 +533,7 @@ def _process_pixel_data(ii, jj, star_particle_membership_list, gas_particle_memb
                 
                 array_L_nodust.append(L_nodust_particle)
                 array_L_dust.append(L_dust_particle)
+                array_vel_los.append(star_vel_los_current)
 
         array_AV, array_tauV = np.asarray(array_AV), np.asarray(array_tauV)
         if array_AV.size == 0:
@@ -559,20 +583,25 @@ def _process_pixel_data(ii, jj, star_particle_membership_list, gas_particle_memb
             # Calculate Light-weighted age and metallicity
             total_L_nodust = np.nansum(array_L_nodust)
             total_L_dust = np.nansum(array_L_dust)
+            array_vel_los = np.asarray(array_vel_los)
 
             if total_L_nodust > 0:
                 pixel_results['map_lw_age_nodust'] = np.nansum(np.asarray(array_L_nodust) * stars_age[star_ids]) / total_L_nodust
                 pixel_results['map_lw_zsol_nodust'] = np.nansum(np.asarray(array_L_nodust) * stars_zsol[star_ids]) / total_L_nodust
+                pixel_results['map_lw_vel_los_nodust'] = np.nansum(np.asarray(array_L_nodust) * array_vel_los) / total_L_nodust
             else:
                 pixel_results['map_lw_age_nodust'] = np.nan
                 pixel_results['map_lw_zsol_nodust'] = np.nan
+                pixel_results['map_lw_vel_los_nodust'] = np.nan
 
             if total_L_dust > 0:
                 pixel_results['map_lw_age_dust'] = np.nansum(np.asarray(array_L_dust) * stars_age[star_ids]) / total_L_dust
                 pixel_results['map_lw_zsol_dust'] = np.nansum(np.asarray(array_L_dust) * stars_zsol[star_ids]) / total_L_dust
+                pixel_results['map_lw_vel_los_dust'] = np.nansum(np.asarray(array_L_dust) * array_vel_los) / total_L_dust
             else:
                 pixel_results['map_lw_age_dust'] = np.nan
                 pixel_results['map_lw_zsol_dust'] = np.nan
+                pixel_results['map_lw_vel_los_dust'] = np.nan
                 
     return ii, jj, pixel_results
 
@@ -600,7 +629,7 @@ def generate_images(sim_file, z, filters, filter_transmission_path, dim_kpc=None
         filters (list): List of photometric filters.
         filter_transmission_path (dict): Dictionary of paths to text files containing the transmission function.
                                          Keys are filter names, values are file paths. Each text file has
-                                         two columns: wavelength and transmission.
+                                         two columns: wavelength, transmission.
         dim_kpc (float, optional): Dimension of the image in kpc. If None, assigned automatically. Defaults to None.
         pix_arcsec (float, optional): Pixel size in arcseconds. Defaults to 0.02.
         flux_unit (string, optional): Desired flux unit for the generated images. Options are: 'MJy/sr', 'nJy', 'AB magnitude', or 'erg/s/cm2/A'. Default to 'MJy/sr'.
@@ -711,7 +740,7 @@ def generate_images(sim_file, z, filters, filter_transmission_path, dim_kpc=None
                                        mass_percentage=initdim_mass_fraction, max_img_dim=initdim_kpc)
 
     output_dimension = (dim_kpc, dim_kpc)
-    star_particle_membership, star_mass_density_map, central_pixel_coords, grid_info, gas_particle_membership, gas_mass_density_map = get_2d_density_projection_no_los_binning(
+    star_particle_membership, star_mass_density_map, central_pixel_coords, grid_info, gas_particle_membership, gas_mass_density_map, stars_vel_los_proj, gas_vel_los_proj = get_2d_density_projection_no_los_binning(
                                                                                                                                                 stars_coords, 
                                                                                                                                                 stars_mass, 
                                                                                                                                                 pix_kpc, 
@@ -719,7 +748,9 @@ def generate_images(sim_file, z, filters, filter_transmission_path, dim_kpc=None
                                                                                                                                                 polar_angle_deg=polar_angle_deg, 
                                                                                                                                                 azimuth_angle_deg=azimuth_angle_deg, 
                                                                                                                                                 gas_coords=gas_coords, 
-                                                                                                                                                gas_masses=gas_mass)
+                                                                                                                                                gas_masses=gas_mass,
+                                                                                                                                                star_vels=stars_vel,
+                                                                                                                                                gas_vels=gas_vel)
     
     dimx, dimy = grid_info['num_pixels_x'], grid_info['num_pixels_y']
     print ('Cutout size: %d x %d pix or %d x %d kpc' % (dimx,dimy,dim_kpc,dim_kpc))
@@ -793,6 +824,14 @@ def generate_images(sim_file, z, filters, filter_transmission_path, dim_kpc=None
     map_lw_zsol_nodust = np.full((dimy, dimx), np.nan, dtype=np.float32)
     map_lw_zsol_dust = np.full((dimy, dimx), np.nan, dtype=np.float32)
 
+    # New maps for velocity
+    map_stars_mw_vel_los = np.full((dimy, dimx), np.nan, dtype=np.float32)
+    map_gas_mw_vel_los = np.full((dimy, dimx), np.nan, dtype=np.float32)
+    map_stars_vel_disp_los = np.full((dimy, dimx), np.nan, dtype=np.float32)
+    map_gas_vel_disp_los = np.full((dimy, dimx), np.nan, dtype=np.float32)
+    map_lw_vel_los_nodust = np.full((dimy, dimx), np.nan, dtype=np.float32)
+    map_lw_vel_los_dust = np.full((dimy, dimx), np.nan, dtype=np.float32)
+
     tasks = []
     for ii in range(dimy):
         for jj in range(dimx):
@@ -809,8 +848,8 @@ def generate_images(sim_file, z, filters, filter_transmission_path, dim_kpc=None
     for task in tasks:
         ii, jj = task['coords']
         processed_tasks_args.append((ii, jj, task['star_part_mem'], task['gas_part_mem'],
-                                     stars_mass, stars_age, stars_zsol, stars_init_mass, 
-                                     gas_mass, gas_sfr_inst, gas_zsol, gas_log_temp, gas_mass_H))
+                                     stars_mass, stars_age, stars_zsol, stars_init_mass, stars_vel_los_proj,
+                                     gas_mass, gas_sfr_inst, gas_zsol, gas_log_temp, gas_mass_H, gas_vel_los_proj))
 
     num_cores = n_jobs
     if num_cores == -1:
@@ -867,6 +906,14 @@ def generate_images(sim_file, z, filters, filter_transmission_path, dim_kpc=None
         map_lw_age_dust[original_ii][original_jj] = pixel_data['map_lw_age_dust']
         map_lw_zsol_nodust[original_ii][original_jj] = pixel_data['map_lw_zsol_nodust']
         map_lw_zsol_dust[original_ii][original_jj] = pixel_data['map_lw_zsol_dust']
+
+        # Populate new velocity maps
+        map_stars_mw_vel_los[original_ii][original_jj] = pixel_data['map_stars_mw_vel_los']
+        map_gas_mw_vel_los[original_ii][original_jj] = pixel_data['map_gas_mw_vel_los']
+        map_stars_vel_disp_los[original_ii][original_jj] = pixel_data['map_stars_vel_disp_los']
+        map_gas_vel_disp_los[original_ii][original_jj] = pixel_data['map_gas_vel_disp_los']
+        map_lw_vel_los_nodust[original_ii][original_jj] = pixel_data['map_lw_vel_los_nodust']
+        map_lw_vel_los_dust[original_ii][original_jj] = pixel_data['map_lw_vel_los_dust']
 
     print("All calculations complete. Maps populated.")
 
@@ -942,7 +989,13 @@ def generate_images(sim_file, z, filters, filter_transmission_path, dim_kpc=None
                 'LW_AGE_NODUST': map_lw_age_nodust,
                 'LW_AGE_DUST': map_lw_age_dust,
                 'LW_ZSOL_NODUST': map_lw_zsol_nodust,
-                'LW_ZSOL_DUST': map_lw_zsol_dust
+                'LW_ZSOL_DUST': map_lw_zsol_dust,
+                'STARS_MW_VEL_LOS': map_stars_mw_vel_los,
+                'GAS_MW_VEL_LOS': map_gas_mw_vel_los,
+                'STARS_VEL_DISP_LOS': map_stars_vel_disp_los,
+                'GAS_VEL_DISP_LOS': map_gas_vel_disp_los,
+                'LW_VEL_LOS_NODUST': map_lw_vel_los_nodust,
+                'LW_VEL_LOS_DUST': map_lw_vel_los_dust
             }
 
             for map_name, data_array in map_data_to_save.items():
@@ -954,6 +1007,8 @@ def generate_images(sim_file, z, filters, filter_transmission_path, dim_kpc=None
                         ext_hdr['BUNIT'] = 'Gyr'
                     elif 'ZSOL' in map_name:
                         ext_hdr['BUNIT'] = 'Z/Zsun'
+                    elif 'VEL' in map_name:
+                        ext_hdr['BUNIT'] = 'km/s'
                     hdul.append(fits.ImageHDU(data=data_array, header=ext_hdr))
 
             if output_pixel_spectra:
