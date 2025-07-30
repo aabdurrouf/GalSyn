@@ -72,6 +72,7 @@ class GalaxySynthesizer:
         self._bump_amp = getattr(config, 'BUMP_AMP', 0.85)
         self._dust_index_bc = getattr(config, 'DUST_INDEX_BC', -0.7)
         self._t_esc = getattr(config, 'T_ESC', 0.01)
+        self._dust_eta = getattr(config, 'DUST_ETA', 1.0)
 
         # New parameter: A_V vs dust_index relation
         self._relation_AVslope = getattr(config, 'RELATION_AVSLOPE', "Salim18")
@@ -364,6 +365,16 @@ class GalaxySynthesizer:
         self._t_esc = value
 
     @property
+    def dust_eta(self):
+        return self._dust_eta
+
+    @dust_eta.setter
+    def dust_eta(self, value):
+        if not isinstance(value, (int, float)) or value < 0:
+            raise ValueError("dust_eta must be a non-negative number.")
+        self._dust_eta = value
+
+    @property
     def scale_dust_redshift(self):
         return self._scale_dust_redshift
 
@@ -587,7 +598,6 @@ class GalaxySynthesizer:
         if self._rest_wave_max <= self._rest_wave_min:
             raise ValueError("rest_wave_max must be greater than rest_wave_min.")
         
-
     @property
     def rest_delta_wave(self):
         return self._rest_delta_wave
@@ -738,6 +748,7 @@ class GalaxySynthesizer:
                 'dust_index_bc': self.dust_index_bc,
                 'dust_index': self.dust_index,
                 't_esc': self.t_esc,
+                'dust_eta': self.dust_eta,
                 'scale_dust_redshift': self.scale_dust_redshift, # Pass the new parameter
                 'cosmo_str': self.cosmo_str,
                 'cosmo_h': self.cosmo_h,
