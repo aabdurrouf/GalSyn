@@ -39,9 +39,9 @@ igm_trans = None
 snap_z = None
 pix_area_kpc2 = None
 mean_AV_unres = None
-add_neb_emission = None
+# add_neb_emission = None # Removed as it's always True
 gas_logu = None
-add_igm_absorption = None
+# add_igm_absorption = None # Removed as it's always True
 igm_type = None
 dust_index_bc = None
 dust_index = None
@@ -121,8 +121,8 @@ def _load_filter_transmission_from_paths(filters_list, filter_transmission_path_
 
 def init_worker(ssp_code_val, snap_z_val, pix_area_kpc2_val, mean_AV_unres_val, 
                 filters_list_val, filter_transmission_path_val,
-                add_neb_emission_val, gas_logu_val,
-                add_igm_absorption_val, igm_type_val, dust_index_bc_val, 
+                gas_logu_val, # Removed add_neb_emission_val
+                igm_type_val, dust_index_bc_val, # Removed add_igm_absorption_val
                 dust_index_val, t_esc_val, precomputed_scale_dust_tau_val,
                 cosmo_str_val, cosmo_h_val, XH_val, 
                 dust_law_val, bump_amp_val, relation_AVslope_val, salim_a0_val, 
@@ -133,7 +133,7 @@ def init_worker(ssp_code_val, snap_z_val, pix_area_kpc2_val, mean_AV_unres_val,
     global ssp_wave, ssp_ages_gyr, ssp_logzsol_grid, ssp_spectra_grid, ssp_stellar_mass_grid, ssp_code_z_sun
     global _global_ssp_spectra_interpolator, _global_ssp_stellar_mass_interpolator
     global _ssp_worker_bagpipes_model_components, igm_trans, snap_z, pix_area_kpc2
-    global mean_AV_unres, add_neb_emission, gas_logu, add_igm_absorption, igm_type
+    global mean_AV_unres, gas_logu, igm_type # Removed add_neb_emission, add_igm_absorption
     global dust_index_bc, dust_index, t_esc, dust_law, bump_amp, salim_a0, salim_a1, salim_a2, salim_a3
     global salim_RV, salim_B, dust_Alambda_per_AV, func_interp_dust_index
     global use_precomputed_ssp, ssp_interpolation_method
@@ -146,9 +146,10 @@ def init_worker(ssp_code_val, snap_z_val, pix_area_kpc2_val, mean_AV_unres_val,
     pix_area_kpc2 = pix_area_kpc2_val
     mean_AV_unres = mean_AV_unres_val
     
-    add_neb_emission = add_neb_emission_val
+    # These are now fixed to True (1)
+    # add_neb_emission = add_neb_emission_val
     gas_logu = gas_logu_val
-    add_igm_absorption = add_igm_absorption_val
+    # add_igm_absorption = add_igm_absorption_val
     igm_type = igm_type_val
     dust_index_bc = dust_index_bc_val
     t_esc = t_esc_val
@@ -218,17 +219,13 @@ def init_worker(ssp_code_val, snap_z_val, pix_area_kpc2_val, mean_AV_unres_val,
         dust["eta"] = 1.0
 
         nebular = {}
-        if add_neb_emission_val:
-            nebular["logU"] = gas_logu_val
-        else:
-            nebular = None
+        nebular["logU"] = gas_logu_val
 
         model_components = {}
         model_components["redshift"] = 0.0
         model_components["veldisp"] = 0
         model_components["dust"] = dust
-        if nebular:
-            model_components["nebular"] = nebular
+        model_components["nebular"] = nebular
         
         _ssp_worker_bagpipes_model_components = model_components
 
@@ -278,16 +275,17 @@ def init_worker(ssp_code_val, snap_z_val, pix_area_kpc2_val, mean_AV_unres_val,
     elif dust_law == 5:
         dust_Alambda_per_AV = calzetti_dust_Alambda_per_AV(ssp_wave)
 
-    if add_igm_absorption == 1:
-        if igm_type == 0:
-            igm_trans = igm_att_madau(ssp_wave * (1.0+snap_z), snap_z)
-        elif igm_type == 1:
-            igm_trans = igm_att_inoue(ssp_wave * (1.0+snap_z), snap_z)
-        else:
-            print ('igm_type is not recognized! options are: 1 for Madau+1995 and Inoue+2014')
-            sys.exit()
+    # Always add IGM absorption
+    # if add_igm_absorption == 1: # This check is removed
+    if igm_type == 0:
+        igm_trans = igm_att_madau(ssp_wave * (1.0+snap_z), snap_z)
+    elif igm_type == 1:
+        igm_trans = igm_att_inoue(ssp_wave * (1.0+snap_z), snap_z)
     else:
-        igm_trans = 1
+        print ('igm_type is not recognized! options are: 1 for Madau+1995 and Inoue+2014')
+        sys.exit()
+    # else: # This else block is removed
+    #     igm_trans = 1
 
 
 def dust_reddening_diffuse_ism(dust_AV, wave, dust_law):
@@ -590,8 +588,8 @@ def _process_pixel_data(ii, jj, star_particle_membership_list, gas_particle_memb
 
 def generate_images(sim_file, z, filters, filter_transmission_path, dim_kpc=None,
                     pix_arcsec=0.02, flux_unit='MJy/sr', polar_angle_deg=0, azimuth_angle_deg=0,
-                    name_out_img=None, n_jobs=-1, ssp_code='Bagpipes', add_neb_emission=1, gas_logu=-2.0, 
-                    add_igm_absorption=1, igm_type=0, dust_index_bc=-0.7, dust_index=0.0, t_esc=0.01, 
+                    name_out_img=None, n_jobs=-1, ssp_code='Bagpipes', gas_logu=-2.0, # Removed add_neb_emission
+                    igm_type=0, dust_index_bc=-0.7, dust_index=0.0, t_esc=0.01, # Removed add_igm_absorption
                     scale_dust_redshift="Vogelsberger20", cosmo_str='Planck18', cosmo_h=0.6774, XH=0.76,
                     dust_law=0, bump_amp=0.85, relation_AVslope="Salim18", salim_a0=-4.30, 
                     salim_a1=2.71, salim_a2= -0.191, salim_a3=0.0121, salim_RV=3.15, salim_B=1.57, 
@@ -795,8 +793,8 @@ def generate_images(sim_file, z, filters, filter_transmission_path, dim_kpc=None
         results = Parallel(n_jobs=num_cores, verbose=0, initializer=init_worker,
                            initargs=(ssp_code, snap_z, pix_area_kpc2, mean_AV_unres,
                                      filters, filter_transmission_path,
-                                     add_neb_emission, gas_logu,
-                                     add_igm_absorption, igm_type, dust_index_bc, 
+                                     gas_logu, # Removed add_neb_emission_val
+                                     igm_type, dust_index_bc, # Removed add_igm_absorption_val
                                      dust_index, t_esc, scale_dust_tau,
                                      cosmo_str, cosmo_h, XH, 
                                      dust_law, bump_amp, relation_AVslope, 

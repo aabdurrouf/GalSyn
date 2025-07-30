@@ -1,7 +1,6 @@
 import os, sys
 import numpy as np
 from . import config
-# Import both run modules
 from . import galsyn_run_fsps
 from . import galsyn_run_bagpipes
 import importlib.resources
@@ -55,14 +54,6 @@ class GalaxySynthesizer:
         self._imf3 = getattr(config, 'IMF3', 2.3)
         self._vdmc = getattr(config, 'VDMC', 0.08)
         self._mdave = getattr(config, 'MDAVE', 0.5)
-
-        # nebular emission
-        self._add_neb_emission = getattr(config, 'ADD_NEB_EMISSION', 1)
-        self._gas_logu = getattr(config, 'GAS_LOGU', -2.0)
-
-        # IGM absorption
-        self._add_igm_absorption = getattr(config, 'ADD_IGM_ABSORPTION', 1)
-        self._igm_type = getattr(config, 'IGM_TYPE', 0)
 
         # Dust attenuation tau normalization as function of redshift
         self._scale_dust_redshift = getattr(config, 'SCALE_DUST_REDSHIFT', "Vogelsberger20")
@@ -315,16 +306,6 @@ class GalaxySynthesizer:
         self._mdave = value
 
     @property
-    def add_neb_emission(self):
-        return self._add_neb_emission
-
-    @add_neb_emission.setter
-    def add_neb_emission(self, value):
-        if not isinstance(value, (int, bool)):
-            raise ValueError("add_neb_emission must be a boolean (True/False) or integer (0/1).")
-        self._add_neb_emission = int(value)
-
-    @property
     def gas_logu(self):
         return self._gas_logu
 
@@ -333,16 +314,6 @@ class GalaxySynthesizer:
         if not isinstance(value, (int, float)):
             raise ValueError("gas_logu must be a number.")
         self._gas_logu = value
-
-    @property
-    def add_igm_absorption(self):
-        return self._add_igm_absorption
-
-    @add_igm_absorption.setter
-    def add_igm_absorption(self, value):
-        if not isinstance(value, (int, bool)):
-            raise ValueError("add_igm_absorption must be a boolean (True/False) or integer (0/1).")
-        self._add_igm_absorption = int(value)
 
     @property
     def igm_type(self):
@@ -741,9 +712,7 @@ class GalaxySynthesizer:
                 'name_out_img': self.name_out_img,
                 'n_jobs': self.ncpu,
                 'ssp_code': self.ssp_code, # Pass ssp_code to the run module for FITS header
-                'add_neb_emission': self.add_neb_emission,
                 'gas_logu': self.gas_logu,
-                'add_igm_absorption': self.add_igm_absorption,
                 'igm_type': self.igm_type,
                 'dust_index_bc': self.dust_index_bc,
                 'dust_index': self.dust_index,

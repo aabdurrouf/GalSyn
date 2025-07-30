@@ -37,9 +37,7 @@ igm_trans = None
 snap_z = None
 pix_area_kpc2 = None
 mean_AV_unres = None
-add_neb_emission = None
 gas_logu = None
-add_igm_absorption = None
 igm_type = None
 dust_index_bc = None
 dust_index = None
@@ -140,8 +138,8 @@ def init_worker(ssp_code_val, snap_z_val, pix_area_kpc2_val, mean_AV_unres_val,
                 filter_transmission_path_val,
                 imf_type_val, imf_upper_limit_val, imf_lower_limit_val, 
                 imf1_val, imf2_val, imf3_val, vdmc_val, mdave_val,     
-                add_neb_emission_val, gas_logu_val, 
-                add_igm_absorption_val, igm_type_val, dust_index_bc_val, 
+                gas_logu_val, 
+                igm_type_val, dust_index_bc_val, 
                 dust_index_val, t_esc_val, precomputed_scale_dust_tau_val,
                 cosmo_str_val, cosmo_h_val, XH_val, 
                 dust_law_val, bump_amp_val, relation_AVslope_val, salim_a0_val, 
@@ -152,7 +150,7 @@ def init_worker(ssp_code_val, snap_z_val, pix_area_kpc2_val, mean_AV_unres_val,
     global ssp_wave, ssp_ages_gyr, ssp_logzsol_grid, ssp_spectra_grid, ssp_stellar_mass_grid, ssp_code_z_sun
     global _global_ssp_spectra_interpolator, _global_ssp_stellar_mass_interpolator 
     global sp_instance, igm_trans, snap_z, pix_area_kpc2
-    global mean_AV_unres, add_neb_emission, gas_logu, add_igm_absorption, igm_type
+    global mean_AV_unres, gas_logu, igm_type
     global dust_index_bc, dust_index, t_esc, dust_law, bump_amp, salim_a0, salim_a1, salim_a2, salim_a3 
     global salim_RV, salim_B, dust_Alambda_per_AV, func_interp_dust_index
     global use_precomputed_ssp, ssp_interpolation_method 
@@ -175,9 +173,7 @@ def init_worker(ssp_code_val, snap_z_val, pix_area_kpc2_val, mean_AV_unres_val,
     _worker_vdmc = vdmc_val 
     _worker_mdave = mdave_val
 
-    add_neb_emission = add_neb_emission_val
     gas_logu = gas_logu_val
-    add_igm_absorption = add_igm_absorption_val
     igm_type = igm_type_val
     dust_index_bc = dust_index_bc_val
     t_esc = t_esc_val
@@ -251,7 +247,7 @@ def init_worker(ssp_code_val, snap_z_val, pix_area_kpc2_val, mean_AV_unres_val,
         sp_instance.params['vdmc'] = vdmc_val 
         sp_instance.params['mdave'] = mdave_val 
         sp_instance.params["add_dust_emission"] = False
-        sp_instance.params["add_neb_emission"] = add_neb_emission
+        sp_instance.params["add_neb_emission"] = True 
         sp_instance.params['gas_logu'] = gas_logu
         sp_instance.params["fagn"] = 0
         sp_instance.params["sfh"] = 0
@@ -299,17 +295,14 @@ def init_worker(ssp_code_val, snap_z_val, pix_area_kpc2_val, mean_AV_unres_val,
     elif dust_law == 5:
         dust_Alambda_per_AV = calzetti_dust_Alambda_per_AV(ssp_wave)
 
-    if add_igm_absorption == 1:
-        if igm_type == 0:
-            igm_trans = igm_att_madau(ssp_wave * (1.0+snap_z), snap_z)
-        elif igm_type == 1:
-            igm_trans = igm_att_inoue(ssp_wave * (1.0+snap_z), snap_z)
-        else:
-            print ('igm_type is not recognized! options are: 1 for Madau+1995 and Inoue+2014')
-            sys.exit()
+    # Always add IGM absorption
+    if igm_type == 0:
+        igm_trans = igm_att_madau(ssp_wave * (1.0+snap_z), snap_z)
+    elif igm_type == 1:
+        igm_trans = igm_att_inoue(ssp_wave * (1.0+snap_z), snap_z)
     else:
-        igm_trans = 1
-
+        print ('igm_type is not recognized! options are: 1 for Madau+1995 and Inoue+2014')
+        sys.exit()
 
 def dust_reddening_diffuse_ism(dust_AV, wave, dust_law):
     if dust_law == 0:
@@ -602,8 +595,8 @@ def _process_pixel_data(ii, jj, star_particle_membership_list, gas_particle_memb
 def generate_images(sim_file, z, filters, filter_transmission_path, dim_kpc=None,
                     pix_arcsec=0.02, flux_unit='MJy/sr', polar_angle_deg=0, azimuth_angle_deg=0,
                     name_out_img=None, n_jobs=-1, ssp_code='FSPS', imf_type=1, imf_upper_limit=120.0, imf_lower_limit=0.08,
-                    imf1=1.3, imf2=2.3, imf3=2.3, vdmc=0.08, mdave=0.5, add_neb_emission=1, gas_logu=-2.0, 
-                    add_igm_absorption=1, igm_type=0, dust_index_bc=-0.7, dust_index=0.0, t_esc=0.01, 
+                    imf1=1.3, imf2=2.3, imf3=2.3, vdmc=0.08, mdave=0.5, gas_logu=-2.0,
+                    igm_type=0, dust_index_bc=-0.7, dust_index=0.0, t_esc=0.01,
                     scale_dust_redshift="Vogelsberger20", cosmo_str='Planck18', cosmo_h=0.6774, XH=0.76, 
                     dust_law=0, bump_amp=0.85, relation_AVslope="Salim18", salim_a0=-4.30, 
                     salim_a1=2.71, salim_a2= -0.191, salim_a3=0.0121, salim_RV=3.15, salim_B=3.15,
@@ -639,9 +632,7 @@ def generate_images(sim_file, z, filters, filter_transmission_path, dim_kpc=None
         imf3 (float, optional): Logarithmic slope of the IMF over the range. Only used if `imf_type=2`. Only used if `use_precomputed_ssp` is False or for consistency check if `use_precomputed_ssp` is True. Defaults to 2.3.
         vdmc (float, optional): IMF parameter defined in van Dokkum (2008). Only used if `imf_type=3`. Only used if `use_precomputed_ssp` is False or for consistency check if `use_precomputed_ssp` is True. Defaults to 0.08.
         mdave (float, optional): IMF parameter defined in Dave (2008). Only used if `imf_type=4`. Only used if `use_precomputed_ssp` is False or for consistency check if `use_precomputed_ssp` is True. Defaults to 0.5.
-        add_neb_emission (int, optional): Add nebular emission (must match SSP grid if pre-computed). Defaults to 1.
         gas_logu (float, optional): Log ionization parameter (must match SSP grid if pre-computed). Defaults to -2.0.
-        add_igm_absorption (int, optional): Add IGM absorption. Defaults to 1.
         igm_type (int, optional): IGM absorption model type. Defaults to 0.
         dust_index_bc (float, optional): Dust index for birth clouds. Defaults to -0.7.
         dust_index (float, optional): Dust index for diffuse ISM (if applicable). Defaults to 0.0.
@@ -872,8 +863,8 @@ def generate_images(sim_file, z, filters, filter_transmission_path, dim_kpc=None
                                      filters, filter_transmission_path,
                                      imf_type, imf_upper_limit, imf_lower_limit,
                                      imf1, imf2, imf3, vdmc, mdave,
-                                     add_neb_emission, gas_logu,
-                                     add_igm_absorption, igm_type, dust_index_bc, 
+                                     gas_logu,
+                                     igm_type, dust_index_bc,
                                      dust_index, t_esc, scale_dust_tau,
                                      cosmo_str, cosmo_h, XH, 
                                      dust_law, bump_amp, relation_AVslope, 
