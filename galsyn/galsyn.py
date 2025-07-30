@@ -55,6 +55,13 @@ class GalaxySynthesizer:
         self._vdmc = getattr(config, 'VDMC', 0.08)
         self._mdave = getattr(config, 'MDAVE', 0.5)
 
+        # nebular emission
+        self._gas_logu = getattr(config, 'GAS_LOGU', -2.0)
+
+        # IGM absorption
+        self._igm_type = getattr(config, 'IGM_TYPE', 0)
+
+
         # Dust attenuation tau normalization as function of redshift
         self._scale_dust_redshift = getattr(config, 'SCALE_DUST_REDSHIFT', "Vogelsberger20")
 

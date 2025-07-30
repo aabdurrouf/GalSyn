@@ -13,31 +13,30 @@ L_SUN_ERG_S = 3.828e33
 BAGPIPES_Z_SUN = 0.02
 
 _ssp_worker_bagpipes_instance = None
+gas_logu = None
 
-def init_ssp_worker(add_neb_emission_val, gas_logu_val, rest_frame_wave_val):
+def init_ssp_worker(gas_logu_val, rest_frame_wave_val):
     """
     Initializer function for each worker process in the SSP generation.
     Initializes the common components for the Bagpipes model.
     """
     global _ssp_worker_bagpipes_instance
+    global gas_logu
+    gas_logu = gas_logu_val
 
     dust = {}
     dust["type"] = "Calzetti"
     dust["Av"] = 0.0
     dust["eta"] = 1.0
 
-    nebular = {}
-    if add_neb_emission_val:
-        nebular["logU"] = gas_logu_val
-    else:
-        nebular = None
+    # Nebular emission will be handled dynamically in _generate_single_ssp
+    #nebular = {"logU": gas_logu_val}
 
     model_components = {}
     model_components["redshift"] = 0.0
     model_components["veldisp"] = 0
     model_components["dust"] = dust
-    if nebular:
-        model_components["nebular"] = nebular
+    #model_components["nebular"] = nebular # Always include nebular dict, logU will be set
     
     # Store the target rest_frame_wave for use by _generate_single_ssp
     model_components["_rest_frame_wave_target"] = rest_frame_wave_val
@@ -47,7 +46,7 @@ def init_ssp_worker(add_neb_emission_val, gas_logu_val, rest_frame_wave_val):
 
 def _generate_single_ssp(age, logzsol):
     """
-    Helper function to generate a single SSP spectrum and its surviving stellar mass
+    Helper function to generate a single SSP spectrum (stellar continuum only and nebular emission only)
     using Bagpipes, then interpolates it to the target wavelength grid.
     """
     global _ssp_worker_bagpipes_instance
@@ -62,35 +61,49 @@ def _generate_single_ssp(age, logzsol):
     burst["massformed"] = 1.0
     burst["metallicity"] = metallicity_z_zsun
 
-    current_model_components = _ssp_worker_bagpipes_instance.copy()
-    current_model_components["burst"] = burst
+    # --- Generate spectrum with nebular emission ---
+    current_model_components_total = _ssp_worker_bagpipes_instance.copy()
+    current_model_components_total["burst"] = burst
 
-    # Generate the full internal spectrum from Bagpipes.
-    # Do NOT pass spec_wavs here if model.spectrum_full is always the full internal one.
-    model = pipes.model_galaxy(current_model_components, spec_wavs=np.arange(1000., 10000., 5.))
-
-    # Get the full wavelength and flux arrays from Bagpipes' internal calculation
-    full_wave = model.wavelengths
-    full_fluxes_erg_s_aa = model.spectrum_full
-
-    # Convert to L_sun/Angstrom
-    full_fluxes_l_sun_aa = full_fluxes_erg_s_aa / L_SUN_ERG_S
-
-    # Perform linear interpolation onto the target wavelength grid
-    interp_func = interp1d(full_wave, full_fluxes_l_sun_aa, kind='linear', 
-                           bounds_error=False, fill_value=0.0)
+    # Ensure nebular is enabled for total spectrum
+    nebular = {"logU": gas_logu}
+    current_model_components_total["nebular"] = nebular
+    #current_model_components_total["nebular"] = {"logU": _ssp_worker_bagpipes_instance["nebular"]["logU"]} 
     
-    spec_interpolated = interp_func(rest_frame_wave_target)
+    model_total = pipes.model_galaxy(current_model_components_total, spec_wavs=np.arange(1000., 10000., 5.))
+    full_wave = model_total.wavelengths
+    full_fluxes_total_erg_s_aa = model_total.spectrum_full
+    full_fluxes_total_l_sun_aa = full_fluxes_total_erg_s_aa / L_SUN_ERG_S
+    interp_func_total = interp1d(full_wave, full_fluxes_total_l_sun_aa, kind='linear', 
+                                 bounds_error=False, fill_value=0.0)
+    spec_total_interpolated = interp_func_total(rest_frame_wave_target)
 
-    surv_stellar_mass = model.sfh.stellar_mass
+    # --- Generate spectrum with stellar continuum only (no nebular emission) ---
+    current_model_components_stellar = _ssp_worker_bagpipes_instance.copy()
+    current_model_components_stellar["burst"] = burst
+    # Disable nebular emission for stellar continuum only
+    # Change "current_model_components_stellar["nebular"] = None" to:
+    #current_model_components_stellar["nebular"] = {} # Set to empty dictionary instead of None 
 
-    return spec_interpolated, surv_stellar_mass
+    model_stellar = pipes.model_galaxy(current_model_components_stellar, spec_wavs=np.arange(1000., 10000., 5.))
+    full_wave_stellar = model_stellar.wavelengths # Should be the same as full_wave, but for clarity
+    full_fluxes_stellar_erg_s_aa = model_stellar.spectrum_full
+    full_fluxes_stellar_l_sun_aa = full_fluxes_stellar_erg_s_aa / L_SUN_ERG_S
+    interp_func_stellar = interp1d(full_wave_stellar, full_fluxes_stellar_l_sun_aa, kind='linear', 
+                                   bounds_error=False, fill_value=0.0)
+    spec_stellar_continuum_interpolated = interp_func_stellar(rest_frame_wave_target)
+
+    # --- Calculate nebular emission only ---
+    spec_nebular_emission_interpolated = spec_total_interpolated - spec_stellar_continuum_interpolated
+
+    surv_stellar_mass = model_total.sfh.stellar_mass
+
+    return spec_stellar_continuum_interpolated, spec_nebular_emission_interpolated, surv_stellar_mass
 
 
 def generate_ssp_grid_bagpipes(output_filename="ssp_spectra_bagpipes.hdf5",
                                ages_gyr=None,
                                logzsol_grid=None,
-                               add_neb_emission=True,
                                gas_logu=-2.0,
                                overwrite=False,
                                n_jobs=-1):
@@ -112,7 +125,8 @@ def generate_ssp_grid_bagpipes(output_filename="ssp_spectra_bagpipes.hdf5",
     rest_frame_wave = np.arange(100., 30000., 5.)
 
     # Initialize arrays with the dimensions based on the explicitly defined rest_frame_wave
-    ssp_spectra = np.zeros((len(ages_gyr), len(logzsol_grid), len(rest_frame_wave)), dtype=np.float32)
+    ssp_stellar_continuum_spectra = np.zeros((len(ages_gyr), len(logzsol_grid), len(rest_frame_wave)), dtype=np.float32)
+    ssp_nebular_emission_spectra = np.zeros((len(ages_gyr), len(logzsol_grid), len(rest_frame_wave)), dtype=np.float32)
     ssp_stellar_masses = np.zeros((len(ages_gyr), len(logzsol_grid)), dtype=np.float32)
 
     num_cores = n_jobs
@@ -128,7 +142,7 @@ def generate_ssp_grid_bagpipes(output_filename="ssp_spectra_bagpipes.hdf5",
 
     with tqdm_joblib(total=len(tasks), desc="Generating SSPs with Bagpipes") as progress_bar:
         results = Parallel(n_jobs=num_cores, verbose=0, initializer=init_ssp_worker,
-                           initargs=(add_neb_emission, gas_logu, rest_frame_wave))( # Pass the target wave to initializer
+                           initargs=(gas_logu, rest_frame_wave))( # Pass the target wave to initializer
             delayed(_generate_single_ssp)(age, logzsol)
             for age, logzsol in tasks
         )
@@ -136,8 +150,9 @@ def generate_ssp_grid_bagpipes(output_filename="ssp_spectra_bagpipes.hdf5",
     k = 0
     for i_age, age in enumerate(ages_gyr):
         for i_z, logzsol in enumerate(logzsol_grid):
-            spec, stellar_mass = results[k]
-            ssp_spectra[i_age, i_z, :] = spec
+            spec_stellar_continuum, spec_nebular_emission, stellar_mass = results[k]
+            ssp_stellar_continuum_spectra[i_age, i_z, :] = spec_stellar_continuum
+            ssp_nebular_emission_spectra[i_age, i_z, :] = spec_nebular_emission
             ssp_stellar_masses[i_age, i_z] = stellar_mass
             k += 1
 
@@ -145,11 +160,11 @@ def generate_ssp_grid_bagpipes(output_filename="ssp_spectra_bagpipes.hdf5",
         f.create_dataset('wavelength', data=rest_frame_wave, compression="gzip")
         f.create_dataset('ages_gyr', data=ages_gyr, compression="gzip")
         f.create_dataset('logzsol', data=logzsol_grid, compression="gzip")
-        f.create_dataset('spectra', data=ssp_spectra, compression="gzip")
+        f.create_dataset('stellar_continuum_spectra', data=ssp_stellar_continuum_spectra, compression="gzip")
+        f.create_dataset('nebular_emission_spectra', data=ssp_nebular_emission_spectra, compression="gzip")
         f.create_dataset('stellar_mass', data=ssp_stellar_masses, compression="gzip")
 
         f.attrs['imf_type'] = 'Kroupa (2001)'
-        f.attrs['add_neb_emission'] = add_neb_emission
         f.attrs['gas_logu'] = gas_logu
         f.attrs['z_sun'] = BAGPIPES_Z_SUN
         f.attrs['flux_unit'] = 'L_sun/Angstrom'
