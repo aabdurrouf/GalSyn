@@ -730,7 +730,7 @@ def generate_images(sim_file, z, filters, filter_transmission_path, dim_kpc=None
                     salim_a1=2.71, salim_a2= -0.191, salim_a3=0.0121, salim_RV=3.15, salim_B=1.57, 
                     initdim_kpc=200, initdim_mass_fraction=0.99, use_precomputed_ssp=True, 
                     ssp_filepath=None, ssp_interpolation_method='nearest', 
-                    output_pixel_spectra=False, rest_wave_min=1000.0, rest_wave_max=16000.0): 
+                    output_pixel_spectra=False, rest_wave_min=1000.0, rest_wave_max=30000.0, rest_delta_wave=5.0): 
 
     cosmo = define_cosmo(cosmo_str)
 
@@ -857,8 +857,9 @@ def generate_images(sim_file, z, filters, filter_transmission_path, dim_kpc=None
     if output_pixel_spectra:
         obs_min_boundary = rest_wave_min * (1.0 + snap_z)
         obs_max_boundary = rest_wave_max * (1.0 + snap_z)
+        obs_delta_wave = rest_delta_wave * (1.0 + snap_z)
         # Create a linear wavelength grid with 5 Angstrom increment
-        fixed_global_output_obs_wave = np.arange(obs_min_boundary, obs_max_boundary + 5.0, 5.0)
+        fixed_global_output_obs_wave = np.arange(obs_min_boundary, obs_max_boundary + obs_delta_wave, obs_delta_wave)
         if fixed_global_output_obs_wave.size == 0:
             print(f"Warning: Calculated output observed wavelength grid is empty for rest-frame range "
                   f"[{rest_wave_min}-{rest_wave_max}] Angstroms at z={snap_z}. "

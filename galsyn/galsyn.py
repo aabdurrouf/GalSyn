@@ -32,6 +32,7 @@ class GalaxySynthesizer:
         self._output_pixel_spectra = False
         self._rest_wave_min = 1000.0
         self._rest_wave_max = 30000.0
+        self._rest_delta_wave = 5.0
         self._ssp_code = 'FSPS'
 
     def _load_config_defaults(self):
@@ -585,6 +586,19 @@ class GalaxySynthesizer:
         self._rest_wave_max = float(value)
         if self._rest_wave_max <= self._rest_wave_min:
             raise ValueError("rest_wave_max must be greater than rest_wave_min.")
+        
+
+    @property
+    def rest_delta_wave(self):
+        return self._rest_delta_wave
+    
+    @rest_delta_wave.setter
+    def rest_delta_wave(self, value):
+        if not isinstance(value, (int, float)) or value <= 0:
+            raise ValueError("rest_delta_wave must be a positive number.")
+        self._rest_delta_wave = float(value)
+        if self._rest_delta_wave <= self._rest_wave_min:
+            raise ValueError("rest_delta_wave must be greater than rest_wave_min.")
 
 
     # --- Convenience method for setting multiple parameters ---
@@ -744,7 +758,8 @@ class GalaxySynthesizer:
                 'ssp_interpolation_method': self.ssp_interpolation_method, 
                 'output_pixel_spectra': self.output_pixel_spectra, 
                 'rest_wave_min': self.rest_wave_min, 
-                'rest_wave_max': self.rest_wave_max
+                'rest_wave_max': self.rest_wave_max,
+                'rest_delta_wave': self.rest_delta_wave
             }
             
             # Merge SSP-specific parameters with common parameters
