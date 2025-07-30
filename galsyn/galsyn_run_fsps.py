@@ -40,12 +40,12 @@ sp_instance = None
 igm_trans = None
 snap_z = None
 pix_area_kpc2 = None
-mean_AV_unres = None
 gas_logu = None
 igm_type = None
 dust_index_bc = None
 dust_index = None
 t_esc = None
+dust_eta = None
 dust_law = None
 bump_amp = None
 salim_a0 = None
@@ -154,14 +154,14 @@ def _load_filter_transmission_from_paths(filters_list, filter_transmission_path_
     return filter_transmission_data, filter_wave_pivot_data
 
 
-def init_worker(ssp_code_val, snap_z_val, pix_area_kpc2_val, mean_AV_unres_val, 
+def init_worker(ssp_code_val, snap_z_val, pix_area_kpc2_val,  
                 filters_list_val,
                 filter_transmission_path_val,
                 imf_type_val, imf_upper_limit_val, imf_lower_limit_val, 
                 imf1_val, imf2_val, imf3_val, vdmc_val, mdave_val,     
                 gas_logu_val, 
                 igm_type_val, dust_index_bc_val, 
-                dust_index_val, t_esc_val, precomputed_scale_dust_tau_val,
+                dust_index_val, t_esc_val, dust_eta_val, precomputed_scale_dust_tau_val,
                 cosmo_str_val, cosmo_h_val, XH_val, 
                 dust_law_val, bump_amp_val, relation_AVslope_val, salim_a0_val, 
                 salim_a1_val, salim_a2_val, salim_a3_val, salim_RV_val, salim_B_val, use_precomputed_ssp_val, 
@@ -174,8 +174,8 @@ def init_worker(ssp_code_val, snap_z_val, pix_area_kpc2_val, mean_AV_unres_val,
     global ssp_stellar_continuum_grid, ssp_nebular_emission_grid # New SSP component grids
     global _global_ssp_stellar_continuum_interpolator, _global_ssp_nebular_emission_interpolator, _global_ssp_stellar_mass_interpolator
     global sp_instance, igm_trans, snap_z, pix_area_kpc2
-    global mean_AV_unres, gas_logu, igm_type
-    global dust_index_bc, dust_index, t_esc, dust_law, bump_amp, salim_a0, salim_a1, salim_a2, salim_a3 
+    global gas_logu, igm_type
+    global dust_index_bc, dust_index, t_esc, dust_eta, dust_law, bump_amp, salim_a0, salim_a1, salim_a2, salim_a3 
     global salim_RV, salim_B, dust_Alambda_per_AV, func_interp_dust_index
     global use_precomputed_ssp, ssp_interpolation_method 
     global output_pixel_spectra_flag, _worker_output_obs_wave_grid 
@@ -205,7 +205,6 @@ def init_worker(ssp_code_val, snap_z_val, pix_area_kpc2_val, mean_AV_unres_val,
 
     snap_z = snap_z_val
     pix_area_kpc2 = pix_area_kpc2_val
-    mean_AV_unres = mean_AV_unres_val
     
     _worker_imf_type = imf_type_val
     _worker_imf_upper_limit = imf_upper_limit_val
@@ -220,6 +219,7 @@ def init_worker(ssp_code_val, snap_z_val, pix_area_kpc2_val, mean_AV_unres_val,
     igm_type = igm_type_val
     dust_index_bc = dust_index_bc_val
     t_esc = t_esc_val
+    dust_eta = dust_eta_val
     _worker_scale_dust_tau = precomputed_scale_dust_tau_val
     
     _worker_cosmo = define_cosmo(cosmo_str_val)
@@ -622,7 +622,7 @@ def _process_pixel_data(ii, jj, star_particle_membership_list, gas_particle_memb
                 
             # --- Apply dust attenuation from birth clouds ---
             if stars_age[star_id] <= t_esc:
-                Alambda = unresolved_dust_birth_cloud_Alambda_per_AV(wave, dust_index_bc=dust_index_bc) * mean_AV_unres
+                Alambda = unresolved_dust_birth_cloud_Alambda_per_AV(wave, dust_index_bc=dust_index_bc) * dust_AV * dust_eta
                 spec_dust = spec_dust*np.power(10.0, -0.4*Alambda)
     
             norm = stars_mass[star_id] / ssp_mass_formed
@@ -736,7 +736,7 @@ def generate_images(sim_file, z, filters, filter_transmission_path, dim_kpc=None
                     pix_arcsec=0.02, flux_unit='MJy/sr', polar_angle_deg=0, azimuth_angle_deg=0,
                     name_out_img=None, n_jobs=-1, ssp_code='FSPS', imf_type=1, imf_upper_limit=120.0, imf_lower_limit=0.08,
                     imf1=1.3, imf2=2.3, imf3=2.3, vdmc=0.08, mdave=0.5, gas_logu=-2.0,
-                    igm_type=0, dust_index_bc=-0.7, dust_index=0.0, t_esc=0.01,
+                    igm_type=0, dust_index_bc=-0.7, dust_index=0.0, t_esc=0.01, dust_eta=1.0,
                     scale_dust_redshift="Vogelsberger20", cosmo_str='Planck18', cosmo_h=0.6774, XH=0.76, 
                     dust_law=0, bump_amp=0.85, relation_AVslope="Salim18", salim_a0=-4.30, 
                     salim_a1=2.71, salim_a2= -0.191, salim_a3=0.0121, salim_RV=3.15, salim_B=3.15,
@@ -777,6 +777,7 @@ def generate_images(sim_file, z, filters, filter_transmission_path, dim_kpc=None
         dust_index_bc (float, optional): Dust index for birth clouds. Defaults to -0.7.
         dust_index (float, optional): Dust index for diffuse ISM (if applicable). Defaults to 0.0.
         t_esc (float, optional): Escape time for young stars. Defaults to 0.01.
+        dust_eta (float, optional): Ratio of the dust attenuation A_V in the birth clouds and the diffuse ISM. Defaults to 1.0.
         scale_dust_redshift (str or dict, optional): Defines the dust_tau normalization vs redshift relation.
                                                      Can be a string ("Vogelsberger20") or a dictionary with "z" and "tau_dust" keys (1D arrays).
                                                      Defaults to "Vogelsberger20".
@@ -880,13 +881,6 @@ def generate_images(sim_file, z, filters, filter_transmission_path, dim_kpc=None
     dimx, dimy = grid_info['num_pixels_x'], grid_info['num_pixels_y']
     print ('Cutout size: %d x %d pix or %d x %d kpc' % (dimx,dimy,dim_kpc,dim_kpc))
 
-    idxg_global = np.where((gas_sfr_inst>0.0) | (gas_log_temp<3.9))[0]
-    if np.nansum(gas_mass[idxg_global]) > 0:
-        temp_mw_gas_zsol = np.nansum(gas_mass[idxg_global]*gas_zsol[idxg_global])/np.nansum(gas_mass[idxg_global])
-    else:
-        temp_mw_gas_zsol = 0.0
-    nH = np.nansum(gas_mass_H[idxg_global])*1.247914e+14/dim_kpc/dim_kpc
-
     # --- Moved the dust normalization loading here ---
     norm_dust_z = None
     norm_dust_tau = None
@@ -914,15 +908,6 @@ def generate_images(sim_file, z, filters, filter_transmission_path, dim_kpc=None
     # Calculate scale_dust_tau here in the main process
     scale_dust_tau = tau_dust_given_z(snap_z, norm_dust_z, norm_dust_tau)
     # --- End of dust normalization loading and calculation ---
-
-    mean_tauV_res = scale_dust_tau*temp_mw_gas_zsol*nH/2.1e+21 
-
-    global mean_AV_unres
-    if np.isnan(mean_tauV_res)==True or np.isinf(mean_tauV_res)==True:
-        mean_tauV_res, mean_AV_unres = 0.0, 0.0
-    else:
-        mean_AV_unres = -2.5*np.log10(np.exp(-2.0*mean_tauV_res))
-    print ('mean_tauV_res=%lf mean_AV_unres=%lf' % (mean_tauV_res,mean_AV_unres))
 
     nbands = len(filters)
 
@@ -1002,13 +987,13 @@ def generate_images(sim_file, z, filters, filter_transmission_path, dim_kpc=None
     # Pass all large particle data arrays to init_worker
     with tqdm_joblib(total=len(processed_tasks_args), desc="Processing pixels") as progress_bar:
         results = Parallel(n_jobs=num_cores, verbose=0, initializer=init_worker,
-                           initargs=(ssp_code, snap_z, pix_area_kpc2, mean_AV_unres,
+                           initargs=(ssp_code, snap_z, pix_area_kpc2,
                                      filters, filter_transmission_path,
                                      imf_type, imf_upper_limit, imf_lower_limit,
                                      imf1, imf2, imf3, vdmc, mdave,
                                      gas_logu,
                                      igm_type, dust_index_bc,
-                                     dust_index, t_esc, scale_dust_tau,
+                                     dust_index, t_esc, dust_eta, scale_dust_tau,
                                      cosmo_str, cosmo_h, XH, 
                                      dust_law, bump_amp, relation_AVslope, 
                                      salim_a0, salim_a1, salim_a2, salim_a3, salim_RV, salim_B, use_precomputed_ssp, 
