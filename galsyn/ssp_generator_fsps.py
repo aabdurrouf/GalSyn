@@ -102,7 +102,9 @@ def generate_ssp_grid(output_filename="ssp_spectra.hdf5",
                       vdmc=0.08,
                       mdave=0.5,
                       overwrite=False,
-                      n_jobs=-1):
+                      n_jobs=-1,
+                      rest_wave_min=500,  # New parameter for minimum wavelength
+                      rest_wave_max=30000): # New parameter for maximum wavelength
     """
     Generates a grid of Simple Stellar Population (SSP) spectra (stellar continuum only and nebular emission only)
     and their corresponding surviving stellar masses using FSPS, and saves them to an HDF5 file.
@@ -141,6 +143,10 @@ def generate_ssp_grid(output_filename="ssp_spectra.hdf5",
         If True, overwrite the output file if it already exists. Defaults to False.
     n_jobs : int, optional
         Number of CPU cores to use for parallel processing. Defaults to -1 (all available).
+    rest_wave_min : float, optional
+        Minimum rest-frame wavelength in Angstroms to include in the output spectra. Defaults to 500.
+    rest_wave_max : float, optional
+        Maximum rest-frame wavelength in Angstroms to include in the output spectra. Defaults to 30000.
 
     Returns:
     --------
@@ -168,8 +174,12 @@ def generate_ssp_grid(output_filename="ssp_spectra.hdf5",
     # Get the wavelength array once (it's constant for all SSPs)
     # Use a dummy FSPS instance just to get the wavelength grid
     dummy_sp = fsps.StellarPopulation(zcontinuous=1)
-    wave, _ = dummy_sp.get_spectrum(peraa=True, tage=0.1)
+    full_wave, _ = dummy_sp.get_spectrum(peraa=True, tage=0.1)
     del dummy_sp # Delete dummy instance to free resources
+
+    # Apply wavelength cut
+    wave_mask = (full_wave >= rest_wave_min) & (full_wave <= rest_wave_max)
+    wave = full_wave[wave_mask]
 
     # Initialize arrays to store spectra and surviving stellar masses
     # Dimensions: (num_ages, num_metallicities, num_wavelengths) for spectra
@@ -206,9 +216,10 @@ def generate_ssp_grid(output_filename="ssp_spectra.hdf5",
     k = 0
     for i_age, age in enumerate(ages_gyr):
         for i_z, logzsol in enumerate(logzsol_grid):
-            spec_stellar_continuum, spec_nebular_emission, stellar_mass = results[k]
-            ssp_stellar_continuum_spectra[i_age, i_z, :] = spec_stellar_continuum
-            ssp_nebular_emission_spectra[i_age, i_z, :] = spec_nebular_emission
+            spec_stellar_continuum_full, spec_nebular_emission_full, stellar_mass = results[k]
+            # Apply the wavelength mask to the generated spectra
+            ssp_stellar_continuum_spectra[i_age, i_z, :] = spec_stellar_continuum_full[wave_mask]
+            ssp_nebular_emission_spectra[i_age, i_z, :] = spec_nebular_emission_full[wave_mask]
             ssp_stellar_masses[i_age, i_z] = stellar_mass
             k += 1
 
@@ -235,6 +246,8 @@ def generate_ssp_grid(output_filename="ssp_spectra.hdf5",
         f.attrs['z_sun'] = FSPS_Z_SUN
         f.attrs['flux_unit'] = 'L_sun/Angstrom'
         f.attrs['code'] = 'FSPS'
+        f.attrs['rest_wave_min'] = rest_wave_min
+        f.attrs['rest_wave_max'] = rest_wave_max
 
     print(f"SSP grid generation complete. Saved to '{output_filename}'.")
     return output_filename

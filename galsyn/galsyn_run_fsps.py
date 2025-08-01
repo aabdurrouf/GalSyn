@@ -619,6 +619,8 @@ def _process_pixel_data(ii, jj, star_particle_membership_list, gas_particle_memb
                     spec_dust = spec_dust*np.power(10.0, -0.4*Alambda)
                     array_tauV.append(tauV)
                     array_AV.append(dust_AV)
+            else:
+                dust_AV = 0.0
                 
             # --- Apply dust attenuation from birth clouds ---
             if stars_age[star_id] <= t_esc:
