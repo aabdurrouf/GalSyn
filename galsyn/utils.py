@@ -1,9 +1,24 @@
-# --- utils.py ---
 import sys, os
 import numpy as np
 from operator import itemgetter
 
 def define_cosmo(cosmo_str):
+    """
+    Selects and returns a specific cosmology model from the astropy.cosmology library.
+
+    Parameters
+    ----------
+    cosmo_str : str
+        The name of the cosmology model to be used.
+        Valid options are: "planck18", "planck15", "planck13",
+        "wmap5", "wmap7", or "wmap9". The check is case-insensitive.
+
+    Returns
+    -------
+    cosmology object
+        An astropy.cosmology object containing the parameters for the
+        selected model.
+    """
 
     cosmo_name = cosmo_str.lower()  # Make case-insensitive
 
@@ -26,6 +41,29 @@ def define_cosmo(cosmo_str):
     return cosmo
 
 def interp_age_univ_from_z(z, cosmo):
+
+    """
+    Interpolates the age of the universe at a given redshift (z).
+
+    This function first creates an array of redshifts and calculates the age of the universe
+    for each redshift using a provided cosmology object. It then creates an interpolation
+    function and uses it to find the age of the universe at the specific redshift(s)
+    provided as input.
+
+    Parameters
+    ----------
+    z : float or array_like
+        The redshift(s) at which to calculate the age of the universe.
+
+    cosmo : astropy.cosmology object
+        The cosmology object to use for the age calculation. This object
+        should be an instance from the `astropy.cosmology` module.
+
+    Returns
+    -------
+    float or ndarray
+        The age(s) of the universe at the given redshift(s), in Gyr.
+    """
     
     from scipy.interpolate import interp1d
     
@@ -377,7 +415,7 @@ def igm_att_inoue(wave,z):
 def construct_SFH(stars_form_lbt, stars_init_mass, stars_metallicity, del_t=0.3, max_lbt=14.0):
     """
     Constructs the Star Formation History (SFH) from stellar formation times,
-    initial masses, and metallicities using vectorized NumPy operations for efficiency.
+    initial masses, and metallicities.
 
     Calculates the mass-weighted average metallicity within each lookback time bin.
     Ensures all bins are returned, even if empty, to maintain consistent binning across pixels.
@@ -521,7 +559,7 @@ def make_filter_transmission_text_pixedfit(filters, output_dir="filters"):
             np.savetxt(file_path, np.column_stack((w, t)), fmt='%.6e', header='Wavelength (Angstrom) Transmission')
             
             filter_transmission_path[ff] = file_path
-            print(f"Saved filter transmission for '{ff}' to: {file_path}")
+            #print(f"Saved filter transmission for '{ff}' to: {file_path}")
 
         except Exception as e:
             print(f"Error processing filter '{ff}': {e}")
