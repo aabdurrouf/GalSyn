@@ -328,7 +328,6 @@ def init_worker(ssp_code_val, snap_z_val, pix_area_kpc2_val,
         dustindexAV_dust_index = np.array([])
         sys.exit(1)
 
-
     if dust_law <= 1:
         global func_interp_dust_index
         func_interp_dust_index = interp1d(dustindexAV_AV, dustindexAV_dust_index, bounds_error=False, fill_value='extrapolate')
@@ -346,6 +345,18 @@ def init_worker(ssp_code_val, snap_z_val, pix_area_kpc2_val,
 
     elif dust_law == 5:
         dust_Alambda_per_AV = calzetti_dust_Alambda_per_AV(ssp_wave)
+
+    elif dust_law == 6:
+        dust_Alambda_per_AV = smc_gordon2003_dust_Alambda_per_AV(ssp_wave)
+    
+    elif dust_law == 7:
+        dust_Alambda_per_AV = lmc_gordon2003_dust_Alambda_per_AV(ssp_wave)
+
+    elif dust_law == 8:
+        dust_Alambda_per_AV = ccm89_dust_Alambda_per_AV(ssp_wave)
+
+    elif dust_law == 9:
+        dust_Alambda_per_AV = fitzpatrick99_dust_Alambda_per_AV(ssp_wave)
 
     # Always add IGM absorption
     if igm_type == 0:
