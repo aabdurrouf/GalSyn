@@ -1,6 +1,7 @@
 import sys
 import numpy as np
-from galsyn import config 
+from galsyn import config
+import importlib.resources 
 
 wave_V = 0.5500
 
@@ -68,4 +69,57 @@ def salim18_dust_Alambda_per_AV(wave_ang, salim_a0, salim_a1, salim_a2, salim_a3
 
     Alambda_per_AV = k_lambda / salim_RV
     return Alambda_per_AV
+
+def fitzpatrick99_dust_Alambda_per_AV(wave_ang):
+    data_file_name = "fitzpatrick99.txt"
+    try:
+        from scipy.interpolate import interp1d
+        data_path = str(importlib.resources.files('galsyn.data').joinpath(data_file_name))
+        data = np.loadtxt(data_path)
+        f = interp1d(data[:,0], data[:,1], fill_value="extrapolate")
+        return f(wave_ang)
+    
+    except Exception as e:
+        print(f"Error loading dust normalization data from {data_file_name}: {e}")
+        sys.exit(1)
+
+def ccm89_dust_Alambda_per_AV(wave_ang):
+    data_file_name = "ccm89.txt"
+    try:
+        from scipy.interpolate import interp1d
+        data_path = str(importlib.resources.files('galsyn.data').joinpath(data_file_name))
+        data = np.loadtxt(data_path)
+        f = interp1d(data[:,0], data[:,1], fill_value="extrapolate")
+        return f(wave_ang)
+    
+    except Exception as e:
+        print(f"Error loading dust normalization data from {data_file_name}: {e}")
+        sys.exit(1)
+
+def lmc_gordon2003_dust_Alambda_per_AV(wave_ang):
+    data_file_name = "lmc_gordon2003.txt"
+    try:
+        from scipy.interpolate import interp1d
+        data_path = str(importlib.resources.files('galsyn.data').joinpath(data_file_name))
+        data = np.loadtxt(data_path)
+        f = interp1d(data[:,0], data[:,1], fill_value="extrapolate")
+        return f(wave_ang)
+    
+    except Exception as e:
+        print(f"Error loading dust normalization data from {data_file_name}: {e}")
+        sys.exit(1)
+
+def smc_gordon2003_dust_Alambda_per_AV(wave_ang):
+    data_file_name = "smc_gordon2003.txt"
+    try:
+        from scipy.interpolate import interp1d
+        data_path = str(importlib.resources.files('galsyn.data').joinpath(data_file_name))
+        data = np.loadtxt(data_path)
+        f = interp1d(data[:,0], data[:,1], fill_value="extrapolate")
+        return f(wave_ang)
+    
+    except Exception as e:
+        print(f"Error loading dust normalization data from {data_file_name}: {e}")
+        sys.exit(1)
+
 

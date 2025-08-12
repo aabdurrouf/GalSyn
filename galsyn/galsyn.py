@@ -436,8 +436,8 @@ class GalaxySynthesizer:
 
     @dust_law.setter
     def dust_law(self, value):
-        if not isinstance(value, int) or value not in [0, 1, 2, 3, 4, 5]:
-            raise ValueError("dust_law must be integer in the range of 0 to 5.")
+        if not isinstance(value, int) or value not in [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]:
+            raise ValueError("dust_law must be integer in the range of 0 to 9!")
         self._dust_law = value
 
     @property

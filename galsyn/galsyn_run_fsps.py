@@ -883,7 +883,7 @@ def generate_images(sim_file, z, filters, filter_transmission_path, dim_kpc=None
     dimx, dimy = grid_info['num_pixels_x'], grid_info['num_pixels_y']
     print ('Cutout size: %d x %d pix or %d x %d kpc' % (dimx,dimy,dim_kpc,dim_kpc))
 
-    # --- Moved the dust normalization loading here ---
+    # --- Dust normalization loading ---
     norm_dust_z = None
     norm_dust_tau = None
     if isinstance(scale_dust_redshift, str):

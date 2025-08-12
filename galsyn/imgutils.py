@@ -3,12 +3,59 @@ import astropy.units as u
 from .utils import *
 
 def angular_to_physical(z, arcsec_per_pix, cosmo):
+    """
+    Calculates the physical size (in kpc) corresponding to a single pixel
+    at a given redshift.
+
+    This function uses the provided cosmology object to determine the proper
+    distance scale at a specific redshift. It then converts the angular size
+    of a pixel from arcseconds to a physical size in kiloparsecs (kpc).
+
+    Parameters
+    ----------
+    z : float
+        The redshift of the object.
+
+    arcsec_per_pix : float
+        The angular size of a single pixel in arcseconds.
+
+    cosmo : astropy.cosmology object
+        The cosmology object to use for the distance calculation. This should be
+        an instance from the `astropy.cosmology` module.
+
+    Returns
+    -------
+    float
+        The physical size of a single pixel in kiloparsecs (kpc).
+    """
     kpc_per_arcmin = cosmo.kpc_proper_per_arcmin(z)
     kpc_per_pix = kpc_per_arcmin.value*arcsec_per_pix/60.0 
     
     return kpc_per_pix
 
 def physical_to_angular(z, physical_size_kpc, cosmo):
+    """
+    Calculates the angular size (in arcseconds) of an object with a given
+    physical size at a specific redshift.
+
+    Parameters
+    ----------
+    z : float
+        The redshift of the object.
+
+    physical_size_kpc : float
+        The physical size of the object in kiloparsecs (kpc).
+
+    cosmo : astropy.cosmology object
+        The cosmology object to use for the angular diameter distance
+        calculation. This should be an instance from the `astropy.cosmology` module.
+
+    Returns
+    -------
+    float
+        The angular size of the object in arcseconds.
+    """
+
     # Compute angular diameter distance in kpc
     D_A = cosmo.angular_diameter_distance(z).to(u.kpc)
     
