@@ -29,7 +29,7 @@ class SFHReconstructor:
     as a 3D FITS file (spatial x spatial x lookback_time).
     """
 
-    def __init__(self, sim_file=None, z=0.01, Z_sun=0.019):
+    def __init__(self, sim_file, z, Z_sun=0.019):
         """
         Initializes the SFHReconstructor with basic simulation parameters.
 
