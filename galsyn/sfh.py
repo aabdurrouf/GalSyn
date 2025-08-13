@@ -357,10 +357,10 @@ class SFHReconstructor:
         output_dimension_physical = (self.dim_kpc, self.dim_kpc)
 
         # Get 2D projection and pixel membership for star particles
-        star_particle_membership, _, _, grid_info, _, _ = \
+        star_particle_membership, _, _, grid_info, _, _, _, _ = \
             get_2d_density_projection_no_los_binning(
                 stars_coords,
-                stars_init_mass, # Use initial mass for projection density
+                stars_init_mass,
                 pix_kpc,
                 output_dimension_physical,
                 polar_angle_deg=self.polar_angle_deg,
