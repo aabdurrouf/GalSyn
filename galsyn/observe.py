@@ -7,14 +7,9 @@ from scipy.integrate import simpson
 from scipy import stats
 from scipy.interpolate import interp1d
 from astropy.nddata import NDData
-
-# Import reproject_adaptive from the reproject package
 from reproject import reproject_adaptive
-
-# Import convert_flux_map from the provided imgutils.py
 from .imgutils import convert_flux_map
 
-# Existing GalSynMockObservation_imaging class (from previous response)
 class GalSynMockObservation_imaging:
     """
     A class to simulate observational effects on synthetic galaxy images,
@@ -22,9 +17,8 @@ class GalSynMockObservation_imaging:
     and resampling to a desired pixel scale.
     """
 
-    def __init__(self, fits_file_path, filters, psf_paths, psf_pixel_scales,
-                 mag_zp, limiting_magnitude, snr_limit, aperture_radius_arcsec, exposure_time,
-                 filter_transmission_path, desired_pixel_scales):
+    def __init__(self, fits_file_path, filters, psf_paths, psf_pixel_scales, mag_zp, limiting_magnitude, snr_limit, 
+                aperture_radius_arcsec, exposure_time, filter_transmission_path, desired_pixel_scales):
         """
         Initializes the GalSynMockObservation_imaging with input parameters.
 
@@ -33,7 +27,7 @@ class GalSynMockObservation_imaging:
         fits_file_path : str
             Path to the FITS file output from galsyn_run_fsps.
         filters : list
-            List of filter names (e.g., ['FUV', 'NUV']) for which images will be processed.
+            List of filter names (e.g., ['jwst_nircam_f115w', 'jwst_nircam_f200w']) for which images will be processed.
         psf_paths : dict
             Dictionary where keys are filter names and values are paths to PSF FITS images.
         psf_pixel_scales : dict
@@ -69,7 +63,6 @@ class GalSynMockObservation_imaging:
         self.hdul = fits.open(fits_file_path)
         self.image_header = self.hdul[0].header
         self.pixel_scale_kpc = self.image_header['PIX_KPC']
-        # This is the *initial* pixel scale of the synthetic image
         self.initial_pixel_scale_arcsec = self.image_header['PIXSIZE']
         self.flux_unit = self.image_header['BUNIT']
         self.flux_scale = self.image_header['SCALE']
@@ -557,7 +550,7 @@ class GalSynMockObservation_ifu:
         self.psf_cube_path = psf_cube_path
         self.psf_pixel_scale = psf_pixel_scale
         self.spectral_resolution_R = spectral_resolution_R
-        self.mag_zp = mag_zp # Added
+        self.mag_zp = mag_zp
         self.limiting_magnitude_wave_func = limiting_magnitude_wave_func
         self.snr_limit = snr_limit
         self.final_pixel_scale_arcsec = final_pixel_scale_arcsec
@@ -780,7 +773,6 @@ class GalSynMockObservation_ifu:
             f_nu_erg_s_cm2_Hz_for_1_count = 10**((mag_for_1_count + 48.6)/(-2.5))
             flux_per_total_count_per_A_per_pixel = f_nu_erg_s_cm2_Hz_for_1_count * c_angstrom_s / current_wave**2
 
-
             # Convert current slice SB to flux per final pixel for noise calculation
             current_slice_flux_per_final_pixel = convolved_cube_sb[i_wave, :, :] * pixel_area_arcsec2_final
 
@@ -808,7 +800,6 @@ class GalSynMockObservation_ifu:
             sigma_bg_counts_sq_per_pixel = (C_aperture_at_wave / self.snr_limit)**2 - C_aperture_at_wave
             sigma_bg_counts_sq_per_pixel = np.maximum(0, sigma_bg_counts_sq_per_pixel)
             sigma_bg_counts_per_pixel = np.sqrt(sigma_bg_counts_sq_per_pixel)
-
 
             # Generate noisy counts
             noisy_counts_slice = source_counts_per_pixel_expected.copy()
