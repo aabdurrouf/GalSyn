@@ -61,7 +61,6 @@ class SFHReconstructor:
         Loads default parameter values from the config.py module.
         """
         self._cosmo_str = getattr(config, 'COSMO', "Planck18")
-        self._cosmo_h = getattr(config, 'COSMO_LITTLE_H', 0.6774)
 
     @property
     def sim_file(self):
@@ -207,16 +206,6 @@ class SFHReconstructor:
             raise ValueError(f"cosmo_str must be one of {accepted_cosmo_models}.")
         self._cosmo_str = value.lower()
 
-    @property
-    def cosmo_h(self):
-        return self._cosmo_h
-
-    @cosmo_h.setter
-    def cosmo_h(self, value):
-        if not isinstance(value, (int, float)) or value <= 0:
-            raise ValueError("cosmo_h must be a positive number.")
-        self._cosmo_h = value
-
     def set_params(self, **kwargs):
         """
         Sets multiple parameters at once using keyword arguments.
@@ -330,11 +319,7 @@ class SFHReconstructor:
             stars_form_z = f['star']['form_z'][:]
             stars_zmet = f['star']['zmet'][:]
             stars_zsol_raw = stars_zmet / self.Z_sun
-
-            coords = f['PartType4']['Coordinates'][:]
-            coords_x = coords[:,0]
-            coords_y = coords[:,1]
-            coords_z = coords[:,2]
+            stars_coords_raw = f['star']['coords'][:]   # coordinates (N,3) in units of kpc
 
             f.close()
         except Exception as e:
@@ -354,19 +339,14 @@ class SFHReconstructor:
         stars_init_mass = stars_init_mass_raw[idx_valid_stars]
         stars_zsol = stars_zsol_raw[idx_valid_stars]
         stars_form_lbt = stars_form_lbt_raw[idx_valid_stars] # This is the lookback time for SFH
+        stars_coords = stars_coords_raw[idx_valid_stars,:]
         
-        # Coordinates need to be scaled by snap_a/cosmo_h *after* filtering
-        stars_coords_x = coords_x[idx_valid_stars] * snap_a / self.cosmo_h
-        stars_coords_y = coords_y[idx_valid_stars] * snap_a / self.cosmo_h
-        stars_coords_z = coords_z[idx_valid_stars] * snap_a / self.cosmo_h
-        star_coords = np.column_stack((stars_coords_x, stars_coords_y, stars_coords_z))
-
         pix_kpc = angular_to_physical(self.z, self.pix_arcsec, cosmo)
         print(f"Pixel size: {self.pix_arcsec:.2f} arcsec or {pix_kpc:.2f} kpc")
 
         # Determine image dimension if not explicitly set
         if self.dim_kpc is None:
-            self.dim_kpc = determine_image_size(star_coords, stars_init_mass, pix_kpc, 
+            self.dim_kpc = determine_image_size(stars_coords, stars_init_mass, pix_kpc, 
                                                 (self.initdim_kpc, self.initdim_kpc),
                                                 self.polar_angle_deg, self.azimuth_angle_deg,
                                                 gas_coords=None, gas_masses=None, # SFH reconstruction only needs stars
@@ -379,7 +359,7 @@ class SFHReconstructor:
         # Get 2D projection and pixel membership for star particles
         star_particle_membership, _, _, grid_info, _, _ = \
             get_2d_density_projection_no_los_binning(
-                star_coords,
+                stars_coords,
                 stars_init_mass, # Use initial mass for projection density
                 pix_kpc,
                 output_dimension_physical,
