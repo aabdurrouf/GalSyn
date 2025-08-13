@@ -401,7 +401,7 @@ class GalSynMockObservation_imaging:
                 img_data_final_unit = convert_flux_map(img_data_flux_per_pixel_erg_s_cm2_A, wave_eff, to_unit=self.flux_unit, pixel_scale_arcsec=final_pixel_scale_for_conversion)
                 final_scaled_data = img_data_final_unit / self.flux_scale
                 ext_hdr = fits.Header()
-                ext_hdr['EXTNAME'] = f"PROCESSED_IMG_{f_name.upper()}"
+                ext_hdr['EXTNAME'] = f"SCI_IMG_{f_name.upper()}"
                 ext_hdr['FILTER'] = f_name
                 ext_hdr['COMMENT'] = f'Convolved, noise-injected, and resampled image for filter: {f_name}'
                 ext_hdr['BUNIT'] = self.flux_unit
