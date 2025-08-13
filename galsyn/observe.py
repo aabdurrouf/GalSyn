@@ -332,7 +332,7 @@ class GalSynMockObservation_imaging:
                     shape_out=new_shape,
                     bad_fill_value=0.0,
                     boundary_fill_value=0.0,
-                    flux_conserving=True
+                    conserve_flux=True
                 )[0]
 
                 resampled_rms_image_sb = reproject_adaptive(
@@ -341,7 +341,7 @@ class GalSynMockObservation_imaging:
                     shape_out=new_shape,
                     bad_fill_value=0.0,
                     boundary_fill_value=0.0,
-                    flux_conserving=True
+                    conserve_flux=True
                 )[0]
 
             key_processed = f"{'dust' if dust_attenuation else 'nodust'}_{f_name}_processed"
@@ -683,9 +683,9 @@ class GalSynMockObservation_ifu:
 
             for i_wave in range(noisy_cube_sb.shape[0]):
                 resampled_processed_cube_sb[i_wave, :, :] = reproject_adaptive(
-                    NDData(noisy_cube_sb[i_wave, :, :]), None, shape_out=new_spatial_shape, fill_value=0.0, flux_conserving=True)[0]
+                    NDData(noisy_cube_sb[i_wave, :, :]), None, shape_out=new_spatial_shape, bad_fill_value=0.0, boundary_fill_value=0.0, conserve_flux=True)[0]
                 resampled_rms_cube_sb[i_wave, :, :] = reproject_adaptive(
-                    NDData(rms_cube_sb[i_wave, :, :]), None, shape_out=new_spatial_shape, fill_value=0.0, flux_conserving=True)[0]
+                    NDData(rms_cube_sb[i_wave, :, :]), None, shape_out=new_spatial_shape, bad_fill_value=0.0, boundary_fill_value=0.0, conserve_flux=True)[0]
         print("  Spatial resampling complete.")
 
         self.processed_datacube = resampled_processed_cube_sb
