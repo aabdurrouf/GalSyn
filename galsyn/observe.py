@@ -374,7 +374,7 @@ class GalSynMockObservation_imaging:
 
         prihdr = self.hdul[0].header.copy()
         prihdr['COMMENT'] = 'Mock Observation Results'
-        prihdr['NOISE_SIM'] = 'True'
+        prihdr['NOISESIM'] = 'True'
 
         first_filter = self.filters[0] if self.filters else None
         if first_filter:
@@ -412,7 +412,7 @@ class GalSynMockObservation_imaging:
                 img_data_final_unit = convert_flux_map(img_data_flux_per_pixel_erg_s_cm2_A, wave_eff, to_unit=self.flux_unit, pixel_scale_arcsec=final_pixel_scale_for_conversion)
                 final_scaled_data = img_data_final_unit / self.flux_scale
                 ext_hdr = fits.Header()
-                ext_hdr['EXTNAME'] = f"SCI_IMG_{f_name.upper()}"
+                ext_hdr['EXTNAME'] = f"SCI_{f_name.upper()}"
                 ext_hdr['FILTER'] = f_name
                 ext_hdr['COMMENT'] = f'Convolved, noise-injected, and resampled image for filter: {f_name}'
                 ext_hdr['BUNIT'] = self.flux_unit
@@ -436,7 +436,7 @@ class GalSynMockObservation_imaging:
                 rms_data_final_unit = convert_flux_map(rms_data_flux_per_pixel_erg_s_cm2_A, wave_eff, to_unit=self.flux_unit, pixel_scale_arcsec=final_pixel_scale_for_conversion)
                 final_scaled_rms = rms_data_final_unit / self.flux_scale
                 ext_hdr = fits.Header()
-                ext_hdr['EXTNAME'] = f"RMS_IMG_{f_name.upper()}"
+                ext_hdr['EXTNAME'] = f"RMS_{f_name.upper()}"
                 ext_hdr['FILTER'] = f_name
                 ext_hdr['COMMENT'] = f'RMS image for filter: {f_name}'
                 ext_hdr['BUNIT'] = self.flux_unit
@@ -730,7 +730,7 @@ class GalSynMockObservation_ifu:
 
         prihdr = self.image_header.copy()
         prihdr['COMMENT'] = 'Mock IFU Observation Results'
-        prihdr['NOISE_SIM'] = 'True'
+        prihdr['NOISESIM'] = 'True'
         prihdr['RES_R'] = self.spectral_resolution_R
         prihdr['PIXSIZE'] = self.final_pixel_scale_arcsec
         
@@ -757,7 +757,7 @@ class GalSynMockObservation_ifu:
             output_flux_scale = 1e-20 if flux_unit == 'erg/s/cm2/A' else 1.0
             final_processed_cube /= output_flux_scale
 
-            ext_hdr_proc = self._create_ifu_header('PROCESSED_IFU_CUBE', final_processed_cube.shape, flux_unit, output_flux_scale)
+            ext_hdr_proc = self._create_ifu_header('SCI', final_processed_cube.shape, flux_unit, output_flux_scale)
             hdul_out.append(fits.ImageHDU(data=final_processed_cube, header=ext_hdr_proc))
 
         if self.rms_datacube is not None:
@@ -775,12 +775,12 @@ class GalSynMockObservation_ifu:
             output_flux_scale = 1e-20 if flux_unit == 'erg/s/cm2/A' else 1.0
             final_rms_cube /= output_flux_scale
             
-            ext_hdr_rms = self._create_ifu_header('RMS_IFU_CUBE', final_rms_cube.shape, flux_unit, output_flux_scale)
+            ext_hdr_rms = self._create_ifu_header('RMS', final_rms_cube.shape, flux_unit, output_flux_scale)
             hdul_out.append(fits.ImageHDU(data=final_rms_cube, header=ext_hdr_rms))
 
         if len(self.desired_wave_grid) > 0:
             col = fits.Column(name='WAVELENGTH', format='D', array=self.desired_wave_grid)
-            wavelength_hdu = fits.BinTableHDU.from_columns([col], name='WAVELENGTH_GRID_FINAL')
+            wavelength_hdu = fits.BinTableHDU.from_columns([col], name='WAVELENGTH')
             wavelength_hdu.header['BUNIT'] = 'Angstrom'
             hdul_out.append(wavelength_hdu)
 
