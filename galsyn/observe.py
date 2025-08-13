@@ -8,6 +8,7 @@ from scipy import stats
 from scipy.interpolate import interp1d
 from astropy.nddata import NDData
 from reproject import reproject_adaptive
+from astropy.wcs import WCS
 from .imgutils import convert_flux_map
 
 class GalSynMockObservation_imaging:
@@ -322,27 +323,35 @@ class GalSynMockObservation_imaging:
                 resampled_rms_image_sb = final_rms_surface_brightness
             else:
                 print(f"  Resampling from {self.initial_pixel_scale_arcsec:.4f} arcsec to {desired_pixel_scale:.4f} arcsec.")
+                
+                # --- Fix Start ---
                 old_ny, old_nx = final_noisy_surface_brightness.shape
-                resampling_factor = self.initial_pixel_scale_arcsec / desired_pixel_scale
-                new_shape = (int(np.round(old_ny * resampling_factor)), int(np.round(old_nx * resampling_factor)))
+                # Create a simple WCS for the input data for reproject
+                wcs_in = WCS(naxis=2)
+                wcs_in.wcs.cdelt = [-self.initial_pixel_scale_arcsec, self.initial_pixel_scale_arcsec]
+                wcs_in.wcs.crpix = [old_nx/2, old_ny/2]
+                
+                # Create a new WCS for the output data
+                wcs_out = WCS(naxis=2)
+                wcs_out.wcs.cdelt = [-desired_pixel_scale, desired_pixel_scale]
+                new_shape = (int(np.round(old_ny * self.initial_pixel_scale_arcsec / desired_pixel_scale)),
+                             int(np.round(old_nx * self.initial_pixel_scale_arcsec / desired_pixel_scale)))
+                wcs_out.wcs.crpix = [new_shape[1]/2, new_shape[0]/2]
 
-                resampled_noisy_image_sb = reproject_adaptive(
-                    NDData(final_noisy_surface_brightness),
-                    output_projection=None,
+                resampled_noisy_image_sb, _ = reproject_adaptive(
+                    (final_noisy_surface_brightness, wcs_in),
+                    wcs_out,
                     shape_out=new_shape,
-                    bad_fill_value=0.0,
-                    boundary_fill_value=0.0,
                     conserve_flux=True
-                )[0]
+                )
 
-                resampled_rms_image_sb = reproject_adaptive(
-                    NDData(final_rms_surface_brightness),
-                    output_projection=None,
+                resampled_rms_image_sb, _ = reproject_adaptive(
+                    (final_rms_surface_brightness, wcs_in),
+                    wcs_out,
                     shape_out=new_shape,
-                    bad_fill_value=0.0,
-                    boundary_fill_value=0.0,
                     conserve_flux=True
-                )[0]
+                )
+                # --- Fix End ---
 
             key_processed = f"{'dust' if dust_attenuation else 'nodust'}_{f_name}_processed"
             self.processed_images[key_processed] = resampled_noisy_image_sb
@@ -681,11 +690,31 @@ class GalSynMockObservation_ifu:
             resampled_processed_cube_sb = np.zeros((noisy_cube_sb.shape[0], new_ny, new_nx))
             resampled_rms_cube_sb = np.zeros((rms_cube_sb.shape[0], new_ny, new_nx))
 
+            # --- Fix Start ---
+            # Create a simple WCS for the input data
+            wcs_in = WCS(naxis=2)
+            wcs_in.wcs.cdelt = [-self.initial_pixel_scale_arcsec, self.initial_pixel_scale_arcsec]
+            wcs_in.wcs.crpix = [old_nx/2, old_ny/2]
+            
+            # Create a new WCS for the output data
+            wcs_out = WCS(naxis=2)
+            wcs_out.wcs.cdelt = [-self.final_pixel_scale_arcsec, self.final_pixel_scale_arcsec]
+            wcs_out.wcs.crpix = [new_nx/2, new_ny/2]
+            
             for i_wave in range(noisy_cube_sb.shape[0]):
-                resampled_processed_cube_sb[i_wave, :, :] = reproject_adaptive(
-                    NDData(noisy_cube_sb[i_wave, :, :]), None, shape_out=new_spatial_shape, bad_fill_value=0.0, boundary_fill_value=0.0, conserve_flux=True)[0]
-                resampled_rms_cube_sb[i_wave, :, :] = reproject_adaptive(
-                    NDData(rms_cube_sb[i_wave, :, :]), None, shape_out=new_spatial_shape, bad_fill_value=0.0, boundary_fill_value=0.0, conserve_flux=True)[0]
+                resampled_processed_cube_sb[i_wave, :, :], _ = reproject_adaptive(
+                    (noisy_cube_sb[i_wave, :, :], wcs_in),
+                    wcs_out,
+                    shape_out=new_spatial_shape,
+                    conserve_flux=True
+                )
+                resampled_rms_cube_sb[i_wave, :, :], _ = reproject_adaptive(
+                    (rms_cube_sb[i_wave, :, :], wcs_in),
+                    wcs_out,
+                    shape_out=new_spatial_shape,
+                    conserve_flux=True
+                )
+            # --- Fix End ---
         print("  Spatial resampling complete.")
 
         self.processed_datacube = resampled_processed_cube_sb
