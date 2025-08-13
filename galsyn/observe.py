@@ -330,7 +330,8 @@ class GalSynMockObservation_imaging:
                     NDData(final_noisy_surface_brightness),
                     output_projection=None,
                     shape_out=new_shape,
-                    fill_value=0.0,
+                    bad_fill_value=0.0,
+                    boundary_fill_value=0.0,
                     flux_conserving=True
                 )[0]
 
@@ -338,7 +339,8 @@ class GalSynMockObservation_imaging:
                     NDData(final_rms_surface_brightness),
                     output_projection=None,
                     shape_out=new_shape,
-                    fill_value=0.0,
+                    bad_fill_value=0.0,
+                    boundary_fill_value=0.0,
                     flux_conserving=True
                 )[0]
 
