@@ -108,3 +108,51 @@ def get_basic_subhalo_properties(snap_number, subhalo_id, api_key="api-key", sim
     sub = get(url, params=params)
     return sub
 
+def make_sim_file_from_tng_data(input_hdf5, z, cosmo_h=0.6774, XH=0.76, output_hdf5='sim_file_tng.hdf5'):
+    import h5py
+
+    f = h5py.File(input_hdf5,'r')
+
+    # get star particles data
+    stars_init_mass = f['PartType4']['GFM_InitialMass'][:] * 1e+10 / cosmo_h
+    stars_form_a = f['PartType4']['GFM_StellarFormationTime'][:]
+    stars_form_z = (1.0/stars_form_a) - 1.0
+    stars_mass = f['PartType4']['Masses'][:] * 1e+10 / cosmo_h
+    stars_zmet = f['PartType4']['GFM_Metallicity'][:]
+    snap_a = 1.0/(1.0 + z)
+    stars_coords = f['PartType4']['Coordinates'][:] * snap_a / cosmo_h  # in kpc
+    stars_vel = f['PartType4']['Velocities'][:] * np.sqrt(snap_a)  # peculiar velocities in km/s
+
+    idx = np.where(stars_form_a>0)[0]
+    stars_init_mass = stars_init_mass[idx]
+    stars_form_z = stars_form_z[idx]
+    stars_mass = stars_mass[idx]
+    stars_zmet = stars_zmet[idx]
+    stars_coords = stars_coords[idx,:]
+    stars_vel = stars_vel[idx,:]
+
+    # get gas particles data
+    gas_mass = f['PartType0']['Masses'][:] * 1e+10 / cosmo_h
+    gas_zmet = f['PartType0']['GFM_Metallicity'][:]
+    gas_sfr_inst = f['PartType0']['StarFormationRate'][:]   # in Msun/yr
+    u = f['PartType0']['InternalEnergy'][:]
+    Xe = f['PartType0']['ElectronAbundance'][:]
+    gamma = 5.0/3.0
+    KB = 1.3807e-16
+    mp = 1.6726e-24
+    mu = (4*mp)/(1 + (3*XH) + (4*XH*Xe))
+    gas_temp = (gamma-1.0)*(u/KB)*mu*1e+10
+    gas_coords = f['PartType0']['Coordinates'][:] * snap_a / cosmo_h   # in kpc
+    gas_vel = f['PartType0']['Velocities'][:] * np.sqrt(snap_a)   # peculiar velocity in km/s
+    gas_mass_H = gas_mass * XH
+    
+    f.close()
+
+    create_hdf5_file(output_hdf5, stars_init_mass, stars_form_z, stars_mass, stars_zmet, stars_coords,
+                    stars_vel, gas_mass, gas_zmet, gas_sfr_inst, gas_temp, gas_coords, gas_vel, gas_mass_H)
+
+
+
+
+
+

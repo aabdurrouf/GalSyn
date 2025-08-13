@@ -914,3 +914,60 @@ def doppler_shift_spectrum(wave_rest, flux_rest, vel_los_km_s):
     flux_shifted = flux_rest # Intensity is conserved when just shifting wavelength.
 
     return wave_shifted, flux_shifted
+
+def create_hdf5_file(filename, stars_init_mass, stars_form_z, stars_mass, stars_zmet, stars_coords,
+    stars_vel, gas_mass, gas_zmet, gas_sfr_inst, gas_temp, gas_coords, gas_vel, gas_mass_H):
+    """
+    Creates an HDF5 file with stellar and gas particle properties.
+
+    Args:
+        filename (str): The name of the HDF5 file to create.
+        stars_init_mass (np.ndarray): 1D array of initial stellar masses.
+        stars_form_z (np.ndarray): 1D array of stellar formation redshifts.
+        stars_mass (np.ndarray): 1D array of current stellar masses.
+        stars_zmet (np.ndarray): 1D array of stellar metallicities.
+        stars_coords (np.ndarray): (N,3) array of stellar coordinates in units of kpc.
+        stars_vel (np.ndarray): (N,3) array of stellar peculiar velocities in units of km/s.
+        gas_mass (np.ndarray): 1D array of gas masses.
+        gas_zmet (np.ndarray): 1D array of gas metallicities.
+        gas_sfr_inst (np.ndarray): 1D array of instantaneous SFR for gas.
+        gas_temp (np.ndarray): 1D array of gas temperatures.
+        gas_coords (np.ndarray): (N,3) array of gas coordinates in units of kpc.
+        gas_vel (np.ndarray): (N,3) array of gas peculiar velocities in units of km/s.
+        gas_mass_H (np.ndarray): hyrogen mass in unit of solar mass.
+    """
+
+    import h5py
+
+    # Open the HDF5 file in write mode ('w').
+    # The 'with' statement ensures the file is automatically closed.
+    with h5py.File(filename, 'w') as f:
+
+        # Create the 'star' group
+        star_group = f.create_group('star')
+        star_group.create_dataset('init_mass', data=stars_init_mass, compression="gzip")
+        star_group.create_dataset('form_z', data=stars_form_z, compression="gzip")
+        star_group.create_dataset('mass', data=stars_mass, compression="gzip")
+        star_group.create_dataset('zmet', data=stars_zmet, compression="gzip")
+        star_group.create_dataset('coords', data=stars_coords, compression="gzip")
+        star_group.create_dataset('vel', data=stars_vel, compression="gzip")
+
+        # Create the 'gas' group
+        gas_group = f.create_group('gas')
+        gas_group.create_dataset('mass', data=gas_mass, compression="gzip")
+        gas_group.create_dataset('zmet', data=gas_zmet, compression="gzip")
+        gas_group.create_dataset('sfr_inst', data=gas_sfr_inst, compression="gzip")
+        gas_group.create_dataset('temp', data=gas_temp, compression="gzip")
+        gas_group.create_dataset('coords', data=gas_coords, compression="gzip")
+        gas_group.create_dataset('vel', data=gas_vel, compression="gzip")
+        gas_group.create_dataset('mass_H', data=gas_mass_H, compression="gzip")
+
+        print(f"HDF5 file '{filename}' created successfully.")
+        #print("File structure:")
+        # Print the structure for verification
+        #def print_attrs(name, obj):
+        #    if isinstance(obj, h5py.Group):
+        #        print(f"Group: {name}")
+        #    else:
+        #        print(f"  Dataset: {name} with shape {obj.shape}")
+        #f.visititems(print_attrs)

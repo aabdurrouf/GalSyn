@@ -39,12 +39,8 @@ class GalaxySynthesizer:
         """
         Loads default parameter values from the config.py module.
         """
-        # Hydrogen fraction
-        self._XH = getattr(config, 'XH', 0.76)
-
         # Cosmology
         self._cosmo_str = getattr(config, 'COSMO', "Planck18")
-        self._cosmo_h = getattr(config, 'COSMO_LITTLE_H', 0.6774)
 
         # IMF setup (FSPS specific, but kept for consistency if FSPS is chosen)
         self._imf_type = getattr(config, 'IMF_TYPE', 1)
@@ -411,26 +407,6 @@ class GalaxySynthesizer:
         self._cosmo_str = value.lower()
 
     @property
-    def cosmo_h(self):
-        return self._cosmo_h
-
-    @cosmo_h.setter
-    def cosmo_h(self, value):
-        if not isinstance(value, (int, float)):
-            raise ValueError("cosmo_h must be a positive number.")
-        self._cosmo_h = value
-
-    @property
-    def XH(self):
-        return self._XH
-
-    @XH.setter
-    def XH(self, value):
-        if not isinstance(value, (int, float)) or not (0 <= value <= 1):
-            raise ValueError("XH must be a number between 0 and 1.")
-        self._XH = value
-
-    @property
     def dust_law(self):
         return self._dust_law
 
@@ -751,8 +727,6 @@ class GalaxySynthesizer:
                 'dust_eta': self.dust_eta,
                 'scale_dust_redshift': self.scale_dust_redshift, # Pass the new parameter
                 'cosmo_str': self.cosmo_str,
-                'cosmo_h': self.cosmo_h,
-                'XH': self.XH,
                 'dust_law': self.dust_law,
                 'bump_amp': self.bump_amp,
                 'relation_AVslope': self.relation_AVslope,

@@ -18,7 +18,6 @@ import bagpipes as pipes
 # Constants for solar metallicity (from Bagpipes documentation or common usage)
 BAGPIPES_Z_SUN = 0.02
 L_SUN_ERG_S = 3.828e33 # Solar luminosity in erg/s
-PRIMORDIAL_Z_SUN_VALUE = 0.0127 # This is likely a constant for the simulation data's metallicity definition
 
 # Global variables for SSP data (loaded once per worker if use_precomputed_ssp is True)
 ssp_wave = None
@@ -81,14 +80,14 @@ _worker_cosmo = None
 # New global worker variables for particle data - populated by init_worker
 _worker_stars_mass = None
 _worker_stars_age = None
-_worker_stars_zsol = None
+_worker_stars_zmet = None
 _worker_stars_init_mass = None
 _worker_stars_vel_los_proj = None
 _worker_stars_coords = None # New: for 3D distance calculation
 
 _worker_gas_mass = None
 _worker_gas_sfr_inst = None
-_worker_gas_zsol = None
+_worker_gas_zmet = None
 _worker_gas_log_temp = None
 _worker_gas_mass_H = None
 _worker_gas_vel_los_proj = None
@@ -146,12 +145,12 @@ def init_worker(ssp_code_val, snap_z_val, pix_area_kpc2_val,
                 gas_logu_val, # Removed add_neb_emission_val
                 igm_type_val, dust_index_bc_val, # Removed add_igm_absorption_val
                 dust_index_val, t_esc_val, dust_eta_val, precomputed_scale_dust_tau_val,
-                cosmo_str_val, cosmo_h_val, XH_val, 
+                cosmo_str_val,  
                 dust_law_val, bump_amp_val, relation_AVslope_val, salim_a0_val, 
                 salim_a1_val, salim_a2_val, salim_a3_val, salim_RV_val, salim_B_val,
                 use_precomputed_ssp_val, 
-                stars_mass_arr, stars_age_arr, stars_zsol_arr, stars_init_mass_arr, stars_vel_los_proj_arr, stars_coords_arr,
-                gas_mass_arr, gas_sfr_inst_arr, gas_zsol_arr, gas_log_temp_arr, gas_mass_H_arr, gas_vel_los_proj_arr, gas_coords_arr,
+                stars_mass_arr, stars_age_arr, stars_zmet_arr, stars_init_mass_arr, stars_vel_los_proj_arr, stars_coords_arr,
+                gas_mass_arr, gas_sfr_inst_arr, gas_zmet_arr, gas_log_temp_arr, gas_mass_H_arr, gas_vel_los_proj_arr, gas_coords_arr,
                 ssp_filepath_val=None, ssp_interpolation_method_val='nearest', 
                 output_pixel_spectra_val=False, output_obs_wave_grid_val=None): 
     
@@ -169,19 +168,19 @@ def init_worker(ssp_code_val, snap_z_val, pix_area_kpc2_val,
     global _worker_scale_dust_tau
 
     # Assign particle data to worker-global variables
-    global _worker_stars_mass, _worker_stars_age, _worker_stars_zsol, _worker_stars_init_mass, _worker_stars_vel_los_proj, _worker_stars_coords
-    global _worker_gas_mass, _worker_gas_sfr_inst, _worker_gas_zsol, _worker_gas_log_temp, _worker_gas_mass_H, _worker_gas_vel_los_proj, _worker_gas_coords
+    global _worker_stars_mass, _worker_stars_age, _worker_stars_zmet, _worker_stars_init_mass, _worker_stars_vel_los_proj, _worker_stars_coords
+    global _worker_gas_mass, _worker_gas_sfr_inst, _worker_gas_zmet, _worker_gas_log_temp, _worker_gas_mass_H, _worker_gas_vel_los_proj, _worker_gas_coords
 
     _worker_stars_mass = stars_mass_arr
     _worker_stars_age = stars_age_arr
-    _worker_stars_zsol = stars_zsol_arr
+    _worker_stars_zmet = stars_zmet_arr
     _worker_stars_init_mass = stars_init_mass_arr
     _worker_stars_vel_los_proj = stars_vel_los_proj_arr
     _worker_stars_coords = stars_coords_arr
 
     _worker_gas_mass = gas_mass_arr
     _worker_gas_sfr_inst = gas_sfr_inst_arr
-    _worker_gas_zsol = gas_zsol_arr
+    _worker_gas_zmet = gas_zmet_arr
     _worker_gas_log_temp = gas_log_temp_arr
     _worker_gas_mass_H = gas_mass_H_arr
     _worker_gas_vel_los_proj = gas_vel_los_proj_arr
@@ -409,14 +408,14 @@ def _process_pixel_data(ii, jj, star_particle_membership_list, gas_particle_memb
     # Access particle data from worker-global variables
     stars_mass = _worker_stars_mass
     stars_age = _worker_stars_age
-    stars_zsol = _worker_stars_zsol
+    stars_zmet = _worker_stars_zmet
     stars_init_mass = _worker_stars_init_mass
     stars_vel_los_proj = _worker_stars_vel_los_proj
     stars_coords = _worker_stars_coords 
 
     gas_mass = _worker_gas_mass
     gas_sfr_inst = _worker_gas_sfr_inst
-    gas_zsol = _worker_gas_zsol
+    gas_zmet = _worker_gas_zmet
     gas_log_temp = _worker_gas_log_temp
     gas_mass_H = _worker_gas_mass_H
     gas_vel_los_proj = _worker_gas_vel_los_proj
@@ -424,7 +423,7 @@ def _process_pixel_data(ii, jj, star_particle_membership_list, gas_particle_memb
 
     idx_valid_stars_in_pixel = np.where((np.isnan(stars_mass[star_ids0]) == False) &
                                         (np.isnan(stars_age[star_ids0]) == False) &
-                                        (np.isnan(stars_zsol[star_ids0]) == False) &
+                                        (np.isnan(stars_zmet[star_ids0]) == False) &
                                         (np.isnan(stars_vel_los_proj[star_ids0]) == False))[0]
     star_ids = star_ids0[idx_valid_stars_in_pixel]
     star_los_dist = star_los_dist0[idx_valid_stars_in_pixel]
@@ -442,7 +441,7 @@ def _process_pixel_data(ii, jj, star_particle_membership_list, gas_particle_memb
 
     if current_stars_mass_sum > 0:
         pixel_results['map_mw_age'] = np.nansum(stars_mass[star_ids] * stars_age[star_ids]) / current_stars_mass_sum
-        pixel_results['map_stars_mw_zsol'] = np.nansum(stars_mass[star_ids] * stars_zsol[star_ids]) / current_stars_mass_sum
+        pixel_results['map_stars_mw_zsol'] = np.nansum(stars_mass[star_ids] * stars_zmet[star_ids] / BAGPIPES_Z_SUN) / current_stars_mass_sum
         pixel_results['map_stars_mw_vel_los'] = np.nansum(stars_mass[star_ids] * stars_vel_los_proj[star_ids]) / current_stars_mass_sum
         pixel_results['map_stars_vel_disp_los'] = np.sqrt(np.nansum(stars_mass[star_ids] * (stars_vel_los_proj[star_ids] - pixel_results['map_stars_mw_vel_los'])**2) / current_stars_mass_sum)
     else:
@@ -465,7 +464,7 @@ def _process_pixel_data(ii, jj, star_particle_membership_list, gas_particle_memb
     pixel_results['map_sfr_inst'] = np.nansum(gas_sfr_inst[gas_ids])
 
     if current_gas_mass_sum > 0:
-        pixel_results['map_gas_mw_zsol'] = np.nansum(gas_mass[gas_ids] * gas_zsol[gas_ids]) / current_gas_mass_sum
+        pixel_results['map_gas_mw_zsol'] = np.nansum(gas_mass[gas_ids] * gas_zmet[gas_ids] / BAGPIPES_Z_SUN) / current_gas_mass_sum
         pixel_results['map_gas_mw_vel_los'] = np.nansum(gas_mass[gas_ids] * gas_vel_los_proj[gas_ids]) / current_gas_mass_sum
         pixel_results['map_gas_vel_disp_los'] = np.sqrt(np.nansum(gas_mass[gas_ids] * (gas_vel_los_proj[gas_ids] - pixel_results['map_gas_mw_vel_los'])**2) / current_gas_mass_sum)
     else:
@@ -506,7 +505,7 @@ def _process_pixel_data(ii, jj, star_particle_membership_list, gas_particle_memb
             ssp_mass_formed = None
 
             if use_precomputed_ssp:
-                particle_logzsol_ssp_code = np.log10( (stars_zsol[star_id] * PRIMORDIAL_Z_SUN_VALUE) / ssp_code_z_sun )
+                particle_logzsol_ssp_code = np.log10(stars_zmet[star_id]/ssp_code_z_sun)
                 
                 points = np.array([[stars_age[star_id], particle_logzsol_ssp_code]])
 
@@ -526,7 +525,7 @@ def _process_pixel_data(ii, jj, star_particle_membership_list, gas_particle_memb
                     spec_nebular_emission = ssp_nebular_emission_grid[age_idx, z_idx, :]
                     ssp_mass_formed = ssp_stellar_mass_grid[age_idx, z_idx]
             else: # On-the-fly Bagpipes
-                metallicity_z_zsun_bagpipes = (stars_zsol[star_id] * PRIMORDIAL_Z_SUN_VALUE) / BAGPIPES_Z_SUN
+                metallicity_z_zsun_bagpipes = stars_zmet[star_id] / BAGPIPES_Z_SUN
 
                 burst = {}
                 burst["age"] = stars_age[star_id]
@@ -605,7 +604,7 @@ def _process_pixel_data(ii, jj, star_particle_membership_list, gas_particle_memb
             cold_front_gas_ids = front_gas_ids_dust[idx_cold_gas_for_dust]
 
             if len(cold_front_gas_ids) > 0:
-                temp_mw_gas_zsol = np.nansum(gas_mass[cold_front_gas_ids]*gas_zsol[cold_front_gas_ids])/np.nansum(gas_mass[cold_front_gas_ids])
+                temp_mw_gas_zsol = np.nansum(gas_mass[cold_front_gas_ids]*gas_zmet[cold_front_gas_ids]/BAGPIPES_Z_SUN)/np.nansum(gas_mass[cold_front_gas_ids])
                 nH = np.nansum(gas_mass_H[cold_front_gas_ids])*1.247914e+14/pix_area_kpc2
                 tauV = _worker_scale_dust_tau * temp_mw_gas_zsol * nH / 2.1e+21
                 dust_AV = -2.5*np.log10((1.0 - np.exp(-1.0*tauV))/tauV)
@@ -704,7 +703,7 @@ def _process_pixel_data(ii, jj, star_particle_membership_list, gas_particle_memb
 
             if total_L_nodust > 0:
                 pixel_results['map_lw_age_nodust'] = np.nansum(np.asarray(array_L_nodust) * stars_age[star_ids]) / total_L_nodust
-                pixel_results['map_lw_zsol_nodust'] = np.nansum(np.asarray(array_L_nodust) * stars_zsol[star_ids]) / total_L_nodust
+                pixel_results['map_lw_zsol_nodust'] = np.nansum(np.asarray(array_L_nodust) * stars_zmet[star_ids] / BAGPIPES_Z_SUN) / total_L_nodust
                 pixel_results['map_lw_vel_los_nodust'] = np.nansum(np.asarray(array_L_nodust) * array_vel_los) / total_L_nodust
             else:
                 pixel_results['map_lw_age_nodust'] = np.nan
@@ -713,7 +712,7 @@ def _process_pixel_data(ii, jj, star_particle_membership_list, gas_particle_memb
 
             if total_L_dust > 0:
                 pixel_results['map_lw_age_dust'] = np.nansum(np.asarray(array_L_dust) * stars_age[star_ids]) / total_L_dust
-                pixel_results['map_lw_zsol_dust'] = np.nansum(np.asarray(array_L_dust) * stars_zsol[star_ids]) / total_L_dust
+                pixel_results['map_lw_zsol_dust'] = np.nansum(np.asarray(array_L_dust) * stars_zmet[star_ids] / BAGPIPES_Z_SUN) / total_L_dust
                 pixel_results['map_lw_vel_los_dust'] = np.nansum(np.asarray(array_L_dust) * array_vel_los) / total_L_dust
             else:
                 pixel_results['map_lw_age_dust'] = np.nan
@@ -734,12 +733,13 @@ def generate_images(sim_file, z, filters, filter_transmission_path, dim_kpc=None
                     pix_arcsec=0.02, flux_unit='MJy/sr', polar_angle_deg=0, azimuth_angle_deg=0,
                     name_out_img=None, n_jobs=-1, ssp_code='Bagpipes', gas_logu=-2.0,
                     igm_type=0, dust_index_bc=-0.7, dust_index=0.0, t_esc=0.01, dust_eta=1.0, 
-                    scale_dust_redshift="Vogelsberger20", cosmo_str='Planck18', cosmo_h=0.6774, XH=0.76,
+                    scale_dust_redshift="Vogelsberger20", cosmo_str='Planck18',
                     dust_law=0, bump_amp=0.85, relation_AVslope="Salim18", salim_a0=-4.30, 
                     salim_a1=2.71, salim_a2= -0.191, salim_a3=0.0121, salim_RV=3.15, salim_B=1.57, 
                     initdim_kpc=200, initdim_mass_fraction=0.99, use_precomputed_ssp=True, 
                     ssp_filepath=None, ssp_interpolation_method='nearest', 
-                    output_pixel_spectra=False, rest_wave_min=1000.0, rest_wave_max=30000.0, rest_delta_wave=5.0): 
+                    output_pixel_spectra=False, rest_wave_min=1000.0, rest_wave_max=30000.0, 
+                    rest_delta_wave=5.0): 
 
     cosmo = define_cosmo(cosmo_str)
 
@@ -757,40 +757,33 @@ def generate_images(sim_file, z, filters, filter_transmission_path, dim_kpc=None
 
     f = h5py.File(sim_file,'r')
 
-    # load star particles data
-    stars_form_a = f['PartType4']['GFM_StellarFormationTime'][:]
-    stars_init_mass = f['PartType4']['GFM_InitialMass'][:] * 1e+10 / cosmo_h
-    stars_mass = f['PartType4']['Masses'][:] * 1e+10 / cosmo_h
-    stars_zsol = f['PartType4']['GFM_Metallicity'][:] / PRIMORDIAL_Z_SUN_VALUE
-    stars_coords = f['PartType4']['Coordinates'][:] * snap_a / cosmo_h  # in kpc
-    stars_vel = f['PartType4']['Velocities'][:] * np.sqrt(snap_a)  # peculiar velocity in km/s
+    # get star particles data
+    stars_init_mass = f['star']['init_mass'][:]
+    stars_form_z = f['star']['form_z'][:]
+    stars_mass = f['star']['mass'][:]
+    stars_zmet = f['star']['zmet'][:]
+    stars_coords = f['star']['coords'][:]   # coordinates (N,3) in units of kpc
+    stars_vel = f['star']['vel'][:]         # velocities (N,3) in units km/s
 
-    stars_form_z = (1.0/stars_form_a) - 1.0
     stars_form_age_univ = interp_age_univ_from_z(stars_form_z, cosmo)
     stars_age = snap_univ_age - stars_form_age_univ                 # age in Gyr
 
-    idx = np.where((stars_form_a>0) & (stars_age>=0))[0]
+    idx = np.where(stars_age>=0)[0]
     stars_init_mass = stars_init_mass[idx]
     stars_mass = stars_mass[idx]
-    stars_zsol = stars_zsol[idx]
+    stars_zmet = stars_zmet[idx]
     stars_age = stars_age[idx]
     stars_coords = stars_coords[idx,:]
     stars_vel = stars_vel[idx,:]
 
-    # load gas particles data
-    gas_mass = f['PartType0']['Masses'][:] * 1e+10 / cosmo_h
-    gas_zsol = f['PartType0']['GFM_Metallicity'][:] / PRIMORDIAL_Z_SUN_VALUE
-    gas_coords = f['PartType0']['Coordinates'][:] * snap_a / cosmo_h           # in kpc
-    gas_sfr_inst = f['PartType0']['StarFormationRate'][:]   # in Msun/yr
-    gas_vel = f['PartType0']['Velocities'][:] * np.sqrt(snap_a)   ## peculiar velocity in km/s
-    u = f['PartType0']['InternalEnergy'][:]
-    Xe = f['PartType0']['ElectronAbundance'][:]
-    gas_mass_H = gas_mass*XH
-    gamma = 5.0/3.0
-    KB = 1.3807e-16
-    mp = 1.6726e-24
-    mu = (4*mp)/(1 + (3*XH) + (4*XH*Xe))
-    gas_log_temp = np.log10((gamma-1.0)*(u/KB)*mu*1e+10)
+    # get gas particles data
+    gas_mass = f['gas']['mass'][:]
+    gas_zmet = f['gas']['zmet'][:]
+    gas_sfr_inst = f['gas']['sfr_inst'][:]
+    gas_log_temp = np.log10(f['gas']['temp'][:])
+    gas_coords = f['gas']['coords'][:]
+    gas_vel = f['gas']['vel'][:]
+    gas_mass_H = f['gas']['mass_H'][:]
 
     f.close()
 
@@ -923,15 +916,14 @@ def generate_images(sim_file, z, filters, filter_transmission_path, dim_kpc=None
         results = Parallel(n_jobs=num_cores, verbose=0, initializer=init_worker,
                            initargs=(ssp_code, snap_z, pix_area_kpc2, 
                                      filters, filter_transmission_path,
-                                     gas_logu,
-                                     igm_type, dust_index_bc,
+                                     gas_logu, igm_type, dust_index_bc,
                                      dust_index, t_esc, dust_eta, scale_dust_tau,
-                                     cosmo_str, cosmo_h, XH, 
-                                     dust_law, bump_amp, relation_AVslope, 
+                                     cosmo_str, dust_law, bump_amp, relation_AVslope, 
                                      salim_a0, salim_a1, salim_a2, salim_a3, salim_RV, salim_B,
-                                     use_precomputed_ssp,
-                                     stars_mass, stars_age, stars_zsol, stars_init_mass, stars_vel_los_proj, stars_coords,
-                                     gas_mass, gas_sfr_inst, gas_zsol, gas_log_temp, gas_mass_H, gas_vel_los_proj, gas_coords, 
+                                     use_precomputed_ssp, stars_mass, stars_age, stars_zmet, 
+                                     stars_init_mass, stars_vel_los_proj, stars_coords,
+                                     gas_mass, gas_sfr_inst, gas_zmet, gas_log_temp, gas_mass_H, 
+                                     gas_vel_los_proj, gas_coords, 
                                      ssp_filepath, ssp_interpolation_method, 
                                      output_pixel_spectra, fixed_global_output_obs_wave))( 
             delayed(_process_pixel_data)(*task_args) for task_args in processed_tasks_args
