@@ -963,11 +963,3 @@ def create_hdf5_file(filename, stars_init_mass, stars_form_z, stars_mass, stars_
         gas_group.create_dataset('mass_H', data=gas_mass_H, compression="gzip")
 
         print(f"HDF5 file '{filename}' created successfully.")
-        #print("File structure:")
-        # Print the structure for verification
-        #def print_attrs(name, obj):
-        #    if isinstance(obj, h5py.Group):
-        #        print(f"Group: {name}")
-        #    else:
-        #        print(f"  Dataset: {name} with shape {obj.shape}")
-        #f.visititems(print_attrs)

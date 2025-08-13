@@ -29,7 +29,7 @@ class SFHReconstructor:
     as a 3D FITS file (spatial x spatial x lookback_time).
     """
 
-    def __init__(self, sim_file=None, z=0.01):
+    def __init__(self, sim_file=None, z=0.01, Z_sun=0.019):
         """
         Initializes the SFHReconstructor with basic simulation parameters.
 
@@ -39,6 +39,7 @@ class SFHReconstructor:
         """
         self._sim_file = sim_file
         self._z = z
+        self._Z_sun = Z_sun
 
         # Initialize with default values from config.py
         self._load_config_defaults()
@@ -83,6 +84,16 @@ class SFHReconstructor:
         if not isinstance(value, (int, float)) or value < 0:
             raise ValueError("z must be a non-negative number.")
         self._z = value
+
+    @property
+    def Z_sun(self):
+        return self._Z_sun
+
+    @Z_sun.setter
+    def Z_sun(self, value):
+        if not isinstance(value, (int, float)) or value < 0:
+            raise ValueError("Z_sun must be a non-negative number.")
+        self._Z_sun = value
 
     @property
     def dim_kpc(self):
@@ -315,9 +326,10 @@ class SFHReconstructor:
             f = h5py.File(self.sim_file, 'r')
 
             # Stellar particle data
-            stars_form_a = f['PartType4']['GFM_StellarFormationTime'][:]
-            stars_init_mass_raw = f['PartType4']['GFM_InitialMass'][:]*1e+10/self.cosmo_h
-            stars_zsol_raw = f['PartType4']['GFM_Metallicity'][:] / 0.0127 # Assuming PRIMORDIAL_Z_SUN_VALUE = 0.0127 from galsyn_run_fsps.py
+            stars_init_mass_raw = f['star']['init_mass'][:]
+            stars_form_z = f['star']['form_z'][:]
+            stars_zmet = f['star']['zmet'][:]
+            stars_zsol_raw = stars_zmet / self.Z_sun
 
             coords = f['PartType4']['Coordinates'][:]
             coords_x = coords[:,0]
@@ -331,7 +343,7 @@ class SFHReconstructor:
 
         # Convert formation time to lookback time
         snap_a = 1.0/(1.0 + self.z)
-        stars_form_z = (1.0/stars_form_a) - 1.0
+        stars_form_a = 1.0/(1.0 + stars_form_z)
         snap_univ_age = cosmo.age(self.z).value
         stars_form_age_univ = interp_age_univ_from_z(stars_form_z, cosmo)
         stars_form_lbt_raw = snap_univ_age - stars_form_age_univ
