@@ -217,7 +217,7 @@ class GalSynMockObservation_imaging:
         return filter_transmission_data, filter_wave_pivot_data
 
 
-    def process_images(self, apply_noise_to_image=True):
+    def process_images(self, dust_attenuation=None, apply_noise_to_image=True):
         """
         Executes the full pipeline of observational effects for images,
         processing both dust-attenuated and non-attenuated data if available.
@@ -231,19 +231,25 @@ class GalSynMockObservation_imaging:
 
         Parameters:
         -----------
+        dust_attenuation : bool, optional
+            If True, only processes dust-attenuated images. If False, only processes
+            non-attenuated images. If None (default), processes both.
         apply_noise_to_image : bool
             If True, noise is added to the convolved image. Otherwise, only RMS is calculated.
         """
         print("\nStarting full image processing pipeline...")
+        
+        process_types = [True, False] if dust_attenuation is None else [dust_attenuation]
+        
         # Check if both dust and nodust data are available and process accordingly
-        for dust_attenuation in [True, False]:
-            ext_name_check = f"{'DUST_' if dust_attenuation else 'NODUST_'}{self.filters[0].upper()}"
+        for current_dust_attenuation in process_types:
+            ext_name_check = f"{'DUST_' if current_dust_attenuation else 'NODUST_'}{self.filters[0].upper()}"
             if ext_name_check not in self.hdul:
-                print(f"Skipping processing for dust_attenuation={dust_attenuation} as data is not available.")
+                print(f"Skipping processing for dust_attenuation={current_dust_attenuation} as data is not available.")
                 continue
 
             for f_name in self.filters:
-                print(f"\nProcessing filter: {f_name} with dust_attenuation={dust_attenuation}")
+                print(f"\nProcessing filter: {f_name} with dust_attenuation={current_dust_attenuation}")
 
                 # --- Get filter-specific parameters from dictionaries ---
                 mag_zp = self.mag_zp[f_name]
@@ -254,7 +260,7 @@ class GalSynMockObservation_imaging:
                 desired_pixel_scale = self.desired_pixel_scales[f_name]
 
                 # --- 1. Get Initial Image Data (Flux per pixel or flux density) ---
-                image_data_initial_raw_units = self._get_flux_data(f_name, dust_attenuation)
+                image_data_initial_raw_units = self._get_flux_data(f_name, dust_attenuation=current_dust_attenuation)
 
                 # --- Convert initial data to a common surface brightness unit (erg/s/cm^2/Angstrom/arcsec^2) ---
                 pixel_area_arcsec2_initial = self.initial_pixel_scale_arcsec**2
@@ -357,10 +363,10 @@ class GalSynMockObservation_imaging:
                         boundary_mode='nearest'
                     )
 
-                key_processed = f"{f_name}_{'dust' if dust_attenuation else 'nodust'}"
+                key_processed = f"{f_name}_{'dust' if current_dust_attenuation else 'nodust'}"
                 self.sci_images[key_processed] = resampled_noisy_image_sb
 
-                key_rms = f"{f_name}_{'dust' if dust_attenuation else 'nodust'}_rms"
+                key_rms = f"{f_name}_{'dust' if current_dust_attenuation else 'nodust'}_rms"
                 self.rms_images[key_rms] = resampled_rms_image_sb
                 print(f"  {f_name} image resampled and stored.")
 
@@ -579,22 +585,30 @@ class GalSynMockObservation_ifu:
         return resampled_psf_cube
 
 
-    def process_datacube(self, apply_noise_to_cube=True):
+    def process_datacube(self, dust_attenuation=None, apply_noise_to_cube=True):
         """
-        Executes the full pipeline of observational effects for the IFU data cube,
-        processing both dust-attenuated and non-attenuated data if available.
+        Executes the full pipeline of observational effects for the IFU data cube.
+        
+        Parameters:
+        -----------
+        dust_attenuation : bool, optional
+            If True, processes only the dust-attenuated data cube. If False, processes only the
+            non-attenuated data cube. If None (default), processes both.
+        apply_noise_to_cube : bool
+            If True, noise is added to the convolved data cube. Otherwise, only RMS is calculated.
         """
         print("\nStarting full IFU data cube processing pipeline...")
 
-        # Process both dust and non-dust cubes if available
-        for dust_attenuation in [True, False]:
-            input_datacube = self.initial_datacube_dust if dust_attenuation and self.initial_datacube_dust is not None else self.initial_datacube_nodust
+        process_types = [True, False] if dust_attenuation is None else [dust_attenuation]
+        
+        for current_dust_attenuation in process_types:
+            input_datacube = self.initial_datacube_dust if current_dust_attenuation and self.initial_datacube_dust is not None else self.initial_datacube_nodust
             
             if input_datacube is None:
-                print(f"Skipping IFU processing for dust_attenuation={dust_attenuation} as data is not available.")
+                print(f"Skipping IFU processing for dust_attenuation={current_dust_attenuation} as data is not available.")
                 continue
 
-            print(f"Processing IFU data for dust_attenuation={dust_attenuation}")
+            print(f"Processing IFU data for dust_attenuation={current_dust_attenuation}")
             print(f"  Initial data cube shape: {input_datacube.shape} (Angstrom, Y, X)")
 
             # --- 1. Cut/Interpolate Wavelength Grid ---
@@ -730,7 +744,7 @@ class GalSynMockObservation_ifu:
                     )
             print("  Spatial resampling complete.")
 
-            key = 'dust' if dust_attenuation else 'nodust'
+            key = 'dust' if current_dust_attenuation else 'nodust'
             self.sci_datacubes[key] = resampled_processed_cube_sb
             self.rms_datacubes[key] = resampled_rms_cube_sb
         print("\nFull IFU data cube processing pipeline complete.")
