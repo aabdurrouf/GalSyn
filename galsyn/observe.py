@@ -387,28 +387,42 @@ class GalSynMockObservation_imaging:
         prihdr = self.hdul[0].header.copy()
         prihdr['COMMENT'] = 'Mock Observation Results'
 
+        # Load filter transmission data once for efficiency
+        try:
+            _, filter_wave_pivot_data = self._load_filter_transmission_from_paths_local(self.filters, self.filter_transmission_path)
+        except ValueError as e:
+            print(f"Warning: Could not load filter transmission data. Skipping file saving. Error: {e}")
+            hdul_out.close()
+            return
+        
         first_filter = self.filters[0] if self.filters else None
         if first_filter:
-            prihdr['ZP_MAG'] = (self.mag_zp[first_filter], f'ZP for {first_filter}')
-            prihdr['LIM_MAG'] = (self.limiting_magnitude[first_filter], f'Limiting mag for {first_filter}')
-            prihdr['SNR_LIM'] = (self.snr_limit[first_filter], f'SNR at lim mag for {first_filter}')
-            prihdr['APER_RAD'] = (self.aperture_radius_arcsec[first_filter], f'Aperture radius (arcsec) for {first_filter}')
-            prihdr['EXP_TIME'] = (self.exposure_time[first_filter], f'Exposure time (s) for {first_filter}')
-            prihdr['PIXSIZE'] = self.desired_pixel_scales.get(first_filter, self.initial_pixel_scale_arcsec)
+            # Check if the filter is in the loaded data before accessing it
+            if first_filter in filter_wave_pivot_data:
+                prihdr['ZP_MAG'] = (self.mag_zp[first_filter], f'ZP for {first_filter}')
+                prihdr['LIM_MAG'] = (self.limiting_magnitude[first_filter], f'Limiting mag for {first_filter}')
+                prihdr['SNR_LIM'] = (self.snr_limit[first_filter], f'SNR at lim mag for {first_filter}')
+                prihdr['APER_RAD'] = (self.aperture_radius_arcsec[first_filter], f'Aperture radius (arcsec) for {first_filter}')
+                prihdr['EXP_TIME'] = (self.exposure_time[first_filter], f'Exposure time (s) for {first_filter}')
+                prihdr['PIXSIZE'] = self.desired_pixel_scales.get(first_filter, self.initial_pixel_scale_arcsec)
+            else:
+                prihdr['PIXSIZE'] = self.initial_pixel_scale_arcsec
         else:
             prihdr['PIXSIZE'] = self.initial_pixel_scale_arcsec
 
         # Create primary HDU
         if first_filter and f"{first_filter}_dust" in self.sci_images:
-            primary_data_sb_erg_s_cm2_A_arcsec2 = self.sci_images[f"{first_filter}_dust"]
-            _, filter_wave_pivot_data = self._load_filter_transmission_from_paths_local(self.filters, self.filter_transmission_path)
-            wave_eff = filter_wave_pivot_data[first_filter]
-            final_pixel_scale_for_conversion = self.desired_pixel_scales.get(first_filter, self.initial_pixel_scale_arcsec)
-            primary_data_flux_per_pixel_erg_s_cm2_A = primary_data_sb_erg_s_cm2_A_arcsec2 * (final_pixel_scale_for_conversion**2)
-            primary_data_final_unit = convert_flux_map(primary_data_flux_per_pixel_erg_s_cm2_A, wave_eff, to_unit=self.flux_unit, pixel_scale_arcsec=final_pixel_scale_for_conversion)
-            final_scaled_primary_data = primary_data_final_unit
-            prihdr['BUNIT'] = self.flux_unit
-            hdul_out.append(fits.PrimaryHDU(data=final_scaled_primary_data, header=prihdr))
+            if first_filter in filter_wave_pivot_data:
+                primary_data_sb_erg_s_cm2_A_arcsec2 = self.sci_images[f"{first_filter}_dust"]
+                wave_eff = filter_wave_pivot_data[first_filter]
+                final_pixel_scale_for_conversion = self.desired_pixel_scales.get(first_filter, self.initial_pixel_scale_arcsec)
+                primary_data_flux_per_pixel_erg_s_cm2_A = primary_data_sb_erg_s_cm2_A_arcsec2 * (final_pixel_scale_for_conversion**2)
+                primary_data_final_unit = convert_flux_map(primary_data_flux_per_pixel_erg_s_cm2_A, wave_eff, to_unit=self.flux_unit, pixel_scale_arcsec=final_pixel_scale_for_conversion)
+                final_scaled_primary_data = primary_data_final_unit
+                prihdr['BUNIT'] = self.flux_unit
+                hdul_out.append(fits.PrimaryHDU(data=final_scaled_primary_data, header=prihdr))
+            else:
+                hdul_out.append(fits.PrimaryHDU(header=prihdr))
         else:
             hdul_out.append(fits.PrimaryHDU(header=prihdr))
 
@@ -418,7 +432,10 @@ class GalSynMockObservation_imaging:
             if not f_name: # Handle cases where key might not be properly formatted
                 continue
             
-            _, filter_wave_pivot_data = self._load_filter_transmission_from_paths_local(self.filters, self.filter_transmission_path)
+            if f_name not in filter_wave_pivot_data:
+                print(f"Warning: Filter '{f_name}' found in processed images but not in filter transmission data. Skipping this image.")
+                continue
+
             wave_eff = filter_wave_pivot_data[f_name]
             final_pixel_scale_for_conversion = self.desired_pixel_scales.get(f_name, self.initial_pixel_scale_arcsec)
             img_data_flux_per_pixel_erg_s_cm2_A = img_data_sb_erg_s_cm2_A_arcsec2 * (final_pixel_scale_for_conversion**2)
@@ -444,7 +461,10 @@ class GalSynMockObservation_imaging:
             if not f_name:
                 continue
 
-            _, filter_wave_pivot_data = self._load_filter_transmission_from_paths_local(self.filters, self.filter_transmission_path)
+            if f_name not in filter_wave_pivot_data:
+                print(f"Warning: Filter '{f_name}' found in RMS images but not in filter transmission data. Skipping this image.")
+                continue
+
             wave_eff = filter_wave_pivot_data[f_name]
             final_pixel_scale_for_conversion = self.desired_pixel_scales.get(f_name, self.initial_pixel_scale_arcsec)
             rms_data_flux_per_pixel_erg_s_cm2_A = rms_data_sb_erg_s_cm2_A_arcsec2 * (final_pixel_scale_for_conversion**2)
@@ -458,6 +478,12 @@ class GalSynMockObservation_imaging:
             ext_hdr['BUNIT'] = self.flux_unit
             ext_hdr['PIXSIZE'] = final_pixel_scale_for_conversion
             hdul_out.append(fits.ImageHDU(data=final_scaled_rms, header=ext_hdr))
+
+        if len(self.desired_wave_grid) > 0:
+            col = fits.Column(name='WAVELENGTH', format='D', array=self.desired_wave_grid)
+            wavelength_hdu = fits.BinTableHDU.from_columns([col], name='WAVELENGTH')
+            wavelength_hdu.header['BUNIT'] = 'Angstrom'
+            hdul_out.append(wavelength_hdu)
 
         output_dir = os.path.dirname(output_fits_path)
         if output_dir and not os.path.exists(output_dir):
