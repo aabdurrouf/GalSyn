@@ -78,7 +78,6 @@ class GalSynMockObservation_imaging:
         self.pixel_scale_kpc = self.image_header['PIX_KPC']
         self.initial_pixel_scale_arcsec = self.image_header['PIXSIZE']
         self.flux_unit = self.image_header['BUNIT']
-        self.flux_scale = self.image_header['SCALE']
 
         self.processed_images = {} # Stores final processed (noisy, resampled) images
         self.rms_images = {}      # Stores final resampled RMS images
@@ -118,7 +117,7 @@ class GalSynMockObservation_imaging:
             # Then, perform the inverse conversion from `converted_flux` (in `self.flux_unit`)
             # back to `erg/s/cm^2/Angstrom` (or erg/s/cm^2/Angstrom/pixel in case of MJy/sr input).
 
-            converted_flux_original = flux_data_in_fits_unit * self.flux_scale
+            converted_flux_original = flux_data_in_fits_unit
 
             if self.flux_unit == 'erg/s/cm2/A':
                 # This is already a spectral flux density, not surface brightness.
@@ -396,9 +395,8 @@ class GalSynMockObservation_imaging:
             final_pixel_scale_for_conversion = self.desired_pixel_scales.get(first_filter, self.initial_pixel_scale_arcsec)
             primary_data_flux_per_pixel_erg_s_cm2_A = primary_data_sb_erg_s_cm2_A_arcsec2 * (final_pixel_scale_for_conversion**2)
             primary_data_final_unit = convert_flux_map(primary_data_flux_per_pixel_erg_s_cm2_A, wave_eff, to_unit=self.flux_unit, pixel_scale_arcsec=final_pixel_scale_for_conversion)
-            final_scaled_primary_data = primary_data_final_unit / self.flux_scale
+            final_scaled_primary_data = primary_data_final_unit
             prihdr['BUNIT'] = self.flux_unit
-            prihdr['SCALE'] = self.flux_scale
             hdul_out.append(fits.PrimaryHDU(data=final_scaled_primary_data, header=prihdr))
         else:
             hdul_out.append(fits.PrimaryHDU(header=prihdr))
@@ -412,13 +410,12 @@ class GalSynMockObservation_imaging:
                 final_pixel_scale_for_conversion = self.desired_pixel_scales.get(f_name, self.initial_pixel_scale_arcsec)
                 img_data_flux_per_pixel_erg_s_cm2_A = img_data_sb_erg_s_cm2_A_arcsec2 * (final_pixel_scale_for_conversion**2)
                 img_data_final_unit = convert_flux_map(img_data_flux_per_pixel_erg_s_cm2_A, wave_eff, to_unit=self.flux_unit, pixel_scale_arcsec=final_pixel_scale_for_conversion)
-                final_scaled_data = img_data_final_unit / self.flux_scale
+                final_scaled_data = img_data_final_unit
                 ext_hdr = fits.Header()
                 ext_hdr['EXTNAME'] = f"SCI_{f_name.upper()}"
                 ext_hdr['FILTER'] = f_name
                 ext_hdr['COMMENT'] = f'Convolved, noise-injected, and resampled image for filter: {f_name}'
                 ext_hdr['BUNIT'] = self.flux_unit
-                ext_hdr['SCALE'] = self.flux_scale
                 ext_hdr['PIXSIZE'] = final_pixel_scale_for_conversion
                 ext_hdr['ZP_MAG'] = self.mag_zp[f_name]
                 ext_hdr['LIM_MAG'] = self.limiting_magnitude[f_name]
@@ -436,13 +433,12 @@ class GalSynMockObservation_imaging:
                 final_pixel_scale_for_conversion = self.desired_pixel_scales.get(f_name, self.initial_pixel_scale_arcsec)
                 rms_data_flux_per_pixel_erg_s_cm2_A = rms_data_sb_erg_s_cm2_A_arcsec2 * (final_pixel_scale_for_conversion**2)
                 rms_data_final_unit = convert_flux_map(rms_data_flux_per_pixel_erg_s_cm2_A, wave_eff, to_unit=self.flux_unit, pixel_scale_arcsec=final_pixel_scale_for_conversion)
-                final_scaled_rms = rms_data_final_unit / self.flux_scale
+                final_scaled_rms = rms_data_final_unit
                 ext_hdr = fits.Header()
                 ext_hdr['EXTNAME'] = f"RMS_{f_name.upper()}"
                 ext_hdr['FILTER'] = f_name
                 ext_hdr['COMMENT'] = f'RMS image for filter: {f_name}'
                 ext_hdr['BUNIT'] = self.flux_unit
-                ext_hdr['SCALE'] = self.flux_scale
                 ext_hdr['PIXSIZE'] = final_pixel_scale_for_conversion
                 hdul_out.append(fits.ImageHDU(data=final_scaled_rms, header=ext_hdr))
 
@@ -757,11 +753,9 @@ class GalSynMockObservation_ifu:
                     self.desired_wave_grid[i_wave],
                     to_unit=flux_unit,
                     pixel_scale_arcsec=self.final_pixel_scale_arcsec)
-            
-            output_flux_scale = 1e-20 if flux_unit == 'erg/s/cm2/A' else 1.0
-            final_processed_cube /= output_flux_scale
 
-            ext_hdr_proc = self._create_ifu_header('SCI', final_processed_cube.shape, flux_unit, output_flux_scale)
+            #ext_hdr_proc = self._create_ifu_header('SCI', final_processed_cube.shape, flux_unit, output_flux_scale)
+            ext_hdr_proc = self._create_ifu_header('SCI', final_processed_cube.shape, flux_unit)
             hdul_out.append(fits.ImageHDU(data=final_processed_cube, header=ext_hdr_proc))
 
         if self.rms_datacube is not None:
@@ -776,10 +770,8 @@ class GalSynMockObservation_ifu:
                     to_unit=flux_unit,
                     pixel_scale_arcsec=self.final_pixel_scale_arcsec)
             
-            output_flux_scale = 1e-20 if flux_unit == 'erg/s/cm2/A' else 1.0
-            final_rms_cube /= output_flux_scale
-            
-            ext_hdr_rms = self._create_ifu_header('RMS', final_rms_cube.shape, flux_unit, output_flux_scale)
+            #ext_hdr_rms = self._create_ifu_header('RMS', final_rms_cube.shape, flux_unit, output_flux_scale)
+            ext_hdr_rms = self._create_ifu_header('RMS', final_rms_cube.shape, flux_unit)
             hdul_out.append(fits.ImageHDU(data=final_rms_cube, header=ext_hdr_rms))
 
         if len(self.desired_wave_grid) > 0:

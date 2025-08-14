@@ -979,14 +979,6 @@ def generate_images(sim_file, z, filters, filter_transmission_path, dim_kpc=None
         map_flux[:,:,i_band] = convert_flux_map(map_flux[:,:,i_band], filter_wave_pivot_data_global[filters[i_band]], to_unit=flux_unit, pixel_scale_arcsec=pix_arcsec)
         map_flux_dust[:,:,i_band] = convert_flux_map(map_flux_dust[:,:,i_band], filter_wave_pivot_data_global[filters[i_band]], to_unit=flux_unit, pixel_scale_arcsec=pix_arcsec)
 
-    if flux_unit == 'erg/s/cm2/A':
-        flux_scale = 1e-20
-    else:
-        flux_scale = 1.0
-    
-    map_flux = map_flux/flux_scale
-    map_flux_dust = map_flux_dust/flux_scale
-
     if name_out_img is not None:
         try:
             hdul = fits.HDUList()
@@ -1008,7 +1000,6 @@ def generate_images(sim_file, z, filters, filter_transmission_path, dim_kpc=None
                 prihdr['PIX_KPC'] = pix_kpc
                 prihdr['PIXSIZE'] = pix_arcsec
                 prihdr['BUNIT'] = flux_unit
-                prihdr['SCALE'] = flux_scale
                 prihdr['SSP_CODE'] = ssp_code
 
                 primary_hdu = fits.PrimaryHDU(data=primary_data, header=prihdr)
