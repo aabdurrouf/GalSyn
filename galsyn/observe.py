@@ -688,7 +688,6 @@ class GalSynMockObservation_ifu:
             resampled_processed_cube_sb = np.zeros((noisy_cube_sb.shape[0], new_ny, new_nx))
             resampled_rms_cube_sb = np.zeros((rms_cube_sb.shape[0], new_ny, new_nx))
 
-            # --- Fix Start ---
             # Create a simple WCS for the input data
             wcs_in = WCS(naxis=2)
             wcs_in.wcs.cdelt = [-self.initial_pixel_scale_arcsec, self.initial_pixel_scale_arcsec]
@@ -791,7 +790,6 @@ class GalSynMockObservation_ifu:
         hdr = fits.Header()
         hdr['EXTNAME'] = extname
         hdr['BUNIT'] = flux_unit
-        # WCS for (wavelength, y, x)
         hdr['CTYPE1'] = 'WAVE'
         hdr['CRPIX1'] = 1.0 
         hdr['CRVAL1'] = self.desired_wave_grid[0]
