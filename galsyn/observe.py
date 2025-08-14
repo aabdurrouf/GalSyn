@@ -754,7 +754,6 @@ class GalSynMockObservation_ifu:
                     to_unit=flux_unit,
                     pixel_scale_arcsec=self.final_pixel_scale_arcsec)
 
-            #ext_hdr_proc = self._create_ifu_header('SCI', final_processed_cube.shape, flux_unit, output_flux_scale)
             ext_hdr_proc = self._create_ifu_header('SCI', final_processed_cube.shape, flux_unit)
             hdul_out.append(fits.ImageHDU(data=final_processed_cube, header=ext_hdr_proc))
 
@@ -770,7 +769,6 @@ class GalSynMockObservation_ifu:
                     to_unit=flux_unit,
                     pixel_scale_arcsec=self.final_pixel_scale_arcsec)
             
-            #ext_hdr_rms = self._create_ifu_header('RMS', final_rms_cube.shape, flux_unit, output_flux_scale)
             ext_hdr_rms = self._create_ifu_header('RMS', final_rms_cube.shape, flux_unit)
             hdul_out.append(fits.ImageHDU(data=final_rms_cube, header=ext_hdr_rms))
 
@@ -788,12 +786,11 @@ class GalSynMockObservation_ifu:
         hdul_out.close()
         print(f"IFU results saved to {output_fits_path}")
 
-    def _create_ifu_header(self, extname, shape, flux_unit, scale):
+    def _create_ifu_header(self, extname, shape, flux_unit):
         """Helper to create a standard header for IFU cube extensions."""
         hdr = fits.Header()
         hdr['EXTNAME'] = extname
         hdr['BUNIT'] = flux_unit
-        hdr['SCALE'] = scale
         # WCS for (wavelength, y, x)
         hdr['CTYPE1'] = 'WAVE'
         hdr['CRPIX1'] = 1.0 
