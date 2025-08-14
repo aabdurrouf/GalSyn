@@ -1,0 +1,537 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>galsyn.imgutils &#8212; GalSyn 0.1.0 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../../_static/documentation_options.js?v=a1637f0b"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/galsyn/imgutils';</script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../_static/galsyn_logo.png" class="logo__image only-light" alt="GalSyn 0.1.0 documentation - Home"/>
+    <script>document.write(`<img src="../../_static/galsyn_logo.png" class="logo__image only-dark" alt="GalSyn 0.1.0 documentation - Home"/>`);</script>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../../index.html">
+                    Welcome to GalSyn’s Documentation!
+                </a>
+            </li>
+        </ul>
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../introduction.html">Introduction and Capabilities</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../tutorials.html">Tutorials</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../tutorials/getting_started.html">Getting Started with GalSyn</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../tutorials/basic_usage.html">Basic Usage of GalSyn</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../tutorials/customizing_ssp_engines.html">Customizing SSP Engines (FSPS vs Bagpipes)</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../api.html">API Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../api/galsyn.html">galsyn</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/config.html">config</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/dust.html">dust</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/galsyn_run_bagpipes.html">galsyn_run_bagpipes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/galsyn_run_fsps.html">galsyn_run_fsps</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/imgutils.html">imgutils</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/observe.html">observe</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/sfh.html">sfh</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/simutils_tng.html">simutils_tng</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/ssp_generator_bagpipes.html">ssp_generator_bagpipes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/ssp_generator_fsps.html">ssp_generator_fsps</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/utils.html">utils</a></li>
+</ul>
+</details></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-source-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Source repositories">
+    <i class="fab fa-github"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="https://github.com/aabdurrouf/GalSyn" target="_blank"
+   class="btn btn-sm btn-source-repository-button dropdown-item"
+   title="Source repository"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="btn__text-container">Repository</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/aabdurrouf/GalSyn/issues/new?title=Issue%20on%20page%20%2F_modules/galsyn/imgutils.html&body=Your%20issue%20content%20here." target="_blank"
+   class="btn btn-sm btn-source-issues-button dropdown-item"
+   title="Open an issue"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="btn__text-container">Open issue</span>
+</a>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1></h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for galsyn.imgutils</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">astropy.units</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">u</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.utils</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+
+<div class="viewcode-block" id="angular_to_physical">
+<a class="viewcode-back" href="../../api/imgutils.html#galsyn.imgutils.angular_to_physical">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">angular_to_physical</span><span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="n">arcsec_per_pix</span><span class="p">,</span> <span class="n">cosmo</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculates the physical size (in kpc) corresponding to a single pixel</span>
+<span class="sd">    at a given redshift.</span>
+
+<span class="sd">    This function uses the provided cosmology object to determine the proper</span>
+<span class="sd">    distance scale at a specific redshift. It then converts the angular size</span>
+<span class="sd">    of a pixel from arcseconds to a physical size in kiloparsecs (kpc).</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    z : float</span>
+<span class="sd">        The redshift of the object.</span>
+
+<span class="sd">    arcsec_per_pix : float</span>
+<span class="sd">        The angular size of a single pixel in arcseconds.</span>
+
+<span class="sd">    cosmo : astropy.cosmology object</span>
+<span class="sd">        The cosmology object to use for the distance calculation. This should be</span>
+<span class="sd">        an instance from the `astropy.cosmology` module.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    float</span>
+<span class="sd">        The physical size of a single pixel in kiloparsecs (kpc).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">kpc_per_arcmin</span> <span class="o">=</span> <span class="n">cosmo</span><span class="o">.</span><span class="n">kpc_proper_per_arcmin</span><span class="p">(</span><span class="n">z</span><span class="p">)</span>
+    <span class="n">kpc_per_pix</span> <span class="o">=</span> <span class="n">kpc_per_arcmin</span><span class="o">.</span><span class="n">value</span><span class="o">*</span><span class="n">arcsec_per_pix</span><span class="o">/</span><span class="mf">60.0</span> 
+    
+    <span class="k">return</span> <span class="n">kpc_per_pix</span></div>
+
+
+<div class="viewcode-block" id="physical_to_angular">
+<a class="viewcode-back" href="../../api/imgutils.html#galsyn.imgutils.physical_to_angular">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">physical_to_angular</span><span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="n">physical_size_kpc</span><span class="p">,</span> <span class="n">cosmo</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculates the angular size (in arcseconds) of an object with a given</span>
+<span class="sd">    physical size at a specific redshift.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    z : float</span>
+<span class="sd">        The redshift of the object.</span>
+
+<span class="sd">    physical_size_kpc : float</span>
+<span class="sd">        The physical size of the object in kiloparsecs (kpc).</span>
+
+<span class="sd">    cosmo : astropy.cosmology object</span>
+<span class="sd">        The cosmology object to use for the angular diameter distance</span>
+<span class="sd">        calculation. This should be an instance from the `astropy.cosmology` module.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    float</span>
+<span class="sd">        The angular size of the object in arcseconds.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Compute angular diameter distance in kpc</span>
+    <span class="n">D_A</span> <span class="o">=</span> <span class="n">cosmo</span><span class="o">.</span><span class="n">angular_diameter_distance</span><span class="p">(</span><span class="n">z</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">kpc</span><span class="p">)</span>
+    
+    <span class="c1"># Convert physical size to angular size in arcseconds</span>
+    <span class="n">angular_size_arcsec</span> <span class="o">=</span> <span class="p">(</span><span class="n">physical_size_kpc</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">kpc</span> <span class="o">/</span> <span class="n">D_A</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">rad</span><span class="p">)</span><span class="o">.</span><span class="n">value</span> <span class="o">*</span> <span class="mi">206265</span>  <span class="c1"># arcsec</span>
+    
+    <span class="k">return</span> <span class="n">angular_size_arcsec</span></div>
+
+
+<div class="viewcode-block" id="convert_flux_map">
+<a class="viewcode-back" href="../../api/imgutils.html#galsyn.imgutils.convert_flux_map">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">convert_flux_map</span><span class="p">(</span><span class="n">flux_map</span><span class="p">,</span> <span class="n">wave_eff</span><span class="p">,</span> <span class="n">to_unit</span><span class="o">=</span><span class="s1">&#39;nJy&#39;</span><span class="p">,</span> <span class="n">pixel_scale_arcsec</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convert a 2D flux map from erg/s/cm^2/Angstrom into specified units.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">    -----------</span>
+<span class="sd">    flux_map : 2D numpy array</span>
+<span class="sd">        Flux map in unit of erg/s/cm^2/Angstrom</span>
+<span class="sd">    wave_eff : float</span>
+<span class="sd">        Effective wavelength in Angstrom</span>
+<span class="sd">    to_unit : str</span>
+<span class="sd">        Target unit: &#39;MJy/sr&#39;, &#39;nJy&#39;, &#39;AB magnitude&#39;, or &#39;erg/s/cm2/A&#39;</span>
+<span class="sd">    pixel_scale_arcsec : float, optional</span>
+<span class="sd">        Pixel size in arcseconds (needed for &#39;MJy/sr&#39;)</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">    --------</span>
+<span class="sd">    flux_converted : 2D numpy array</span>
+<span class="sd">        Flux map in the target unit</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">c</span> <span class="o">=</span> <span class="mf">2.99792458e18</span>  <span class="c1"># speed of light in Angstrom/s</span>
+
+    <span class="k">if</span> <span class="n">to_unit</span> <span class="o">==</span> <span class="s1">&#39;erg/s/cm2/A&#39;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">flux_map</span>
+
+    <span class="k">elif</span> <span class="n">to_unit</span> <span class="o">==</span> <span class="s1">&#39;nJy&#39;</span><span class="p">:</span>
+        <span class="c1"># Convert to f_nu in erg/s/cm^2/Hz</span>
+        <span class="n">f_nu</span> <span class="o">=</span> <span class="n">flux_map</span> <span class="o">*</span> <span class="n">wave_eff</span><span class="o">**</span><span class="mi">2</span> <span class="o">/</span> <span class="n">c</span>
+        <span class="c1"># Convert erg/s/cm^2/Hz to nJy (1 Jy = 1e-23 erg/s/cm^2/Hz)</span>
+        <span class="k">return</span> <span class="n">f_nu</span> <span class="o">/</span> <span class="mf">1e-23</span> <span class="o">*</span> <span class="mf">1e9</span>  <span class="c1"># nJy</span>
+
+    <span class="k">elif</span> <span class="n">to_unit</span> <span class="o">==</span> <span class="s1">&#39;AB magnitude&#39;</span><span class="p">:</span>
+        <span class="c1"># Convert to f_nu</span>
+        <span class="n">f_nu</span> <span class="o">=</span> <span class="n">flux_map</span> <span class="o">*</span> <span class="n">wave_eff</span><span class="o">**</span><span class="mi">2</span> <span class="o">/</span> <span class="n">c</span>
+        <span class="c1"># AB magnitude: -2.5 * log10(f_nu [erg/s/cm^2/Hz]) - 48.6</span>
+        <span class="n">mag</span> <span class="o">=</span> <span class="o">-</span><span class="mf">2.5</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">f_nu</span><span class="p">,</span> <span class="mf">1e-50</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span> <span class="o">-</span> <span class="mf">48.6</span>
+        <span class="k">return</span> <span class="n">mag</span>
+
+    <span class="k">elif</span> <span class="n">to_unit</span> <span class="o">==</span> <span class="s1">&#39;MJy/sr&#39;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">pixel_scale_arcsec</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;pixel_scale_arcsec is required for conversion to MJy/sr&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Convert to f_nu in erg/s/cm^2/Hz</span>
+        <span class="n">f_nu</span> <span class="o">=</span> <span class="n">flux_map</span> <span class="o">*</span> <span class="n">wave_eff</span><span class="o">**</span><span class="mi">2</span> <span class="o">/</span> <span class="n">c</span>
+        <span class="c1"># Convert erg/s/cm^2/Hz to Jy</span>
+        <span class="n">f_nu_jy</span> <span class="o">=</span> <span class="n">f_nu</span> <span class="o">/</span> <span class="mf">1e-23</span>
+
+        <span class="c1"># Pixel area in arcsec² to steradians</span>
+        <span class="n">pixel_area_sr</span> <span class="o">=</span> <span class="p">(</span><span class="n">pixel_scale_arcsec</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="p">(</span><span class="mf">180.0</span> <span class="o">*</span> <span class="mf">3600.0</span><span class="p">))</span><span class="o">**</span><span class="mi">2</span>
+
+        <span class="c1"># Convert to MJy/sr</span>
+        <span class="k">return</span> <span class="n">f_nu_jy</span> <span class="o">/</span> <span class="n">pixel_area_sr</span> <span class="o">/</span> <span class="mf">1e6</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unsupported target unit: </span><span class="si">{</span><span class="n">to_unit</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+</pre></div>
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Abdurrouf
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2025, Abdurrouf.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

@@ -1,0 +1,1243 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>galsyn.observe &#8212; GalSyn 0.1.0 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../../_static/documentation_options.js?v=a1637f0b"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/galsyn/observe';</script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../_static/galsyn_logo.png" class="logo__image only-light" alt="GalSyn 0.1.0 documentation - Home"/>
+    <script>document.write(`<img src="../../_static/galsyn_logo.png" class="logo__image only-dark" alt="GalSyn 0.1.0 documentation - Home"/>`);</script>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../../index.html">
+                    Welcome to GalSyn’s Documentation!
+                </a>
+            </li>
+        </ul>
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../introduction.html">Introduction and Capabilities</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../tutorials.html">Tutorials</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../tutorials/getting_started.html">Getting Started with GalSyn</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../tutorials/basic_usage.html">Basic Usage of GalSyn</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../tutorials/customizing_ssp_engines.html">Customizing SSP Engines (FSPS vs Bagpipes)</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../api.html">API Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../api/galsyn.html">galsyn</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/config.html">config</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/dust.html">dust</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/galsyn_run_bagpipes.html">galsyn_run_bagpipes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/galsyn_run_fsps.html">galsyn_run_fsps</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/imgutils.html">imgutils</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/observe.html">observe</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/sfh.html">sfh</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/simutils_tng.html">simutils_tng</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/ssp_generator_bagpipes.html">ssp_generator_bagpipes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/ssp_generator_fsps.html">ssp_generator_fsps</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/utils.html">utils</a></li>
+</ul>
+</details></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-source-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Source repositories">
+    <i class="fab fa-github"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="https://github.com/aabdurrouf/GalSyn" target="_blank"
+   class="btn btn-sm btn-source-repository-button dropdown-item"
+   title="Source repository"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="btn__text-container">Repository</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/aabdurrouf/GalSyn/issues/new?title=Issue%20on%20page%20%2F_modules/galsyn/observe.html&body=Your%20issue%20content%20here." target="_blank"
+   class="btn btn-sm btn-source-issues-button dropdown-item"
+   title="Open an issue"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="btn__text-container">Open issue</span>
+</a>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1></h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for galsyn.observe</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">astropy.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">fits</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">astropy.convolution</span><span class="w"> </span><span class="kn">import</span> <span class="n">convolve_fft</span><span class="p">,</span> <span class="n">Gaussian1DKernel</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">photutils.psf.matching</span><span class="w"> </span><span class="kn">import</span> <span class="n">resize_psf</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.integrate</span><span class="w"> </span><span class="kn">import</span> <span class="n">simpson</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy</span><span class="w"> </span><span class="kn">import</span> <span class="n">stats</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.interpolate</span><span class="w"> </span><span class="kn">import</span> <span class="n">interp1d</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">astropy.nddata</span><span class="w"> </span><span class="kn">import</span> <span class="n">NDData</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">reproject</span><span class="w"> </span><span class="kn">import</span> <span class="n">reproject_adaptive</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">astropy.wcs</span><span class="w"> </span><span class="kn">import</span> <span class="n">WCS</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.imgutils</span><span class="w"> </span><span class="kn">import</span> <span class="n">convert_flux_map</span>
+
+<div class="viewcode-block" id="GalSynMockObservation_imaging">
+<a class="viewcode-back" href="../../api/observe.html#galsyn.observe.GalSynMockObservation_imaging">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">GalSynMockObservation_imaging</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A class to simulate observational effects on synthetic galaxy images,</span>
+<span class="sd">    including PSF convolution, noise injection, RMS image generation,</span>
+<span class="sd">    and resampling to a desired pixel scale.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fits_file_path</span><span class="p">,</span> <span class="n">filters</span><span class="p">,</span> <span class="n">psf_paths</span><span class="p">,</span> <span class="n">psf_pixel_scales</span><span class="p">,</span> <span class="n">mag_zp</span><span class="p">,</span> <span class="n">limiting_magnitude</span><span class="p">,</span> <span class="n">snr_limit</span><span class="p">,</span>
+                 <span class="n">aperture_radius_arcsec</span><span class="p">,</span> <span class="n">exposure_time</span><span class="p">,</span> <span class="n">filter_transmission_path</span><span class="p">,</span> <span class="n">desired_pixel_scales</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initializes the GalSynMockObservation_imaging with input parameters.</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">        -----------</span>
+<span class="sd">        fits_file_path : str</span>
+<span class="sd">            Path to the input FITS file.</span>
+<span class="sd">        filters : list</span>
+<span class="sd">            List of filter names (e.g., [&#39;jwst_nircam_f115w&#39;, &#39;jwst_nircam_f200w&#39;]) for which images will be processed.</span>
+<span class="sd">        psf_paths : dict</span>
+<span class="sd">            Dictionary where keys are filter names and values are paths to PSF FITS images.</span>
+<span class="sd">        psf_pixel_scales : dict</span>
+<span class="sd">            Dictionary where keys are filter names and values are pixel scales of PSF images in arcsec.</span>
+<span class="sd">        mag_zp : dict</span>
+<span class="sd">            Dictionary of magnitude zero-points for each filter.</span>
+<span class="sd">        limiting_magnitude : dict</span>
+<span class="sd">            Dictionary of limiting magnitudes for each filter.</span>
+<span class="sd">        snr_limit : dict</span>
+<span class="sd">            Dictionary of signal-to-noise ratios at the limiting magnitude for each filter.</span>
+<span class="sd">        aperture_radius_arcsec : dict</span>
+<span class="sd">            Dictionary of radii for the circular aperture (in arcsec) used in measuring the magnitude limit for each filter.</span>
+<span class="sd">        exposure_time : dict</span>
+<span class="sd">            Dictionary of exposure times in seconds for each filter.</span>
+<span class="sd">        filter_transmission_path : dict</span>
+<span class="sd">            Dictionary of paths to text files containing the transmission function for filters.</span>
+<span class="sd">        desired_pixel_scales : dict</span>
+<span class="sd">            Dictionary where keys are filter names and values are the desired final pixel</span>
+<span class="sd">            scales in arcsec for the resampled images.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fits_file_path</span> <span class="o">=</span> <span class="n">fits_file_path</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">filters</span> <span class="o">=</span> <span class="n">filters</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">psf_paths</span> <span class="o">=</span> <span class="n">psf_paths</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">psf_pixel_scales</span> <span class="o">=</span> <span class="n">psf_pixel_scales</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mag_zp</span> <span class="o">=</span> <span class="n">mag_zp</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">limiting_magnitude</span> <span class="o">=</span> <span class="n">limiting_magnitude</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">snr_limit</span> <span class="o">=</span> <span class="n">snr_limit</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">aperture_radius_arcsec</span> <span class="o">=</span> <span class="n">aperture_radius_arcsec</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">exposure_time</span> <span class="o">=</span> <span class="n">exposure_time</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">filter_transmission_path</span> <span class="o">=</span> <span class="n">filter_transmission_path</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">desired_pixel_scales</span> <span class="o">=</span> <span class="n">desired_pixel_scales</span>
+
+        <span class="c1"># --- Validate that all dictionary inputs have keys for all filters ---</span>
+        <span class="n">param_dicts</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;mag_zp&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">mag_zp</span><span class="p">,</span>
+            <span class="s1">&#39;limiting_magnitude&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">limiting_magnitude</span><span class="p">,</span>
+            <span class="s1">&#39;snr_limit&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">snr_limit</span><span class="p">,</span>
+            <span class="s1">&#39;aperture_radius_arcsec&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">aperture_radius_arcsec</span><span class="p">,</span>
+            <span class="s1">&#39;exposure_time&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">exposure_time</span>
+        <span class="p">}</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">p_dict</span> <span class="ow">in</span> <span class="n">param_dicts</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">p_dict</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">(</span><span class="n">f</span> <span class="ow">in</span> <span class="n">p_dict</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">filters</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Parameter &#39;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; must be a dictionary with keys for all specified filters.&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">hdul</span> <span class="o">=</span> <span class="n">fits</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">fits_file_path</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">image_header</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">hdul</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">header</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pixel_scale_kpc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">image_header</span><span class="p">[</span><span class="s1">&#39;PIX_KPC&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">initial_pixel_scale_arcsec</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">image_header</span><span class="p">[</span><span class="s1">&#39;PIXSIZE&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">flux_unit</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">image_header</span><span class="p">[</span><span class="s1">&#39;BUNIT&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">flux_scale</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">image_header</span><span class="p">[</span><span class="s1">&#39;SCALE&#39;</span><span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">processed_images</span> <span class="o">=</span> <span class="p">{}</span> <span class="c1"># Stores final processed (noisy, resampled) images</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rms_images</span> <span class="o">=</span> <span class="p">{}</span>      <span class="c1"># Stores final resampled RMS images</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__exit__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exc_type</span><span class="p">,</span> <span class="n">exc_val</span><span class="p">,</span> <span class="n">exc_tb</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hdul</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_flux_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filter_name</span><span class="p">,</span> <span class="n">dust_attenuation</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Retrieves flux data for a given filter from the FITS file.</span>
+<span class="sd">        This function converts the stored flux (in its original `self.flux_unit`)</span>
+<span class="sd">        back to `erg/s/cm^2/Angstrom` for internal calculations.</span>
+
+<span class="sd">        IMPORTANT: If the original FITS unit is &#39;MJy/sr&#39;, this function returns</span>
+<span class="sd">        spectral flux per pixel (i.e., erg/s/cm^2/Angstrom/pixel).</span>
+<span class="sd">        If the original FITS unit is &#39;nJy&#39; or &#39;AB magnitude&#39;, this function returns</span>
+<span class="sd">        spectral flux density per unit wavelength (erg/s/cm^2/Angstrom).</span>
+<span class="sd">        The interpretation as &#39;per pixel&#39; or &#39;per unit area&#39; is crucial for later steps.</span>
+<span class="sd">        For resampling, the data needs to be explicitly converted to a surface brightness</span>
+<span class="sd">        unit if it&#39;s not already.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">ext_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;DUST_&#39;</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">dust_attenuation</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s1">&#39;NODUST_&#39;</span><span class="si">}{</span><span class="n">filter_name</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">flux_data_in_fits_unit</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">hdul</span><span class="p">[</span><span class="n">ext_name</span><span class="p">]</span><span class="o">.</span><span class="n">data</span>
+
+            <span class="c1"># Get effective wavelength for this filter</span>
+            <span class="n">_</span><span class="p">,</span> <span class="n">filter_wave_pivot_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_filter_transmission_from_paths_local</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filters</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">filter_transmission_path</span><span class="p">)</span>
+            <span class="n">wave_eff</span> <span class="o">=</span> <span class="n">filter_wave_pivot_data</span><span class="p">[</span><span class="n">filter_name</span><span class="p">]</span>
+
+            <span class="n">c_angstrom_s</span> <span class="o">=</span> <span class="mf">2.99792458e18</span>  <span class="c1"># speed of light in Angstrom/s</span>
+
+            <span class="c1"># The data in FITS is `converted_flux / self.flux_scale`.</span>
+            <span class="c1"># So to get `converted_flux`: `data_in_fits_unit * self.flux_scale`.</span>
+            <span class="c1"># Then, perform the inverse conversion from `converted_flux` (in `self.flux_unit`)</span>
+            <span class="c1"># back to `erg/s/cm^2/Angstrom` (or erg/s/cm^2/Angstrom/pixel in case of MJy/sr input).</span>
+
+            <span class="n">converted_flux_original</span> <span class="o">=</span> <span class="n">flux_data_in_fits_unit</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">flux_scale</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">flux_unit</span> <span class="o">==</span> <span class="s1">&#39;erg/s/cm2/A&#39;</span><span class="p">:</span>
+                <span class="c1"># This is already a spectral flux density, not surface brightness.</span>
+                <span class="c1"># If it&#39;s expected to be surface brightness for the input, it implies</span>
+                <span class="c1"># the FITS data was already scaled by pixel area before saving.</span>
+                <span class="k">return</span> <span class="n">converted_flux_original</span>
+
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">flux_unit</span> <span class="o">==</span> <span class="s1">&#39;nJy&#39;</span><span class="p">:</span>
+                <span class="c1"># f_nu [erg/s/cm^2/Hz] = nJy / 1e9 * 1e-23</span>
+                <span class="n">f_nu_erg_s_cm2_Hz</span> <span class="o">=</span> <span class="n">converted_flux_original</span> <span class="o">/</span> <span class="mf">1e9</span> <span class="o">*</span> <span class="mf">1e-23</span>
+                <span class="c1"># erg/s/cm^2/Angstrom = f_nu * c / wave_eff^2</span>
+                <span class="c1"># This is a spectral flux density.</span>
+                <span class="k">return</span> <span class="n">f_nu_erg_s_cm2_Hz</span> <span class="o">*</span> <span class="n">c_angstrom_s</span> <span class="o">/</span> <span class="n">wave_eff</span><span class="o">**</span><span class="mi">2</span>
+
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">flux_unit</span> <span class="o">==</span> <span class="s1">&#39;AB magnitude&#39;</span><span class="p">:</span>
+                <span class="c1"># For AB magnitude, the `flux_scale` in galsyn_run_fsps is 1.0, so `converted_flux_original` is just the AB mag.</span>
+                <span class="c1"># f_nu [erg/s/cm^2/Hz] = 10^((AB_mag + 48.6)/(-2.5))</span>
+                <span class="n">f_nu_erg_s_cm2_Hz</span> <span class="o">=</span> <span class="mi">10</span><span class="o">**</span><span class="p">((</span><span class="n">converted_flux_original</span> <span class="o">+</span> <span class="mf">48.6</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="o">-</span><span class="mf">2.5</span><span class="p">))</span>
+                <span class="c1"># This is a spectral flux density.</span>
+                <span class="k">return</span> <span class="n">f_nu_erg_s_cm2_Hz</span> <span class="o">*</span> <span class="n">c_angstrom_s</span> <span class="o">/</span> <span class="n">wave_eff</span><span class="o">**</span><span class="mi">2</span>
+
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">flux_unit</span> <span class="o">==</span> <span class="s1">&#39;MJy/sr&#39;</span><span class="p">:</span>
+                <span class="c1"># MJy/sr is a surface brightness unit.</span>
+                <span class="c1"># Here, we convert MJy/sr (flux per solid angle) to flux per pixel (erg/s/cm2/A/pixel).</span>
+                <span class="c1"># This is done by multiplying by the pixel area in steradians.</span>
+                <span class="n">pixel_area_sr</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">initial_pixel_scale_arcsec</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="p">(</span><span class="mf">180.0</span> <span class="o">*</span> <span class="mf">3600.0</span><span class="p">))</span><span class="o">**</span><span class="mi">2</span>
+                <span class="n">f_nu_jy_per_pixel</span> <span class="o">=</span> <span class="n">converted_flux_original</span> <span class="o">*</span> <span class="n">pixel_area_sr</span> <span class="o">*</span> <span class="mf">1e6</span> <span class="c1"># MJy/sr -&gt; Jy/sr * sr/pixel = Jy/pixel</span>
+                <span class="n">f_nu_erg_s_cm2_Hz_per_pixel</span> <span class="o">=</span> <span class="n">f_nu_jy_per_pixel</span> <span class="o">*</span> <span class="mf">1e-23</span>
+                <span class="c1"># Result is spectral flux per pixel (i.e., total flux in the pixel per unit wavelength)</span>
+                <span class="k">return</span> <span class="n">f_nu_erg_s_cm2_Hz_per_pixel</span> <span class="o">*</span> <span class="n">c_angstrom_s</span> <span class="o">/</span> <span class="n">wave_eff</span><span class="o">**</span><span class="mi">2</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unsupported flux_unit for inverse conversion: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">flux_unit</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Filter </span><span class="si">{</span><span class="n">filter_name</span><span class="si">}</span><span class="s2"> with dust_attenuation=</span><span class="si">{</span><span class="n">dust_attenuation</span><span class="si">}</span><span class="s2"> not found in FITS file. &quot;</span>
+                             <span class="sa">f</span><span class="s2">&quot;Available extensions: </span><span class="si">{</span><span class="p">[</span><span class="n">hdu</span><span class="o">.</span><span class="n">name</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">hdu</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">hdul</span><span class="p">]</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_psf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filter_name</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Loads and resamples the PSF image to match the synthetic image&#39;s initial pixel scale.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">psf_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">psf_paths</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">filter_name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">psf_path</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;PSF path not provided for filter: </span><span class="si">{</span><span class="n">filter_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">psf_path</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;PSF file not found at: </span><span class="si">{</span><span class="n">psf_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="n">psf_hdu</span> <span class="o">=</span> <span class="n">fits</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">psf_path</span><span class="p">)</span>
+        <span class="n">psf_data</span> <span class="o">=</span> <span class="n">psf_hdu</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">data</span>
+        <span class="n">psf_hdu</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+        <span class="n">psf_pixel_scale_arcsec</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">psf_pixel_scales</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">filter_name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">psf_pixel_scale_arcsec</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;PSF pixel scale not provided for filter: </span><span class="si">{</span><span class="n">filter_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">psf_pixel_scale_arcsec</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">initial_pixel_scale_arcsec</span><span class="p">):</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Resampling PSF for </span><span class="si">{</span><span class="n">filter_name</span><span class="si">}</span><span class="s2">: PSF pixel scale (</span><span class="si">{</span><span class="n">psf_pixel_scale_arcsec</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2"> arcsec) &quot;</span>
+                  <span class="sa">f</span><span class="s2">&quot;differs from initial image pixel scale (</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">initial_pixel_scale_arcsec</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2"> arcsec).&quot;</span><span class="p">)</span>
+
+            <span class="n">resampled_psf</span> <span class="o">=</span> <span class="n">resize_psf</span><span class="p">(</span><span class="n">psf_data</span><span class="p">,</span> <span class="n">psf_pixel_scale_arcsec</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">initial_pixel_scale_arcsec</span><span class="p">)</span>
+
+            <span class="c1"># Ensure the resampled PSF sums to 1 (normalization)</span>
+            <span class="n">resampled_psf</span> <span class="o">/=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">resampled_psf</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">resampled_psf</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Ensure the PSF sums to 1 (normalization) if no resampling</span>
+            <span class="n">psf_data</span> <span class="o">/=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">psf_data</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">psf_data</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_load_filter_transmission_from_paths_local</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filters_list</span><span class="p">,</span> <span class="n">filter_transmission_path_dict</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Helper function to load filter transmission data and calculate pivot wavelengths.</span>
+<span class="sd">        This is a simplified version of the one in galsyn_run_fsps, for local use.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">filter_transmission_data</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">filter_wave_pivot_data</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="k">for</span> <span class="n">f_name</span> <span class="ow">in</span> <span class="n">filters_list</span><span class="p">:</span>
+            <span class="n">file_path</span> <span class="o">=</span> <span class="n">filter_transmission_path_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">f_name</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">file_path</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Filter transmission path not found for </span><span class="si">{</span><span class="n">f_name</span><span class="si">}</span><span class="s2">. Please provide `filter_transmission_path` to the constructor.&quot;</span><span class="p">)</span>
+
+            <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+            <span class="n">wave</span> <span class="o">=</span> <span class="n">data</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span>
+            <span class="n">trans</span> <span class="o">=</span> <span class="n">data</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span>
+
+            <span class="n">filter_transmission_data</span><span class="p">[</span><span class="n">f_name</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;wave&#39;</span><span class="p">:</span> <span class="n">wave</span><span class="p">,</span> <span class="s1">&#39;trans&#39;</span><span class="p">:</span> <span class="n">trans</span><span class="p">}</span>
+
+            <span class="n">numerator</span> <span class="o">=</span> <span class="n">simpson</span><span class="p">(</span><span class="n">wave</span> <span class="o">*</span> <span class="n">trans</span><span class="p">,</span> <span class="n">wave</span><span class="p">)</span>
+            <span class="n">denominator</span> <span class="o">=</span> <span class="n">simpson</span><span class="p">(</span><span class="n">trans</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">wave</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">wave</span><span class="p">,</span> <span class="mf">1e-10</span><span class="p">),</span> <span class="n">wave</span><span class="p">)</span> <span class="c1"># Avoid div by zero</span>
+
+            <span class="n">pivot_wavelength</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">numerator</span> <span class="o">/</span> <span class="n">denominator</span><span class="p">)</span> <span class="k">if</span> <span class="n">denominator</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+            <span class="n">filter_wave_pivot_data</span><span class="p">[</span><span class="n">f_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">pivot_wavelength</span>
+
+        <span class="k">return</span> <span class="n">filter_transmission_data</span><span class="p">,</span> <span class="n">filter_wave_pivot_data</span>
+
+
+<div class="viewcode-block" id="GalSynMockObservation_imaging.process_images">
+<a class="viewcode-back" href="../../api/observe.html#galsyn.observe.GalSynMockObservation_imaging.process_images">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">process_images</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dust_attenuation</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">apply_noise_to_image</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Executes the full pipeline of observational effects:</span>
+<span class="sd">        1. Convolves images with PSF.</span>
+<span class="sd">        2. Simulates and injects noise, and generates RMS images.</span>
+<span class="sd">        3. Resamples the processed (noisy) images and RMS images to the desired pixel scale.</span>
+
+<span class="sd">        Crucially, this pipeline ensures that data passed to `reproject_adaptive`</span>
+<span class="sd">        is in surface brightness units (flux per unit solid angle) for proper flux conservation.</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">        -----------</span>
+<span class="sd">        dust_attenuation : bool</span>
+<span class="sd">            Whether to process images with dust attenuation (True) or without (False).</span>
+<span class="sd">        apply_noise_to_image : bool</span>
+<span class="sd">            If True, noise is added to the convolved image. Otherwise, only RMS is calculated.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Starting full image processing pipeline...&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">f_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">filters</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Processing filter: </span><span class="si">{</span><span class="n">f_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+            <span class="c1"># --- Get filter-specific parameters from dictionaries ---</span>
+            <span class="n">mag_zp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mag_zp</span><span class="p">[</span><span class="n">f_name</span><span class="p">]</span>
+            <span class="n">limiting_magnitude</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">limiting_magnitude</span><span class="p">[</span><span class="n">f_name</span><span class="p">]</span>
+            <span class="n">snr_limit</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">snr_limit</span><span class="p">[</span><span class="n">f_name</span><span class="p">]</span>
+            <span class="n">aperture_radius_arcsec</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">aperture_radius_arcsec</span><span class="p">[</span><span class="n">f_name</span><span class="p">]</span>
+            <span class="n">exposure_time</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">exposure_time</span><span class="p">[</span><span class="n">f_name</span><span class="p">]</span>
+            <span class="n">desired_pixel_scale</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">desired_pixel_scales</span><span class="p">[</span><span class="n">f_name</span><span class="p">]</span>
+
+            <span class="c1"># --- 1. Get Initial Image Data (Flux per pixel or flux density) ---</span>
+            <span class="n">image_data_initial_raw_units</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_flux_data</span><span class="p">(</span><span class="n">f_name</span><span class="p">,</span> <span class="n">dust_attenuation</span><span class="p">)</span>
+
+            <span class="c1"># --- Convert initial data to a common surface brightness unit (erg/s/cm^2/Angstrom/arcsec^2) ---</span>
+            <span class="n">pixel_area_arcsec2_initial</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">initial_pixel_scale_arcsec</span><span class="o">**</span><span class="mi">2</span>
+            <span class="k">if</span> <span class="n">pixel_area_arcsec2_initial</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Initial pixel area must be positive.&quot;</span><span class="p">)</span>
+
+            <span class="n">image_surface_brightness</span> <span class="o">=</span> <span class="n">image_data_initial_raw_units</span> <span class="o">/</span> <span class="n">pixel_area_arcsec2_initial</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Initial </span><span class="si">{</span><span class="n">f_name</span><span class="si">}</span><span class="s2"> image converted to surface brightness (erg/s/cm^2/Angstrom/arcsec^2).&quot;</span><span class="p">)</span>
+
+            <span class="c1"># --- 2. PSF Convolution ---</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Convolving </span><span class="si">{</span><span class="n">f_name</span><span class="si">}</span><span class="s2"> image with PSF...&quot;</span><span class="p">)</span>
+            <span class="n">psf_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_psf</span><span class="p">(</span><span class="n">f_name</span><span class="p">)</span>
+            <span class="n">convolved_surface_brightness</span> <span class="o">=</span> <span class="n">convolve_fft</span><span class="p">(</span><span class="n">image_surface_brightness</span><span class="p">,</span> <span class="n">psf_data</span><span class="p">,</span> <span class="n">boundary</span><span class="o">=</span><span class="s1">&#39;fill&#39;</span><span class="p">,</span> <span class="n">fill_value</span><span class="o">=</span><span class="mf">0.0</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  </span><span class="si">{</span><span class="n">f_name</span><span class="si">}</span><span class="s2"> image convolved.&quot;</span><span class="p">)</span>
+
+            <span class="c1"># --- 3. Noise Simulation and Injection ---</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Simulating noise for </span><span class="si">{</span><span class="n">f_name</span><span class="si">}</span><span class="s2"> image...&quot;</span><span class="p">)</span>
+            <span class="n">image_flux_per_initial_pixel</span> <span class="o">=</span> <span class="n">convolved_surface_brightness</span> <span class="o">*</span> <span class="n">pixel_area_arcsec2_initial</span>
+
+            <span class="n">_</span><span class="p">,</span> <span class="n">filter_wave_pivot_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_filter_transmission_from_paths_local</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filters</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">filter_transmission_path</span><span class="p">)</span>
+            <span class="n">wave_eff</span> <span class="o">=</span> <span class="n">filter_wave_pivot_data</span><span class="p">[</span><span class="n">f_name</span><span class="p">]</span>
+
+            <span class="c1"># 1. Estimate background RMS (sigma_bg)</span>
+            <span class="n">C_aperture</span> <span class="o">=</span> <span class="n">exposure_time</span> <span class="o">*</span> <span class="p">(</span><span class="mi">10</span><span class="o">**</span><span class="p">(</span><span class="mf">0.4</span> <span class="o">*</span> <span class="p">(</span><span class="n">mag_zp</span> <span class="o">-</span> <span class="n">limiting_magnitude</span><span class="p">)))</span>
+            <span class="n">sigma_bg_aperture_sq</span> <span class="o">=</span> <span class="p">(</span><span class="n">C_aperture</span> <span class="o">/</span> <span class="n">snr_limit</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span> <span class="o">-</span> <span class="n">C_aperture</span>
+            <span class="n">sigma_bg_aperture_sq</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">sigma_bg_aperture_sq</span><span class="p">)</span>
+            <span class="n">sigma_bg_aperture</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">sigma_bg_aperture_sq</span><span class="p">)</span>
+
+            <span class="n">aperture_area_pix2_for_bg</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="p">(</span><span class="n">aperture_radius_arcsec</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">initial_pixel_scale_arcsec</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span>
+            <span class="k">if</span> <span class="n">aperture_area_pix2_for_bg</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Aperture area per pixel must be positive.&quot;</span><span class="p">)</span>
+            <span class="n">sigma_bg_per_pixel</span> <span class="o">=</span> <span class="n">sigma_bg_aperture</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">aperture_area_pix2_for_bg</span><span class="p">)</span>
+
+            <span class="c1"># 2. Convert pixel flux to counts</span>
+            <span class="n">c_angstrom_s</span> <span class="o">=</span> <span class="mf">2.99792458e18</span>
+            <span class="n">f_nu_erg_s_cm2_Hz_pixel</span> <span class="o">=</span> <span class="n">image_flux_per_initial_pixel</span> <span class="o">*</span> <span class="n">wave_eff</span><span class="o">**</span><span class="mi">2</span> <span class="o">/</span> <span class="n">c_angstrom_s</span>
+            <span class="n">pixel_mag_AB</span> <span class="o">=</span> <span class="o">-</span><span class="mf">2.5</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">f_nu_erg_s_cm2_Hz_pixel</span><span class="p">,</span> <span class="mf">1e-50</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span> <span class="o">-</span> <span class="mf">48.6</span>
+            <span class="n">source_counts_per_pixel_expected</span> <span class="o">=</span> <span class="n">exposure_time</span> <span class="o">*</span> <span class="p">(</span><span class="mi">10</span><span class="o">**</span><span class="p">(</span><span class="mf">0.4</span> <span class="o">*</span> <span class="p">(</span><span class="n">mag_zp</span> <span class="o">-</span> <span class="n">pixel_mag_AB</span><span class="p">)))</span>
+            <span class="n">source_counts_per_pixel_expected</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">source_counts_per_pixel_expected</span><span class="p">)</span>
+
+            <span class="n">mag_for_1_count</span> <span class="o">=</span> <span class="n">mag_zp</span> <span class="o">-</span> <span class="mf">2.5</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span> <span class="n">exposure_time</span><span class="p">)</span>
+            <span class="n">f_nu_erg_s_cm2_Hz_for_1_count</span> <span class="o">=</span> <span class="mi">10</span><span class="o">**</span><span class="p">((</span><span class="n">mag_for_1_count</span> <span class="o">+</span> <span class="mf">48.6</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="o">-</span><span class="mf">2.5</span><span class="p">))</span>
+            <span class="n">flux_per_total_count_per_A_per_pixel</span> <span class="o">=</span> <span class="n">f_nu_erg_s_cm2_Hz_for_1_count</span> <span class="o">*</span> <span class="n">c_angstrom_s</span> <span class="o">/</span> <span class="n">wave_eff</span><span class="o">**</span><span class="mi">2</span>
+
+            <span class="n">noisy_image_flux_per_initial_pixel</span> <span class="o">=</span> <span class="n">image_flux_per_initial_pixel</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+            <span class="k">if</span> <span class="n">apply_noise_to_image</span><span class="p">:</span>
+                <span class="n">photon_shot_noise_sampled_counts</span> <span class="o">=</span> <span class="n">stats</span><span class="o">.</span><span class="n">poisson</span><span class="o">.</span><span class="n">rvs</span><span class="p">(</span><span class="n">source_counts_per_pixel_expected</span><span class="p">)</span>
+                <span class="n">total_noisy_counts</span> <span class="o">=</span> <span class="n">photon_shot_noise_sampled_counts</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">sigma_bg_per_pixel</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">image_flux_per_initial_pixel</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+                <span class="n">total_noisy_counts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">total_noisy_counts</span><span class="p">)</span>
+                <span class="n">noisy_image_flux_per_initial_pixel</span> <span class="o">=</span> <span class="n">total_noisy_counts</span> <span class="o">*</span> <span class="n">flux_per_total_count_per_A_per_pixel</span>
+                <span class="n">noisy_image_flux_per_initial_pixel</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="mf">1e-30</span><span class="p">,</span> <span class="n">noisy_image_flux_per_initial_pixel</span><span class="p">)</span>
+
+            <span class="n">total_variance_counts</span> <span class="o">=</span> <span class="n">source_counts_per_pixel_expected</span> <span class="o">+</span> <span class="n">sigma_bg_per_pixel</span><span class="o">**</span><span class="mi">2</span>
+            <span class="n">total_rms_counts_per_pixel</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">total_variance_counts</span><span class="p">)</span>
+            <span class="n">rms_image_flux_per_initial_pixel</span> <span class="o">=</span> <span class="n">total_rms_counts_per_pixel</span> <span class="o">*</span> <span class="n">flux_per_total_count_per_A_per_pixel</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Noise simulated and injected for </span><span class="si">{</span><span class="n">f_name</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
+
+            <span class="c1"># --- Convert back to Surface Brightness for Resampling ---</span>
+            <span class="n">final_noisy_surface_brightness</span> <span class="o">=</span> <span class="n">noisy_image_flux_per_initial_pixel</span> <span class="o">/</span> <span class="n">pixel_area_arcsec2_initial</span>
+            <span class="n">final_rms_surface_brightness</span> <span class="o">=</span> <span class="n">rms_image_flux_per_initial_pixel</span> <span class="o">/</span> <span class="n">pixel_area_arcsec2_initial</span>
+
+            <span class="c1"># --- 4. Resampling to Desired Pixel Scale (Flux Conserving) ---</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Resampling </span><span class="si">{</span><span class="n">f_name</span><span class="si">}</span><span class="s2"> image to desired pixel scale...&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">desired_pixel_scale</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Desired pixel scale not provided for filter: </span><span class="si">{</span><span class="n">f_name</span><span class="si">}</span><span class="s2">. &quot;</span>
+                                 <span class="s2">&quot;Please ensure &#39;desired_pixel_scales&#39; dictionary is complete.&quot;</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">desired_pixel_scale</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">initial_pixel_scale_arcsec</span><span class="p">):</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Desired pixel scale for </span><span class="si">{</span><span class="n">f_name</span><span class="si">}</span><span class="s2"> is already </span><span class="si">{</span><span class="n">desired_pixel_scale</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2"> arcsec. No resampling needed.&quot;</span><span class="p">)</span>
+                <span class="n">resampled_noisy_image_sb</span> <span class="o">=</span> <span class="n">final_noisy_surface_brightness</span>
+                <span class="n">resampled_rms_image_sb</span> <span class="o">=</span> <span class="n">final_rms_surface_brightness</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Resampling from </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">initial_pixel_scale_arcsec</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2"> arcsec to </span><span class="si">{</span><span class="n">desired_pixel_scale</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2"> arcsec.&quot;</span><span class="p">)</span>
+                
+                <span class="c1"># --- Fix Start ---</span>
+                <span class="n">old_ny</span><span class="p">,</span> <span class="n">old_nx</span> <span class="o">=</span> <span class="n">final_noisy_surface_brightness</span><span class="o">.</span><span class="n">shape</span>
+                <span class="c1"># Create a simple WCS for the input data for reproject</span>
+                <span class="n">wcs_in</span> <span class="o">=</span> <span class="n">WCS</span><span class="p">(</span><span class="n">naxis</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+                <span class="n">wcs_in</span><span class="o">.</span><span class="n">wcs</span><span class="o">.</span><span class="n">cdelt</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">initial_pixel_scale_arcsec</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">initial_pixel_scale_arcsec</span><span class="p">]</span>
+                <span class="n">wcs_in</span><span class="o">.</span><span class="n">wcs</span><span class="o">.</span><span class="n">crpix</span> <span class="o">=</span> <span class="p">[</span><span class="n">old_nx</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="n">old_ny</span><span class="o">/</span><span class="mi">2</span><span class="p">]</span>
+                
+                <span class="c1"># Create a new WCS for the output data</span>
+                <span class="n">wcs_out</span> <span class="o">=</span> <span class="n">WCS</span><span class="p">(</span><span class="n">naxis</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+                <span class="n">wcs_out</span><span class="o">.</span><span class="n">wcs</span><span class="o">.</span><span class="n">cdelt</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="n">desired_pixel_scale</span><span class="p">,</span> <span class="n">desired_pixel_scale</span><span class="p">]</span>
+                <span class="n">new_shape</span> <span class="o">=</span> <span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">old_ny</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">initial_pixel_scale_arcsec</span> <span class="o">/</span> <span class="n">desired_pixel_scale</span><span class="p">)),</span>
+                             <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">old_nx</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">initial_pixel_scale_arcsec</span> <span class="o">/</span> <span class="n">desired_pixel_scale</span><span class="p">)))</span>
+                <span class="n">wcs_out</span><span class="o">.</span><span class="n">wcs</span><span class="o">.</span><span class="n">crpix</span> <span class="o">=</span> <span class="p">[</span><span class="n">new_shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="n">new_shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">/</span><span class="mi">2</span><span class="p">]</span>
+
+                <span class="n">resampled_noisy_image_sb</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">reproject_adaptive</span><span class="p">(</span>
+                    <span class="p">(</span><span class="n">final_noisy_surface_brightness</span><span class="p">,</span> <span class="n">wcs_in</span><span class="p">),</span>
+                    <span class="n">wcs_out</span><span class="p">,</span>
+                    <span class="n">shape_out</span><span class="o">=</span><span class="n">new_shape</span><span class="p">,</span>
+                    <span class="n">conserve_flux</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                    <span class="n">boundary_mode</span><span class="o">=</span><span class="s1">&#39;nearest&#39;</span>
+                <span class="p">)</span>
+
+                <span class="n">resampled_rms_image_sb</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">reproject_adaptive</span><span class="p">(</span>
+                    <span class="p">(</span><span class="n">final_rms_surface_brightness</span><span class="p">,</span> <span class="n">wcs_in</span><span class="p">),</span>
+                    <span class="n">wcs_out</span><span class="p">,</span>
+                    <span class="n">shape_out</span><span class="o">=</span><span class="n">new_shape</span><span class="p">,</span>
+                    <span class="n">conserve_flux</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                    <span class="n">boundary_mode</span><span class="o">=</span><span class="s1">&#39;nearest&#39;</span>
+                <span class="p">)</span>
+                <span class="c1"># --- Fix End ---</span>
+
+            <span class="n">key_processed</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;dust&#39;</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">dust_attenuation</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s1">&#39;nodust&#39;</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">f_name</span><span class="si">}</span><span class="s2">_processed&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">processed_images</span><span class="p">[</span><span class="n">key_processed</span><span class="p">]</span> <span class="o">=</span> <span class="n">resampled_noisy_image_sb</span>
+
+            <span class="n">key_rms</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">f_name</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="s1">&#39;dust&#39;</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">dust_attenuation</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s1">&#39;nodust&#39;</span><span class="si">}</span><span class="s2">_rms&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">rms_images</span><span class="p">[</span><span class="n">key_rms</span><span class="p">]</span> <span class="o">=</span> <span class="n">resampled_rms_image_sb</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  </span><span class="si">{</span><span class="n">f_name</span><span class="si">}</span><span class="s2"> image resampled and stored.&quot;</span><span class="p">)</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Full image processing pipeline complete.&quot;</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="GalSynMockObservation_imaging.save_results_to_fits">
+<a class="viewcode-back" href="../../api/observe.html#galsyn.observe.GalSynMockObservation_imaging.save_results_to_fits">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">save_results_to_fits</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output_fits_path</span><span class="p">,</span> <span class="n">dust_attenuation</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Saves the processed (noise-injected and resampled) images and RMS images to a new FITS file.</span>
+<span class="sd">        The data stored will be converted to the `self.flux_unit` specified during initialization,</span>
+<span class="sd">        using the `desired_pixel_scales` for the conversion of surface brightness units.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Saving results to FITS file: </span><span class="si">{</span><span class="n">output_fits_path</span><span class="si">}</span><span class="s2">...&quot;</span><span class="p">)</span>
+        <span class="n">hdul_out</span> <span class="o">=</span> <span class="n">fits</span><span class="o">.</span><span class="n">HDUList</span><span class="p">()</span>
+
+        <span class="n">prihdr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">hdul</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">prihdr</span><span class="p">[</span><span class="s1">&#39;COMMENT&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;Mock Observation Results&#39;</span>
+        <span class="n">prihdr</span><span class="p">[</span><span class="s1">&#39;NOISESIM&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;True&#39;</span>
+
+        <span class="n">first_filter</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">filters</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">filters</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">first_filter</span><span class="p">:</span>
+            <span class="n">prihdr</span><span class="p">[</span><span class="s1">&#39;ZP_MAG&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mag_zp</span><span class="p">[</span><span class="n">first_filter</span><span class="p">],</span> <span class="sa">f</span><span class="s1">&#39;ZP for </span><span class="si">{</span><span class="n">first_filter</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="n">prihdr</span><span class="p">[</span><span class="s1">&#39;LIM_MAG&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">limiting_magnitude</span><span class="p">[</span><span class="n">first_filter</span><span class="p">],</span> <span class="sa">f</span><span class="s1">&#39;Limiting mag for </span><span class="si">{</span><span class="n">first_filter</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="n">prihdr</span><span class="p">[</span><span class="s1">&#39;SNR_LIM&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">snr_limit</span><span class="p">[</span><span class="n">first_filter</span><span class="p">],</span> <span class="sa">f</span><span class="s1">&#39;SNR at lim mag for </span><span class="si">{</span><span class="n">first_filter</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="n">prihdr</span><span class="p">[</span><span class="s1">&#39;APER_RAD&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">aperture_radius_arcsec</span><span class="p">[</span><span class="n">first_filter</span><span class="p">],</span> <span class="sa">f</span><span class="s1">&#39;Aperture radius (arcsec) for </span><span class="si">{</span><span class="n">first_filter</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="n">prihdr</span><span class="p">[</span><span class="s1">&#39;EXP_TIME&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">exposure_time</span><span class="p">[</span><span class="n">first_filter</span><span class="p">],</span> <span class="sa">f</span><span class="s1">&#39;Exposure time (s) for </span><span class="si">{</span><span class="n">first_filter</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="n">prihdr</span><span class="p">[</span><span class="s1">&#39;PIXSIZE&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">desired_pixel_scales</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">first_filter</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">initial_pixel_scale_arcsec</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">prihdr</span><span class="p">[</span><span class="s1">&#39;PIXSIZE&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">initial_pixel_scale_arcsec</span>
+
+        <span class="k">if</span> <span class="n">first_filter</span> <span class="ow">and</span> <span class="sa">f</span><span class="s2">&quot;dust_</span><span class="si">{</span><span class="n">first_filter</span><span class="si">}</span><span class="s2">_processed&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">processed_images</span><span class="p">:</span>
+            <span class="n">primary_data_sb_erg_s_cm2_A_arcsec2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">processed_images</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;dust_</span><span class="si">{</span><span class="n">first_filter</span><span class="si">}</span><span class="s2">_processed&quot;</span><span class="p">]</span>
+            <span class="n">_</span><span class="p">,</span> <span class="n">filter_wave_pivot_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_filter_transmission_from_paths_local</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filters</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">filter_transmission_path</span><span class="p">)</span>
+            <span class="n">wave_eff</span> <span class="o">=</span> <span class="n">filter_wave_pivot_data</span><span class="p">[</span><span class="n">first_filter</span><span class="p">]</span>
+            <span class="n">final_pixel_scale_for_conversion</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">desired_pixel_scales</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">first_filter</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">initial_pixel_scale_arcsec</span><span class="p">)</span>
+            <span class="n">primary_data_flux_per_pixel_erg_s_cm2_A</span> <span class="o">=</span> <span class="n">primary_data_sb_erg_s_cm2_A_arcsec2</span> <span class="o">*</span> <span class="p">(</span><span class="n">final_pixel_scale_for_conversion</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+            <span class="n">primary_data_final_unit</span> <span class="o">=</span> <span class="n">convert_flux_map</span><span class="p">(</span><span class="n">primary_data_flux_per_pixel_erg_s_cm2_A</span><span class="p">,</span> <span class="n">wave_eff</span><span class="p">,</span> <span class="n">to_unit</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">flux_unit</span><span class="p">,</span> <span class="n">pixel_scale_arcsec</span><span class="o">=</span><span class="n">final_pixel_scale_for_conversion</span><span class="p">)</span>
+            <span class="n">final_scaled_primary_data</span> <span class="o">=</span> <span class="n">primary_data_final_unit</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">flux_scale</span>
+            <span class="n">prihdr</span><span class="p">[</span><span class="s1">&#39;BUNIT&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">flux_unit</span>
+            <span class="n">prihdr</span><span class="p">[</span><span class="s1">&#39;SCALE&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">flux_scale</span>
+            <span class="n">hdul_out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">fits</span><span class="o">.</span><span class="n">PrimaryHDU</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">final_scaled_primary_data</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="n">prihdr</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">hdul_out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">fits</span><span class="o">.</span><span class="n">PrimaryHDU</span><span class="p">(</span><span class="n">header</span><span class="o">=</span><span class="n">prihdr</span><span class="p">))</span>
+
+        <span class="k">for</span> <span class="n">f_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">filters</span><span class="p">:</span>
+            <span class="n">key_processed</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;dust&#39;</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">dust_attenuation</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s1">&#39;nodust&#39;</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">f_name</span><span class="si">}</span><span class="s2">_processed&quot;</span>
+            <span class="k">if</span> <span class="n">key_processed</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">processed_images</span><span class="p">:</span>
+                <span class="n">img_data_sb_erg_s_cm2_A_arcsec2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">processed_images</span><span class="p">[</span><span class="n">key_processed</span><span class="p">]</span>
+                <span class="n">_</span><span class="p">,</span> <span class="n">filter_wave_pivot_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_filter_transmission_from_paths_local</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filters</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">filter_transmission_path</span><span class="p">)</span>
+                <span class="n">wave_eff</span> <span class="o">=</span> <span class="n">filter_wave_pivot_data</span><span class="p">[</span><span class="n">f_name</span><span class="p">]</span>
+                <span class="n">final_pixel_scale_for_conversion</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">desired_pixel_scales</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">f_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">initial_pixel_scale_arcsec</span><span class="p">)</span>
+                <span class="n">img_data_flux_per_pixel_erg_s_cm2_A</span> <span class="o">=</span> <span class="n">img_data_sb_erg_s_cm2_A_arcsec2</span> <span class="o">*</span> <span class="p">(</span><span class="n">final_pixel_scale_for_conversion</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+                <span class="n">img_data_final_unit</span> <span class="o">=</span> <span class="n">convert_flux_map</span><span class="p">(</span><span class="n">img_data_flux_per_pixel_erg_s_cm2_A</span><span class="p">,</span> <span class="n">wave_eff</span><span class="p">,</span> <span class="n">to_unit</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">flux_unit</span><span class="p">,</span> <span class="n">pixel_scale_arcsec</span><span class="o">=</span><span class="n">final_pixel_scale_for_conversion</span><span class="p">)</span>
+                <span class="n">final_scaled_data</span> <span class="o">=</span> <span class="n">img_data_final_unit</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">flux_scale</span>
+                <span class="n">ext_hdr</span> <span class="o">=</span> <span class="n">fits</span><span class="o">.</span><span class="n">Header</span><span class="p">()</span>
+                <span class="n">ext_hdr</span><span class="p">[</span><span class="s1">&#39;EXTNAME&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;SCI_</span><span class="si">{</span><span class="n">f_name</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="n">ext_hdr</span><span class="p">[</span><span class="s1">&#39;FILTER&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">f_name</span>
+                <span class="n">ext_hdr</span><span class="p">[</span><span class="s1">&#39;COMMENT&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;Convolved, noise-injected, and resampled image for filter: </span><span class="si">{</span><span class="n">f_name</span><span class="si">}</span><span class="s1">&#39;</span>
+                <span class="n">ext_hdr</span><span class="p">[</span><span class="s1">&#39;BUNIT&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">flux_unit</span>
+                <span class="n">ext_hdr</span><span class="p">[</span><span class="s1">&#39;SCALE&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">flux_scale</span>
+                <span class="n">ext_hdr</span><span class="p">[</span><span class="s1">&#39;PIXSIZE&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">final_pixel_scale_for_conversion</span>
+                <span class="n">ext_hdr</span><span class="p">[</span><span class="s1">&#39;ZP_MAG&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mag_zp</span><span class="p">[</span><span class="n">f_name</span><span class="p">]</span>
+                <span class="n">ext_hdr</span><span class="p">[</span><span class="s1">&#39;LIM_MAG&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">limiting_magnitude</span><span class="p">[</span><span class="n">f_name</span><span class="p">]</span>
+                <span class="n">ext_hdr</span><span class="p">[</span><span class="s1">&#39;SNR_LIM&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">snr_limit</span><span class="p">[</span><span class="n">f_name</span><span class="p">]</span>
+                <span class="n">ext_hdr</span><span class="p">[</span><span class="s1">&#39;APER_RAD&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">aperture_radius_arcsec</span><span class="p">[</span><span class="n">f_name</span><span class="p">]</span>
+                <span class="n">ext_hdr</span><span class="p">[</span><span class="s1">&#39;EXP_TIME&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">exposure_time</span><span class="p">[</span><span class="n">f_name</span><span class="p">]</span>
+                <span class="n">hdul_out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">fits</span><span class="o">.</span><span class="n">ImageHDU</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">final_scaled_data</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="n">ext_hdr</span><span class="p">))</span>
+
+        <span class="k">for</span> <span class="n">f_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">filters</span><span class="p">:</span>
+            <span class="n">key_rms</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">f_name</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="s1">&#39;dust&#39;</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">dust_attenuation</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s1">&#39;nodust&#39;</span><span class="si">}</span><span class="s2">_rms&quot;</span>
+            <span class="k">if</span> <span class="n">key_rms</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">rms_images</span><span class="p">:</span>
+                <span class="n">rms_data_sb_erg_s_cm2_A_arcsec2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rms_images</span><span class="p">[</span><span class="n">key_rms</span><span class="p">]</span>
+                <span class="n">_</span><span class="p">,</span> <span class="n">filter_wave_pivot_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_filter_transmission_from_paths_local</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filters</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">filter_transmission_path</span><span class="p">)</span>
+                <span class="n">wave_eff</span> <span class="o">=</span> <span class="n">filter_wave_pivot_data</span><span class="p">[</span><span class="n">f_name</span><span class="p">]</span>
+                <span class="n">final_pixel_scale_for_conversion</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">desired_pixel_scales</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">f_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">initial_pixel_scale_arcsec</span><span class="p">)</span>
+                <span class="n">rms_data_flux_per_pixel_erg_s_cm2_A</span> <span class="o">=</span> <span class="n">rms_data_sb_erg_s_cm2_A_arcsec2</span> <span class="o">*</span> <span class="p">(</span><span class="n">final_pixel_scale_for_conversion</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+                <span class="n">rms_data_final_unit</span> <span class="o">=</span> <span class="n">convert_flux_map</span><span class="p">(</span><span class="n">rms_data_flux_per_pixel_erg_s_cm2_A</span><span class="p">,</span> <span class="n">wave_eff</span><span class="p">,</span> <span class="n">to_unit</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">flux_unit</span><span class="p">,</span> <span class="n">pixel_scale_arcsec</span><span class="o">=</span><span class="n">final_pixel_scale_for_conversion</span><span class="p">)</span>
+                <span class="n">final_scaled_rms</span> <span class="o">=</span> <span class="n">rms_data_final_unit</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">flux_scale</span>
+                <span class="n">ext_hdr</span> <span class="o">=</span> <span class="n">fits</span><span class="o">.</span><span class="n">Header</span><span class="p">()</span>
+                <span class="n">ext_hdr</span><span class="p">[</span><span class="s1">&#39;EXTNAME&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;RMS_</span><span class="si">{</span><span class="n">f_name</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="n">ext_hdr</span><span class="p">[</span><span class="s1">&#39;FILTER&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">f_name</span>
+                <span class="n">ext_hdr</span><span class="p">[</span><span class="s1">&#39;COMMENT&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;RMS image for filter: </span><span class="si">{</span><span class="n">f_name</span><span class="si">}</span><span class="s1">&#39;</span>
+                <span class="n">ext_hdr</span><span class="p">[</span><span class="s1">&#39;BUNIT&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">flux_unit</span>
+                <span class="n">ext_hdr</span><span class="p">[</span><span class="s1">&#39;SCALE&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">flux_scale</span>
+                <span class="n">ext_hdr</span><span class="p">[</span><span class="s1">&#39;PIXSIZE&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">final_pixel_scale_for_conversion</span>
+                <span class="n">hdul_out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">fits</span><span class="o">.</span><span class="n">ImageHDU</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">final_scaled_rms</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="n">ext_hdr</span><span class="p">))</span>
+
+        <span class="n">output_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">output_fits_path</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">output_dir</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">output_dir</span><span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">output_dir</span><span class="p">)</span>
+
+        <span class="n">hdul_out</span><span class="o">.</span><span class="n">writeto</span><span class="p">(</span><span class="n">output_fits_path</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">output_verify</span><span class="o">=</span><span class="s1">&#39;fix&#39;</span><span class="p">)</span>
+        <span class="n">hdul_out</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Results saved to </span><span class="si">{</span><span class="n">output_fits_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="GalSynMockObservation_ifu">
+<a class="viewcode-back" href="../../api/observe.html#galsyn.observe.GalSynMockObservation_ifu">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">GalSynMockObservation_ifu</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A class to simulate observational effects on synthetic IFU data cubes,</span>
+<span class="sd">    including wavelength cutting, spectral smoothing, spatial PSF convolution,</span>
+<span class="sd">    noise injection, and RMS data cube generation.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fits_file_path</span><span class="p">,</span> <span class="n">desired_wave_grid</span><span class="p">,</span> <span class="n">psf_cube_path</span><span class="p">,</span> <span class="n">psf_pixel_scale</span><span class="p">,</span>
+                 <span class="n">spectral_resolution_R</span><span class="p">,</span> <span class="n">mag_zp</span><span class="p">,</span> <span class="n">limiting_magnitude_wave_func</span><span class="p">,</span> <span class="n">snr_limit</span><span class="p">,</span>
+                 <span class="n">final_pixel_scale_arcsec</span><span class="p">,</span> <span class="n">exposure_time</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initializes the GalSynMockObservation_ifu with input parameters.</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">        -----------</span>
+<span class="sd">        fits_file_path : str</span>
+<span class="sd">            Path to the FITS file output from galsyn_run_fsps (containing OBS_SPEC_NODUST/DUST and WAVELENGTH_GRID).</span>
+<span class="sd">        desired_wave_grid : np.ndarray</span>
+<span class="sd">            1D numpy array of the desired final wavelength grid (in Angstrom) for the data cube.</span>
+<span class="sd">        psf_cube_path : str</span>
+<span class="sd">            Path to the FITS file containing the 3D PSF data cube (wavelength, y, x).</span>
+<span class="sd">            The wavelength axis of the PSF cube must match `desired_wave_grid`.</span>
+<span class="sd">        psf_pixel_scale : float</span>
+<span class="sd">            Pixel scale of the PSF cube in arcsec.</span>
+<span class="sd">        spectral_resolution_R : float</span>
+<span class="sd">            Desired constant spectral resolution (R = lambda / d_lambda) for the output cube.</span>
+<span class="sd">        mag_zp : float or callable</span>
+<span class="sd">            Magnitude zero-point. Can be a constant float or a function of wavelength (in Angstrom).</span>
+<span class="sd">        limiting_magnitude_wave_func : callable</span>
+<span class="sd">            A function that takes wavelength (in Angstrom) as input and returns</span>
+<span class="sd">            the limiting magnitude at that wavelength. This magnitude is assumed</span>
+<span class="sd">            to be per area of the `final_pixel_scale_arcsec`.</span>
+<span class="sd">        snr_limit : float or callable</span>
+<span class="sd">            Signal-to-noise ratio corresponding to the limiting magnitude. Can be a constant float or a function of wavelength.</span>
+<span class="sd">        final_pixel_scale_arcsec : float</span>
+<span class="sd">            Desired final spatial pixel size in arcsec for the output data cube.</span>
+<span class="sd">        exposure_time : float or callable</span>
+<span class="sd">            Exposure time in seconds. Can be a constant float or a function of wavelength.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fits_file_path</span> <span class="o">=</span> <span class="n">fits_file_path</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">desired_wave_grid</span> <span class="o">=</span> <span class="n">desired_wave_grid</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">psf_cube_path</span> <span class="o">=</span> <span class="n">psf_cube_path</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">psf_pixel_scale</span> <span class="o">=</span> <span class="n">psf_pixel_scale</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">spectral_resolution_R</span> <span class="o">=</span> <span class="n">spectral_resolution_R</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mag_zp</span> <span class="o">=</span> <span class="n">mag_zp</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">limiting_magnitude_wave_func</span> <span class="o">=</span> <span class="n">limiting_magnitude_wave_func</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">snr_limit</span> <span class="o">=</span> <span class="n">snr_limit</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">final_pixel_scale_arcsec</span> <span class="o">=</span> <span class="n">final_pixel_scale_arcsec</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">exposure_time</span> <span class="o">=</span> <span class="n">exposure_time</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">hdul</span> <span class="o">=</span> <span class="n">fits</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">fits_file_path</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">image_header</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">hdul</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">header</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">initial_pixel_scale_arcsec</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">image_header</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;PIXSIZE&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">initial_pixel_scale_arcsec</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Input FITS file header must contain &#39;PIXSIZE&#39; (initial pixel scale in arcsec).&quot;</span><span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">wavelength_hdu</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">hdul</span><span class="p">[</span><span class="s1">&#39;WAVELENGTH_GRID&#39;</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">original_wave_grid</span> <span class="o">=</span> <span class="n">wavelength_hdu</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;WAVELENGTH&#39;</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Input FITS file must contain a &#39;WAVELENGTH_GRID&#39; binary table extension.&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">initial_datacube_nodust</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">hdul</span><span class="p">[</span><span class="s1">&#39;OBS_SPEC_NODUST&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">data</span> <span class="k">if</span> <span class="s1">&#39;OBS_SPEC_NODUST&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">hdul</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">initial_datacube_dust</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">hdul</span><span class="p">[</span><span class="s1">&#39;OBS_SPEC_DUST&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">data</span> <span class="k">if</span> <span class="s1">&#39;OBS_SPEC_DUST&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">hdul</span> <span class="k">else</span> <span class="kc">None</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">processed_datacube</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rms_datacube</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__exit__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exc_type</span><span class="p">,</span> <span class="n">exc_val</span><span class="p">,</span> <span class="n">exc_tb</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hdul</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_wave_dependent_param</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param</span><span class="p">,</span> <span class="n">wavelength</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Helper to return value from a parameter that can be a float or a callable.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">callable</span><span class="p">(</span><span class="n">param</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">param</span><span class="p">(</span><span class="n">wavelength</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">param</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_load_psf_cube</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Loads the 3D PSF cube and ensures its wavelength axis matches desired_wave_grid.</span>
+<span class="sd">        Also resamples each 2D PSF slice to the initial image pixel scale.</span>
+<span class="sd">        Returns a 3D PSF cube (wavelength, y, x) ready for convolution.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">psf_cube_path</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;PSF cube file not found at: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">psf_cube_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="k">with</span> <span class="n">fits</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">psf_cube_path</span><span class="p">)</span> <span class="k">as</span> <span class="n">psf_hdu</span><span class="p">:</span>
+            <span class="n">psf_cube_data</span> <span class="o">=</span> <span class="n">psf_hdu</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">data</span>
+
+        <span class="k">if</span> <span class="n">psf_cube_data</span><span class="o">.</span><span class="n">ndim</span> <span class="o">!=</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;PSF cube must be 3D (wavelength, y, x), but has </span><span class="si">{</span><span class="n">psf_cube_data</span><span class="o">.</span><span class="n">ndim</span><span class="si">}</span><span class="s2"> dimensions.&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">psf_cube_data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">desired_wave_grid</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;PSF cube wavelength channels (</span><span class="si">{</span><span class="n">psf_cube_data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">) &quot;</span>
+                             <span class="sa">f</span><span class="s2">&quot;must match desired_wave_grid length (</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">desired_wave_grid</span><span class="p">)</span><span class="si">}</span><span class="s2">).&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Pre-allocate memory for the resampled PSF cube</span>
+        <span class="n">new_y</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">psf_cube_data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">psf_pixel_scale</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">initial_pixel_scale_arcsec</span><span class="p">))</span>
+        <span class="n">new_x</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">psf_cube_data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">psf_pixel_scale</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">initial_pixel_scale_arcsec</span><span class="p">))</span>
+        <span class="n">resampled_psf_cube</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">psf_cube_data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">new_y</span><span class="p">,</span> <span class="n">new_x</span><span class="p">))</span>
+
+        <span class="k">for</span> <span class="n">i_wave</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">psf_cube_data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+            <span class="n">psf_slice</span> <span class="o">=</span> <span class="n">psf_cube_data</span><span class="p">[</span><span class="n">i_wave</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">psf_pixel_scale</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">initial_pixel_scale_arcsec</span><span class="p">):</span>
+                <span class="n">resampled_psf</span> <span class="o">=</span> <span class="n">resize_psf</span><span class="p">(</span><span class="n">psf_slice</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">psf_pixel_scale</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">initial_pixel_scale_arcsec</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">resampled_psf</span> <span class="o">=</span> <span class="n">psf_slice</span>
+            
+            <span class="n">resampled_psf</span> <span class="o">/=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">resampled_psf</span><span class="p">)</span> <span class="c1"># Normalize</span>
+            <span class="n">resampled_psf_cube</span><span class="p">[</span><span class="n">i_wave</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">resampled_psf</span>
+
+        <span class="k">return</span> <span class="n">resampled_psf_cube</span>
+
+
+<div class="viewcode-block" id="GalSynMockObservation_ifu.process_datacube">
+<a class="viewcode-back" href="../../api/observe.html#galsyn.observe.GalSynMockObservation_ifu.process_datacube">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">process_datacube</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dust_attenuation</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">apply_noise_to_cube</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Executes the full pipeline of observational effects for the IFU data cube.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Starting full IFU data cube processing pipeline...&quot;</span><span class="p">)</span>
+
+        <span class="n">input_datacube</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">initial_datacube_dust</span> <span class="k">if</span> <span class="n">dust_attenuation</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">initial_datacube_dust</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">initial_datacube_nodust</span>
+        <span class="k">if</span> <span class="n">input_datacube</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Requested data cube (dust_attenuation=</span><span class="si">{</span><span class="n">dust_attenuation</span><span class="si">}</span><span class="s2">) not found in FITS file.&quot;</span><span class="p">)</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Initial data cube shape: </span><span class="si">{</span><span class="n">input_datacube</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2"> (Angstrom, Y, X)&quot;</span><span class="p">)</span>
+
+        <span class="c1"># --- 1. Cut/Interpolate Wavelength Grid ---</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;  Cutting/interpolating data cube to desired wavelength grid...&quot;</span><span class="p">)</span>
+        <span class="n">reshaped_cube</span> <span class="o">=</span> <span class="n">input_datacube</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">input_datacube</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
+        <span class="n">interpolated_cube_reshaped</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">reshaped_cube</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">desired_wave_grid</span><span class="p">)))</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">reshaped_cube</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+            <span class="n">interp_func</span> <span class="o">=</span> <span class="n">interp1d</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">original_wave_grid</span><span class="p">,</span> <span class="n">reshaped_cube</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="p">:],</span> <span class="n">kind</span><span class="o">=</span><span class="s1">&#39;linear&#39;</span><span class="p">,</span> <span class="n">bounds_error</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">fill_value</span><span class="o">=</span><span class="mf">0.0</span><span class="p">)</span>
+            <span class="n">interpolated_cube_reshaped</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">interp_func</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">desired_wave_grid</span><span class="p">)</span>
+        <span class="n">processed_cube_wave_cut</span> <span class="o">=</span> <span class="n">interpolated_cube_reshaped</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">desired_wave_grid</span><span class="p">),</span> <span class="n">input_datacube</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">input_datacube</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Data cube cut to wavelength grid. New shape: </span><span class="si">{</span><span class="n">processed_cube_wave_cut</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="c1"># --- Convert to Surface Brightness ---</span>
+        <span class="n">pixel_area_arcsec2_initial</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">initial_pixel_scale_arcsec</span><span class="o">**</span><span class="mi">2</span>
+        <span class="n">processed_cube_sb</span> <span class="o">=</span> <span class="n">processed_cube_wave_cut</span> <span class="o">/</span> <span class="n">pixel_area_arcsec2_initial</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Data cube converted to spectral surface brightness (erg/s/cm^2/Angstrom/arcsec^2).&quot;</span><span class="p">)</span>
+
+        <span class="c1"># --- 3. Spectral Smoothing ---</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Smoothing spectra to R=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">spectral_resolution_R</span><span class="si">}</span><span class="s2">...&quot;</span><span class="p">)</span>
+        <span class="n">smoothed_cube_sb</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">processed_cube_sb</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">desired_wave_grid</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">delta_lambda_per_pixel</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">desired_wave_grid</span><span class="p">))</span>
+            <span class="n">sigma_lambda_per_channel</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">desired_wave_grid</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">spectral_resolution_R</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mi">2</span><span class="p">)))</span>
+            <span class="n">mean_sigma_pixels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">sigma_lambda_per_channel</span> <span class="o">/</span> <span class="n">delta_lambda_per_pixel</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">mean_sigma_pixels</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">gauss_kernel</span> <span class="o">=</span> <span class="n">Gaussian1DKernel</span><span class="p">(</span><span class="n">stddev</span><span class="o">=</span><span class="n">mean_sigma_pixels</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">i_y</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">processed_cube_sb</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
+                    <span class="k">for</span> <span class="n">i_x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">processed_cube_sb</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]):</span>
+                        <span class="n">smoothed_cube_sb</span><span class="p">[:,</span> <span class="n">i_y</span><span class="p">,</span> <span class="n">i_x</span><span class="p">]</span> <span class="o">=</span> <span class="n">convolve_fft</span><span class="p">(</span><span class="n">processed_cube_sb</span><span class="p">[:,</span> <span class="n">i_y</span><span class="p">,</span> <span class="n">i_x</span><span class="p">],</span> <span class="n">gauss_kernel</span><span class="p">,</span> <span class="n">boundary</span><span class="o">=</span><span class="s1">&#39;fill&#39;</span><span class="p">,</span> <span class="n">fill_value</span><span class="o">=</span><span class="mf">0.0</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">smoothed_cube_sb</span> <span class="o">=</span> <span class="n">processed_cube_sb</span>
+        <span class="k">else</span><span class="p">:</span>
+             <span class="n">smoothed_cube_sb</span> <span class="o">=</span> <span class="n">processed_cube_sb</span> <span class="c1"># No smoothing for a single wavelength point</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;  Spectra smoothed.&quot;</span><span class="p">)</span>
+
+        <span class="c1"># --- 4. Spatial PSF Convolution ---</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;  Convolving each spatial slice with PSF...&quot;</span><span class="p">)</span>
+        <span class="n">psf_cube</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_psf_cube</span><span class="p">()</span>
+        <span class="n">convolved_cube_sb</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">smoothed_cube_sb</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i_wave</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">smoothed_cube_sb</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+            <span class="n">convolved_cube_sb</span><span class="p">[</span><span class="n">i_wave</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">convolve_fft</span><span class="p">(</span><span class="n">smoothed_cube_sb</span><span class="p">[</span><span class="n">i_wave</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:],</span> <span class="n">psf_cube</span><span class="p">[</span><span class="n">i_wave</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:],</span> <span class="n">boundary</span><span class="o">=</span><span class="s1">&#39;fill&#39;</span><span class="p">,</span> <span class="n">fill_value</span><span class="o">=</span><span class="mf">0.0</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;  Spatial PSF convolution complete.&quot;</span><span class="p">)</span>
+
+        <span class="c1"># --- 5. Noise Simulation and Injection ---</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;  Simulating and injecting noise...&quot;</span><span class="p">)</span>
+        <span class="n">noisy_cube_flux_per_initial_pixel</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">convolved_cube_sb</span><span class="p">)</span>
+        <span class="n">rms_cube_flux_per_initial_pixel</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">convolved_cube_sb</span><span class="p">)</span>
+        <span class="n">c_angstrom_s</span> <span class="o">=</span> <span class="mf">2.99792458e18</span>
+        
+        <span class="k">for</span> <span class="n">i_wave</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">convolved_cube_sb</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+            <span class="n">current_wave</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">desired_wave_grid</span><span class="p">[</span><span class="n">i_wave</span><span class="p">]</span>
+            
+            <span class="c1"># Get wavelength-dependent parameters</span>
+            <span class="n">mag_zp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_wave_dependent_param</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mag_zp</span><span class="p">,</span> <span class="n">current_wave</span><span class="p">)</span>
+            <span class="n">lim_mag_at_wave</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">limiting_magnitude_wave_func</span><span class="p">(</span><span class="n">current_wave</span><span class="p">)</span>
+            <span class="n">snr_limit</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_wave_dependent_param</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">snr_limit</span><span class="p">,</span> <span class="n">current_wave</span><span class="p">)</span>
+            <span class="n">exposure_time</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_wave_dependent_param</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">exposure_time</span><span class="p">,</span> <span class="n">current_wave</span><span class="p">)</span>
+
+            <span class="c1"># Convert current slice SB to flux per initial pixel for noise calculation</span>
+            <span class="n">current_slice_flux_per_initial_pixel</span> <span class="o">=</span> <span class="n">convolved_cube_sb</span><span class="p">[</span><span class="n">i_wave</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span> <span class="o">*</span> <span class="n">pixel_area_arcsec2_initial</span>
+            
+            <span class="c1"># Source counts</span>
+            <span class="n">f_nu_erg_s_cm2_Hz_pixel</span> <span class="o">=</span> <span class="n">current_slice_flux_per_initial_pixel</span> <span class="o">*</span> <span class="n">current_wave</span><span class="o">**</span><span class="mi">2</span> <span class="o">/</span> <span class="n">c_angstrom_s</span>
+            <span class="n">pixel_mag_AB</span> <span class="o">=</span> <span class="o">-</span><span class="mf">2.5</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">f_nu_erg_s_cm2_Hz_pixel</span><span class="p">,</span> <span class="mf">1e-50</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span> <span class="o">-</span> <span class="mf">48.6</span>
+            <span class="n">source_counts_per_pixel_expected</span> <span class="o">=</span> <span class="n">exposure_time</span> <span class="o">*</span> <span class="p">(</span><span class="mi">10</span><span class="o">**</span><span class="p">(</span><span class="mf">0.4</span> <span class="o">*</span> <span class="p">(</span><span class="n">mag_zp</span> <span class="o">-</span> <span class="n">pixel_mag_AB</span><span class="p">)))</span>
+            <span class="n">source_counts_per_pixel_expected</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">source_counts_per_pixel_expected</span><span class="p">)</span>
+
+            <span class="c1"># Background counts variance</span>
+            <span class="n">C_aperture_at_wave</span> <span class="o">=</span> <span class="n">exposure_time</span> <span class="o">*</span> <span class="p">(</span><span class="mi">10</span><span class="o">**</span><span class="p">(</span><span class="mf">0.4</span> <span class="o">*</span> <span class="p">(</span><span class="n">mag_zp</span> <span class="o">-</span> <span class="n">lim_mag_at_wave</span><span class="p">)))</span>
+            <span class="n">sigma_bg_counts_sq_per_pixel</span> <span class="o">=</span> <span class="p">(</span><span class="n">C_aperture_at_wave</span> <span class="o">/</span> <span class="n">snr_limit</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span> <span class="o">-</span> <span class="n">C_aperture_at_wave</span>
+            <span class="n">sigma_bg_counts_sq_per_pixel</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">sigma_bg_counts_sq_per_pixel</span><span class="p">)</span>
+            <span class="n">sigma_bg_counts_per_pixel</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">sigma_bg_counts_sq_per_pixel</span><span class="p">)</span>
+
+            <span class="c1"># Conversion factor from counts back to flux</span>
+            <span class="n">mag_for_1_count</span> <span class="o">=</span> <span class="n">mag_zp</span> <span class="o">-</span> <span class="mf">2.5</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span> <span class="n">exposure_time</span><span class="p">)</span>
+            <span class="n">f_nu_erg_s_cm2_Hz_for_1_count</span> <span class="o">=</span> <span class="mi">10</span><span class="o">**</span><span class="p">((</span><span class="n">mag_for_1_count</span> <span class="o">+</span> <span class="mf">48.6</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="o">-</span><span class="mf">2.5</span><span class="p">))</span>
+            <span class="n">flux_per_total_count_per_A_per_pixel</span> <span class="o">=</span> <span class="n">f_nu_erg_s_cm2_Hz_for_1_count</span> <span class="o">*</span> <span class="n">c_angstrom_s</span> <span class="o">/</span> <span class="n">current_wave</span><span class="o">**</span><span class="mi">2</span>
+
+            <span class="k">if</span> <span class="n">apply_noise_to_cube</span><span class="p">:</span>
+                <span class="n">photon_shot_noise</span> <span class="o">=</span> <span class="n">stats</span><span class="o">.</span><span class="n">poisson</span><span class="o">.</span><span class="n">rvs</span><span class="p">(</span><span class="n">source_counts_per_pixel_expected</span><span class="p">)</span>
+                <span class="n">background_noise</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">sigma_bg_counts_per_pixel</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">source_counts_per_pixel_expected</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+                <span class="n">total_noisy_counts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">photon_shot_noise</span> <span class="o">+</span> <span class="n">background_noise</span><span class="p">)</span>
+                <span class="n">noisy_cube_flux_per_initial_pixel</span><span class="p">[</span><span class="n">i_wave</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="mf">1e-30</span><span class="p">,</span> <span class="n">total_noisy_counts</span> <span class="o">*</span> <span class="n">flux_per_total_count_per_A_per_pixel</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">noisy_cube_flux_per_initial_pixel</span><span class="p">[</span><span class="n">i_wave</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">current_slice_flux_per_initial_pixel</span>
+
+            <span class="n">total_variance_counts_slice</span> <span class="o">=</span> <span class="n">source_counts_per_pixel_expected</span> <span class="o">+</span> <span class="n">sigma_bg_counts_sq_per_pixel</span>
+            <span class="n">total_rms_counts_per_pixel_slice</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">total_variance_counts_slice</span><span class="p">)</span>
+            <span class="n">rms_cube_flux_per_initial_pixel</span><span class="p">[</span><span class="n">i_wave</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="mf">1e-30</span><span class="p">,</span> <span class="n">total_rms_counts_per_pixel_slice</span> <span class="o">*</span> <span class="n">flux_per_total_count_per_A_per_pixel</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;  Noise simulated and injected.&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Convert back to surface brightness for resampling</span>
+        <span class="n">noisy_cube_sb</span> <span class="o">=</span> <span class="n">noisy_cube_flux_per_initial_pixel</span> <span class="o">/</span> <span class="n">pixel_area_arcsec2_initial</span>
+        <span class="n">rms_cube_sb</span> <span class="o">=</span> <span class="n">rms_cube_flux_per_initial_pixel</span> <span class="o">/</span> <span class="n">pixel_area_arcsec2_initial</span>
+
+        <span class="c1"># --- 6. Spatial Resampling to Final Pixel Scale ---</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Resampling data cube spatially to </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">final_pixel_scale_arcsec</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2"> arcsec...&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">final_pixel_scale_arcsec</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">initial_pixel_scale_arcsec</span><span class="p">):</span>
+            <span class="n">resampled_processed_cube_sb</span> <span class="o">=</span> <span class="n">noisy_cube_sb</span>
+            <span class="n">resampled_rms_cube_sb</span> <span class="o">=</span> <span class="n">rms_cube_sb</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">old_ny</span><span class="p">,</span> <span class="n">old_nx</span> <span class="o">=</span> <span class="n">noisy_cube_sb</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+            <span class="n">resampling_factor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">initial_pixel_scale_arcsec</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">final_pixel_scale_arcsec</span>
+            <span class="n">new_ny</span><span class="p">,</span> <span class="n">new_nx</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">old_ny</span> <span class="o">*</span> <span class="n">resampling_factor</span><span class="p">)),</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">old_nx</span> <span class="o">*</span> <span class="n">resampling_factor</span><span class="p">))</span>
+            <span class="n">new_spatial_shape</span> <span class="o">=</span> <span class="p">(</span><span class="n">new_ny</span><span class="p">,</span> <span class="n">new_nx</span><span class="p">)</span>
+
+            <span class="n">resampled_processed_cube_sb</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">noisy_cube_sb</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">new_ny</span><span class="p">,</span> <span class="n">new_nx</span><span class="p">))</span>
+            <span class="n">resampled_rms_cube_sb</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">rms_cube_sb</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">new_ny</span><span class="p">,</span> <span class="n">new_nx</span><span class="p">))</span>
+
+            <span class="c1"># --- Fix Start ---</span>
+            <span class="c1"># Create a simple WCS for the input data</span>
+            <span class="n">wcs_in</span> <span class="o">=</span> <span class="n">WCS</span><span class="p">(</span><span class="n">naxis</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+            <span class="n">wcs_in</span><span class="o">.</span><span class="n">wcs</span><span class="o">.</span><span class="n">cdelt</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">initial_pixel_scale_arcsec</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">initial_pixel_scale_arcsec</span><span class="p">]</span>
+            <span class="n">wcs_in</span><span class="o">.</span><span class="n">wcs</span><span class="o">.</span><span class="n">crpix</span> <span class="o">=</span> <span class="p">[</span><span class="n">old_nx</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="n">old_ny</span><span class="o">/</span><span class="mi">2</span><span class="p">]</span>
+            
+            <span class="c1"># Create a new WCS for the output data</span>
+            <span class="n">wcs_out</span> <span class="o">=</span> <span class="n">WCS</span><span class="p">(</span><span class="n">naxis</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+            <span class="n">wcs_out</span><span class="o">.</span><span class="n">wcs</span><span class="o">.</span><span class="n">cdelt</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">final_pixel_scale_arcsec</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">final_pixel_scale_arcsec</span><span class="p">]</span>
+            <span class="n">wcs_out</span><span class="o">.</span><span class="n">wcs</span><span class="o">.</span><span class="n">crpix</span> <span class="o">=</span> <span class="p">[</span><span class="n">new_nx</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="n">new_ny</span><span class="o">/</span><span class="mi">2</span><span class="p">]</span>
+            
+            <span class="k">for</span> <span class="n">i_wave</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">noisy_cube_sb</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+                <span class="n">resampled_processed_cube_sb</span><span class="p">[</span><span class="n">i_wave</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:],</span> <span class="n">_</span> <span class="o">=</span> <span class="n">reproject_adaptive</span><span class="p">(</span>
+                    <span class="p">(</span><span class="n">noisy_cube_sb</span><span class="p">[</span><span class="n">i_wave</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:],</span> <span class="n">wcs_in</span><span class="p">),</span>
+                    <span class="n">wcs_out</span><span class="p">,</span>
+                    <span class="n">shape_out</span><span class="o">=</span><span class="n">new_spatial_shape</span><span class="p">,</span>
+                    <span class="n">conserve_flux</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                    <span class="n">boundary_mode</span><span class="o">=</span><span class="s1">&#39;nearest&#39;</span>
+                <span class="p">)</span>
+                <span class="n">resampled_rms_cube_sb</span><span class="p">[</span><span class="n">i_wave</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:],</span> <span class="n">_</span> <span class="o">=</span> <span class="n">reproject_adaptive</span><span class="p">(</span>
+                    <span class="p">(</span><span class="n">rms_cube_sb</span><span class="p">[</span><span class="n">i_wave</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:],</span> <span class="n">wcs_in</span><span class="p">),</span>
+                    <span class="n">wcs_out</span><span class="p">,</span>
+                    <span class="n">shape_out</span><span class="o">=</span><span class="n">new_spatial_shape</span><span class="p">,</span>
+                    <span class="n">conserve_flux</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                    <span class="n">boundary_mode</span><span class="o">=</span><span class="s1">&#39;nearest&#39;</span>
+                <span class="p">)</span>
+            <span class="c1"># --- Fix End ---</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;  Spatial resampling complete.&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">processed_datacube</span> <span class="o">=</span> <span class="n">resampled_processed_cube_sb</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rms_datacube</span> <span class="o">=</span> <span class="n">resampled_rms_cube_sb</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Full IFU data cube processing pipeline complete.&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="GalSynMockObservation_ifu.save_results_to_fits">
+<a class="viewcode-back" href="../../api/observe.html#galsyn.observe.GalSynMockObservation_ifu.save_results_to_fits">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">save_results_to_fits</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output_fits_path</span><span class="p">,</span> <span class="n">flux_unit</span><span class="o">=</span><span class="s1">&#39;erg/s/cm2/A&#39;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Saves the processed data cube and the RMS data cube to a new FITS file.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Saving IFU results to FITS file: </span><span class="si">{</span><span class="n">output_fits_path</span><span class="si">}</span><span class="s2">...&quot;</span><span class="p">)</span>
+        <span class="n">hdul_out</span> <span class="o">=</span> <span class="n">fits</span><span class="o">.</span><span class="n">HDUList</span><span class="p">()</span>
+
+        <span class="n">prihdr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">image_header</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">prihdr</span><span class="p">[</span><span class="s1">&#39;COMMENT&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;Mock IFU Observation Results&#39;</span>
+        <span class="n">prihdr</span><span class="p">[</span><span class="s1">&#39;NOISESIM&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;True&#39;</span>
+        <span class="n">prihdr</span><span class="p">[</span><span class="s1">&#39;RES_R&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">spectral_resolution_R</span>
+        <span class="n">prihdr</span><span class="p">[</span><span class="s1">&#39;PIXSIZE&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">final_pixel_scale_arcsec</span>
+        
+        <span class="c1"># Save parameter values at the central wavelength for header reference</span>
+        <span class="n">central_wave</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">desired_wave_grid</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">desired_wave_grid</span><span class="p">)</span> <span class="o">//</span> <span class="mi">2</span><span class="p">]</span>
+        <span class="n">prihdr</span><span class="p">[</span><span class="s1">&#39;ZP_MAG&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_wave_dependent_param</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mag_zp</span><span class="p">,</span> <span class="n">central_wave</span><span class="p">),</span> <span class="s1">&#39;ZP at central wavelength&#39;</span><span class="p">)</span>
+        <span class="n">prihdr</span><span class="p">[</span><span class="s1">&#39;SNR_LIM&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_wave_dependent_param</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">snr_limit</span><span class="p">,</span> <span class="n">central_wave</span><span class="p">),</span> <span class="s1">&#39;SNR at central wavelength&#39;</span><span class="p">)</span>
+        <span class="n">prihdr</span><span class="p">[</span><span class="s1">&#39;EXP_TIME&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_wave_dependent_param</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">exposure_time</span><span class="p">,</span> <span class="n">central_wave</span><span class="p">),</span> <span class="s1">&#39;Exposure time (s) at central wavelength&#39;</span><span class="p">)</span>
+
+        <span class="n">hdul_out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">fits</span><span class="o">.</span><span class="n">PrimaryHDU</span><span class="p">(</span><span class="n">header</span><span class="o">=</span><span class="n">prihdr</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">processed_datacube</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">pixel_area_arcsec2_final</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">final_pixel_scale_arcsec</span><span class="o">**</span><span class="mi">2</span>
+            <span class="n">processed_cube_flux_per_pixel</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">processed_datacube</span> <span class="o">*</span> <span class="n">pixel_area_arcsec2_final</span>
+            <span class="n">final_processed_cube</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">processed_cube_flux_per_pixel</span><span class="p">)</span>
+
+            <span class="k">for</span> <span class="n">i_wave</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">processed_cube_flux_per_pixel</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+                <span class="n">final_processed_cube</span><span class="p">[</span><span class="n">i_wave</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">convert_flux_map</span><span class="p">(</span>
+                    <span class="n">processed_cube_flux_per_pixel</span><span class="p">[</span><span class="n">i_wave</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:],</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">desired_wave_grid</span><span class="p">[</span><span class="n">i_wave</span><span class="p">],</span>
+                    <span class="n">to_unit</span><span class="o">=</span><span class="n">flux_unit</span><span class="p">,</span>
+                    <span class="n">pixel_scale_arcsec</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">final_pixel_scale_arcsec</span><span class="p">)</span>
+            
+            <span class="n">output_flux_scale</span> <span class="o">=</span> <span class="mf">1e-20</span> <span class="k">if</span> <span class="n">flux_unit</span> <span class="o">==</span> <span class="s1">&#39;erg/s/cm2/A&#39;</span> <span class="k">else</span> <span class="mf">1.0</span>
+            <span class="n">final_processed_cube</span> <span class="o">/=</span> <span class="n">output_flux_scale</span>
+
+            <span class="n">ext_hdr_proc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_ifu_header</span><span class="p">(</span><span class="s1">&#39;SCI&#39;</span><span class="p">,</span> <span class="n">final_processed_cube</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">flux_unit</span><span class="p">,</span> <span class="n">output_flux_scale</span><span class="p">)</span>
+            <span class="n">hdul_out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">fits</span><span class="o">.</span><span class="n">ImageHDU</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">final_processed_cube</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="n">ext_hdr_proc</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">rms_datacube</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">pixel_area_arcsec2_final</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">final_pixel_scale_arcsec</span><span class="o">**</span><span class="mi">2</span>
+            <span class="n">rms_cube_flux_per_pixel</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rms_datacube</span> <span class="o">*</span> <span class="n">pixel_area_arcsec2_final</span>
+            <span class="n">final_rms_cube</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">rms_cube_flux_per_pixel</span><span class="p">)</span>
+
+            <span class="k">for</span> <span class="n">i_wave</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">rms_cube_flux_per_pixel</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+                <span class="n">final_rms_cube</span><span class="p">[</span><span class="n">i_wave</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">convert_flux_map</span><span class="p">(</span>
+                    <span class="n">rms_cube_flux_per_pixel</span><span class="p">[</span><span class="n">i_wave</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:],</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">desired_wave_grid</span><span class="p">[</span><span class="n">i_wave</span><span class="p">],</span>
+                    <span class="n">to_unit</span><span class="o">=</span><span class="n">flux_unit</span><span class="p">,</span>
+                    <span class="n">pixel_scale_arcsec</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">final_pixel_scale_arcsec</span><span class="p">)</span>
+            
+            <span class="n">output_flux_scale</span> <span class="o">=</span> <span class="mf">1e-20</span> <span class="k">if</span> <span class="n">flux_unit</span> <span class="o">==</span> <span class="s1">&#39;erg/s/cm2/A&#39;</span> <span class="k">else</span> <span class="mf">1.0</span>
+            <span class="n">final_rms_cube</span> <span class="o">/=</span> <span class="n">output_flux_scale</span>
+            
+            <span class="n">ext_hdr_rms</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_ifu_header</span><span class="p">(</span><span class="s1">&#39;RMS&#39;</span><span class="p">,</span> <span class="n">final_rms_cube</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">flux_unit</span><span class="p">,</span> <span class="n">output_flux_scale</span><span class="p">)</span>
+            <span class="n">hdul_out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">fits</span><span class="o">.</span><span class="n">ImageHDU</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">final_rms_cube</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="n">ext_hdr_rms</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">desired_wave_grid</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">col</span> <span class="o">=</span> <span class="n">fits</span><span class="o">.</span><span class="n">Column</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;WAVELENGTH&#39;</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s1">&#39;D&#39;</span><span class="p">,</span> <span class="n">array</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">desired_wave_grid</span><span class="p">)</span>
+            <span class="n">wavelength_hdu</span> <span class="o">=</span> <span class="n">fits</span><span class="o">.</span><span class="n">BinTableHDU</span><span class="o">.</span><span class="n">from_columns</span><span class="p">([</span><span class="n">col</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;WAVELENGTH&#39;</span><span class="p">)</span>
+            <span class="n">wavelength_hdu</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s1">&#39;BUNIT&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;Angstrom&#39;</span>
+            <span class="n">hdul_out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">wavelength_hdu</span><span class="p">)</span>
+
+        <span class="n">output_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">output_fits_path</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">output_dir</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">output_dir</span><span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">output_dir</span><span class="p">)</span>
+
+        <span class="n">hdul_out</span><span class="o">.</span><span class="n">writeto</span><span class="p">(</span><span class="n">output_fits_path</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">output_verify</span><span class="o">=</span><span class="s1">&#39;fix&#39;</span><span class="p">)</span>
+        <span class="n">hdul_out</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;IFU results saved to </span><span class="si">{</span><span class="n">output_fits_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_create_ifu_header</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">extname</span><span class="p">,</span> <span class="n">shape</span><span class="p">,</span> <span class="n">flux_unit</span><span class="p">,</span> <span class="n">scale</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Helper to create a standard header for IFU cube extensions.&quot;&quot;&quot;</span>
+        <span class="n">hdr</span> <span class="o">=</span> <span class="n">fits</span><span class="o">.</span><span class="n">Header</span><span class="p">()</span>
+        <span class="n">hdr</span><span class="p">[</span><span class="s1">&#39;EXTNAME&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">extname</span>
+        <span class="n">hdr</span><span class="p">[</span><span class="s1">&#39;BUNIT&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">flux_unit</span>
+        <span class="n">hdr</span><span class="p">[</span><span class="s1">&#39;SCALE&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">scale</span>
+        <span class="c1"># WCS for (wavelength, y, x)</span>
+        <span class="n">hdr</span><span class="p">[</span><span class="s1">&#39;CTYPE1&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;WAVE&#39;</span>
+        <span class="n">hdr</span><span class="p">[</span><span class="s1">&#39;CRPIX1&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span> 
+        <span class="n">hdr</span><span class="p">[</span><span class="s1">&#39;CRVAL1&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">desired_wave_grid</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">hdr</span><span class="p">[</span><span class="s1">&#39;CDELT1&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">desired_wave_grid</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">desired_wave_grid</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">desired_wave_grid</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="k">else</span> <span class="mf">0.0</span>
+        <span class="n">hdr</span><span class="p">[</span><span class="s1">&#39;CUNIT1&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;Angstrom&#39;</span>
+        <span class="n">hdr</span><span class="p">[</span><span class="s1">&#39;CTYPE2&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;DEC--TAN&#39;</span>
+        <span class="n">hdr</span><span class="p">[</span><span class="s1">&#39;CRPIX2&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="mf">2.0</span> <span class="o">+</span> <span class="mf">0.5</span> 
+        <span class="n">hdr</span><span class="p">[</span><span class="s1">&#39;CDELT2&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">final_pixel_scale_arcsec</span>
+        <span class="n">hdr</span><span class="p">[</span><span class="s1">&#39;CUNIT2&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;arcsec&#39;</span>
+        <span class="n">hdr</span><span class="p">[</span><span class="s1">&#39;CTYPE3&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;RA---TAN&#39;</span>
+        <span class="n">hdr</span><span class="p">[</span><span class="s1">&#39;CRPIX3&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">/</span> <span class="mf">2.0</span> <span class="o">+</span> <span class="mf">0.5</span> 
+        <span class="n">hdr</span><span class="p">[</span><span class="s1">&#39;CDELT3&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">final_pixel_scale_arcsec</span>
+        <span class="n">hdr</span><span class="p">[</span><span class="s1">&#39;CUNIT3&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;arcsec&#39;</span>
+        <span class="k">return</span> <span class="n">hdr</span></div>
+
+</pre></div>
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Abdurrouf
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2025, Abdurrouf.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

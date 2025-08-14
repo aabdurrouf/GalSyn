@@ -1,0 +1,966 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>galsyn.sfh &#8212; GalSyn 0.1.0 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../../_static/documentation_options.js?v=a1637f0b"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/galsyn/sfh';</script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../_static/galsyn_logo.png" class="logo__image only-light" alt="GalSyn 0.1.0 documentation - Home"/>
+    <script>document.write(`<img src="../../_static/galsyn_logo.png" class="logo__image only-dark" alt="GalSyn 0.1.0 documentation - Home"/>`);</script>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../../index.html">
+                    Welcome to GalSyn’s Documentation!
+                </a>
+            </li>
+        </ul>
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../introduction.html">Introduction and Capabilities</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../tutorials.html">Tutorials</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../tutorials/getting_started.html">Getting Started with GalSyn</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../tutorials/basic_usage.html">Basic Usage of GalSyn</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../tutorials/customizing_ssp_engines.html">Customizing SSP Engines (FSPS vs Bagpipes)</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../api.html">API Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../api/galsyn.html">galsyn</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/config.html">config</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/dust.html">dust</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/galsyn_run_bagpipes.html">galsyn_run_bagpipes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/galsyn_run_fsps.html">galsyn_run_fsps</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/imgutils.html">imgutils</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/observe.html">observe</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/sfh.html">sfh</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/simutils_tng.html">simutils_tng</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/ssp_generator_bagpipes.html">ssp_generator_bagpipes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/ssp_generator_fsps.html">ssp_generator_fsps</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/utils.html">utils</a></li>
+</ul>
+</details></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-source-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Source repositories">
+    <i class="fab fa-github"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="https://github.com/aabdurrouf/GalSyn" target="_blank"
+   class="btn btn-sm btn-source-repository-button dropdown-item"
+   title="Source repository"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="btn__text-container">Repository</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/aabdurrouf/GalSyn/issues/new?title=Issue%20on%20page%20%2F_modules/galsyn/sfh.html&body=Your%20issue%20content%20here." target="_blank"
+   class="btn btn-sm btn-source-issues-button dropdown-item"
+   title="Open an issue"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="btn__text-container">Open issue</span>
+</a>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1></h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for galsyn.sfh</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">h5py</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">astropy.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">fits</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">joblib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Parallel</span><span class="p">,</span> <span class="n">delayed</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqdm.auto</span><span class="w"> </span><span class="kn">import</span> <span class="n">tqdm</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqdm_joblib</span><span class="w"> </span><span class="kn">import</span> <span class="n">tqdm_joblib</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">multiprocessing</span>
+
+<span class="c1"># Import necessary functions from galsyn&#39;s existing modules</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.</span><span class="w"> </span><span class="kn">import</span> <span class="n">config</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">define_cosmo</span><span class="p">,</span> <span class="n">interp_age_univ_from_z</span><span class="p">,</span> <span class="n">get_2d_density_projection_no_los_binning</span><span class="p">,</span> <span class="n">construct_SFH</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.imgutils</span><span class="w"> </span><span class="kn">import</span> <span class="n">angular_to_physical</span><span class="p">,</span> <span class="n">determine_image_size</span>
+
+<span class="c1"># Global variables for worker processes (to be initialized once per worker)</span>
+<span class="n">_worker_stars_form_lbt</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="n">_worker_stars_init_mass</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="n">_worker_stars_metallicity</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="n">_worker_sfh_del_t</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="n">_worker_sfh_max_lbt</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="n">_worker_sfh_lbt_bins</span> <span class="o">=</span> <span class="kc">None</span> <span class="c1"># To store the common lookback time bins</span>
+
+<div class="viewcode-block" id="SFHReconstructor">
+<a class="viewcode-back" href="../../api/sfh.html#galsyn.sfh.SFHReconstructor">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">SFHReconstructor</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A class to reconstruct spatially resolved star formation histories (SFHs)</span>
+<span class="sd">    from HDF5 simulation data. It projects star particles onto a 2D grid and</span>
+<span class="sd">    calculates SFH-related quantities for each pixel, outputting the results</span>
+<span class="sd">    as a 3D FITS file (spatial x spatial x lookback_time).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sim_file</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">Z_sun</span><span class="o">=</span><span class="mf">0.019</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initializes the SFHReconstructor with basic simulation parameters.</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">            sim_file (str, optional): Path to the HDF5 simulation file.</span>
+<span class="sd">            z (float, optional): Redshift of the galaxy. Defaults to 0.01.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sim_file</span> <span class="o">=</span> <span class="n">sim_file</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_z</span> <span class="o">=</span> <span class="n">z</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_Z_sun</span> <span class="o">=</span> <span class="n">Z_sun</span>
+
+        <span class="c1"># Initialize with default values from config.py</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_load_config_defaults</span><span class="p">()</span>
+
+        <span class="c1"># Set other default parameters</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dim_kpc</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_pix_arcsec</span> <span class="o">=</span> <span class="mf">0.02</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_polar_angle_deg</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_azimuth_angle_deg</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ncpu</span> <span class="o">=</span> <span class="mi">4</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_initdim_kpc</span> <span class="o">=</span> <span class="mi">100</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_initdim_mass_fraction</span> <span class="o">=</span> <span class="mf">0.99</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_name_out_sfh</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sfh_del_t</span> <span class="o">=</span> <span class="mf">0.05</span> <span class="c1"># Default SFH bin width in Gyr</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sfh_max_lbt</span> <span class="o">=</span> <span class="mf">14.0</span> <span class="c1"># Default maximum lookback time for SFH in Gyr</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_load_config_defaults</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Loads default parameter values from the config.py module.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cosmo_str</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s1">&#39;COSMO&#39;</span><span class="p">,</span> <span class="s2">&quot;Planck18&quot;</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">sim_file</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sim_file</span>
+
+    <span class="nd">@sim_file</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">sim_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;sim_file must be a string.&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Simulation file not found at: </span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sim_file</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">z</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_z</span>
+
+    <span class="nd">@z</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">z</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">))</span> <span class="ow">or</span> <span class="n">value</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;z must be a non-negative number.&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_z</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">Z_sun</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_Z_sun</span>
+
+    <span class="nd">@Z_sun</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">Z_sun</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">))</span> <span class="ow">or</span> <span class="n">value</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Z_sun must be a non-negative number.&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_Z_sun</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">dim_kpc</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dim_kpc</span>
+
+    <span class="nd">@dim_kpc</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">dim_kpc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">))</span> <span class="ow">or</span> <span class="n">value</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;dim_kpc must be a positive number or None.&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dim_kpc</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">pix_arcsec</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pix_arcsec</span>
+
+    <span class="nd">@pix_arcsec</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">pix_arcsec</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">))</span> <span class="ow">or</span> <span class="n">value</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;pix_arcsec must be a positive number.&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_pix_arcsec</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">polar_angle_deg</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_polar_angle_deg</span>
+
+    <span class="nd">@polar_angle_deg</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">polar_angle_deg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">)):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;polar_angle_deg must be a number.&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_polar_angle_deg</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">azimuth_angle_deg</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_azimuth_angle_deg</span>
+
+    <span class="nd">@azimuth_angle_deg</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">azimuth_angle_deg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">)):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;azimuth_angle_deg must be a number.&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_azimuth_angle_deg</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">ncpu</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ncpu</span>
+
+    <span class="nd">@ncpu</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">ncpu</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">or</span> <span class="n">value</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;ncpu must be a positive integer.&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ncpu</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">initdim_kpc</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_initdim_kpc</span>
+
+    <span class="nd">@initdim_kpc</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">initdim_kpc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">))</span> <span class="ow">or</span> <span class="n">value</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;initdim_kpc must be a positive number.&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_initdim_kpc</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">initdim_mass_fraction</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_initdim_mass_fraction</span>
+
+    <span class="nd">@initdim_mass_fraction</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">initdim_mass_fraction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">))</span> <span class="ow">or</span> <span class="ow">not</span> <span class="p">(</span><span class="mi">0</span> <span class="o">&lt;</span> <span class="n">value</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;initdim_mass_fraction must be a number between 0 and 1.&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_initdim_mass_fraction</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">name_out_sfh</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name_out_sfh</span>
+
+    <span class="nd">@name_out_sfh</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">name_out_sfh</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;name_out_sfh must be a string or None.&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_name_out_sfh</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">sfh_del_t</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sfh_del_t</span>
+
+    <span class="nd">@sfh_del_t</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">sfh_del_t</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">))</span> <span class="ow">or</span> <span class="n">value</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;sfh_del_t must be a positive number.&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sfh_del_t</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">sfh_max_lbt</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sfh_max_lbt</span>
+
+    <span class="nd">@sfh_max_lbt</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">sfh_max_lbt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">))</span> <span class="ow">or</span> <span class="n">value</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;sfh_max_lbt must be a positive number.&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sfh_max_lbt</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">cosmo_str</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cosmo_str</span>
+
+    <span class="nd">@cosmo_str</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">cosmo_str</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="n">accepted_cosmo_models</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;planck18&quot;</span><span class="p">,</span> <span class="s2">&quot;planck15&quot;</span><span class="p">,</span> <span class="s2">&quot;planck13&quot;</span><span class="p">,</span> <span class="s2">&quot;wmap5&quot;</span><span class="p">,</span> <span class="s2">&quot;wmap7&quot;</span><span class="p">,</span> <span class="s2">&quot;wmap9&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">or</span> <span class="n">value</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">accepted_cosmo_models</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;cosmo_str must be one of </span><span class="si">{</span><span class="n">accepted_cosmo_models</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cosmo_str</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+
+<div class="viewcode-block" id="SFHReconstructor.set_params">
+<a class="viewcode-back" href="../../api/sfh.html#galsyn.sfh.SFHReconstructor.set_params">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets multiple parameters at once using keyword arguments.</span>
+<span class="sd">        Example: reconstructor.set_params(dim_kpc=50, sfh_del_t=0.1)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+                <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error setting &#39;</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">&#39;: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="k">except</span> <span class="ne">FileNotFoundError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error setting &#39;</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">&#39;: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Warning: Parameter &#39;</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">&#39; not recognized.&quot;</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_init_worker</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stars_form_lbt_global</span><span class="p">,</span> <span class="n">stars_init_mass_global</span><span class="p">,</span> <span class="n">stars_metallicity_global</span><span class="p">,</span>
+                     <span class="n">sfh_del_t_val</span><span class="p">,</span> <span class="n">sfh_max_lbt_val</span><span class="p">,</span> <span class="n">sfh_lbt_bins_val</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initializes global variables for each worker process in parallel execution.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">global</span> <span class="n">_worker_stars_form_lbt</span><span class="p">,</span> <span class="n">_worker_stars_init_mass</span><span class="p">,</span> <span class="n">_worker_stars_metallicity</span>
+        <span class="k">global</span> <span class="n">_worker_sfh_del_t</span><span class="p">,</span> <span class="n">_worker_sfh_max_lbt</span><span class="p">,</span> <span class="n">_worker_sfh_lbt_bins</span>
+
+        <span class="n">_worker_stars_form_lbt</span> <span class="o">=</span> <span class="n">stars_form_lbt_global</span>
+        <span class="n">_worker_stars_init_mass</span> <span class="o">=</span> <span class="n">stars_init_mass_global</span>
+        <span class="n">_worker_stars_metallicity</span> <span class="o">=</span> <span class="n">stars_metallicity_global</span>
+        <span class="n">_worker_sfh_del_t</span> <span class="o">=</span> <span class="n">sfh_del_t_val</span>
+        <span class="n">_worker_sfh_max_lbt</span> <span class="o">=</span> <span class="n">sfh_max_lbt_val</span>
+        <span class="n">_worker_sfh_lbt_bins</span> <span class="o">=</span> <span class="n">sfh_lbt_bins_val</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_process_pixel_sfh</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ii</span><span class="p">,</span> <span class="n">jj</span><span class="p">,</span> <span class="n">star_particle_membership_list</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Worker function to process SFH calculations for a single pixel (ii, jj).</span>
+<span class="sd">        This function will be executed in parallel.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            ii (int): Y-coordinate (row index) of the pixel.</span>
+<span class="sd">            jj (int): X-coordinate (column index) of the pixel.</span>
+<span class="sd">            star_particle_membership_list (list): List of (original_particle_index, line_of_sight_distance)</span>
+<span class="sd">                                                  for star particles in THIS pixel.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            tuple: (ii, jj, sfh_dict) where sfh_dict is the result from construct_SFH,</span>
+<span class="sd">                   now also including mass assembly times.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Extract original indices of star particles in this pixel</span>
+        <span class="n">star_ids</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">star_particle_membership_list</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+
+        <span class="c1"># Filter global arrays to get data for stars in this pixel</span>
+        <span class="n">pixel_stars_form_lbt</span> <span class="o">=</span> <span class="n">_worker_stars_form_lbt</span><span class="p">[</span><span class="n">star_ids</span><span class="p">]</span>
+        <span class="n">pixel_stars_init_mass</span> <span class="o">=</span> <span class="n">_worker_stars_init_mass</span><span class="p">[</span><span class="n">star_ids</span><span class="p">]</span>
+        <span class="n">pixel_stars_metallicity</span> <span class="o">=</span> <span class="n">_worker_stars_metallicity</span><span class="p">[</span><span class="n">star_ids</span><span class="p">]</span>
+
+        <span class="c1"># Construct SFH for this pixel</span>
+        <span class="n">sfh_dict</span> <span class="o">=</span> <span class="n">construct_SFH</span><span class="p">(</span>
+            <span class="n">pixel_stars_form_lbt</span><span class="p">,</span>
+            <span class="n">pixel_stars_init_mass</span><span class="p">,</span>
+            <span class="n">pixel_stars_metallicity</span><span class="p">,</span>
+            <span class="n">del_t</span><span class="o">=</span><span class="n">_worker_sfh_del_t</span><span class="p">,</span>
+            <span class="n">max_lbt</span><span class="o">=</span><span class="n">_worker_sfh_max_lbt</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Calculate mass assembly times</span>
+        <span class="n">mass_assembly_times</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">percentages</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.10</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">,</span> <span class="mf">0.50</span><span class="p">,</span> <span class="mf">0.75</span><span class="p">,</span> <span class="mf">0.95</span><span class="p">]</span>
+
+        <span class="c1"># Use the cumulative mass returned by construct_SFH (which now includes all bins)</span>
+        <span class="c1"># and the full lbt midpoints (which are also consistent across pixels)</span>
+        <span class="k">if</span> <span class="n">sfh_dict</span><span class="p">[</span><span class="s1">&#39;mass&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span> <span class="c1"># Check if there is any mass in this pixel</span>
+            <span class="n">pixel_total_initial_mass</span> <span class="o">=</span> <span class="n">sfh_dict</span><span class="p">[</span><span class="s1">&#39;mass&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+            <span class="n">cumulative_mass_formed_for_interp</span> <span class="o">=</span> <span class="n">sfh_dict</span><span class="p">[</span><span class="s1">&#39;cumul_mass&#39;</span><span class="p">]</span> <span class="c1"># This is already cumulative mass formed at end of each bin</span>
+            
+            <span class="n">x_interp</span> <span class="o">=</span> <span class="n">sfh_dict</span><span class="p">[</span><span class="s1">&#39;lbt&#39;</span><span class="p">]</span> <span class="c1"># Lookback time midpoints for all bins</span>
+            <span class="n">y_interp</span> <span class="o">=</span> <span class="n">cumulative_mass_formed_for_interp</span> <span class="c1"># Cumulative mass formed at end of each bin</span>
+
+            <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">percentages</span><span class="p">:</span>
+                <span class="n">target_mass</span> <span class="o">=</span> <span class="n">p</span> <span class="o">*</span> <span class="n">pixel_total_initial_mass</span>
+                
+                <span class="c1"># np.interp requires x-coordinates (y_interp here) to be increasing.</span>
+                <span class="c1"># cumulative_mass_formed should always be non-decreasing.</span>
+                <span class="c1"># If there are zero-mass bins, y_interp will have plateaus.</span>
+                <span class="c1"># np.interp handles this correctly.</span>
+                <span class="n">t_assemble</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">interp</span><span class="p">(</span><span class="n">target_mass</span><span class="p">,</span> <span class="n">y_interp</span><span class="p">,</span> <span class="n">x_interp</span><span class="p">)</span>
+                <span class="n">mass_assembly_times</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;t_</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">p</span><span class="o">*</span><span class="mi">100</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">t_assemble</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># If no stars in pixel, all assembly times are NaN</span>
+            <span class="n">mass_assembly_times</span> <span class="o">=</span> <span class="p">{</span><span class="sa">f</span><span class="s1">&#39;t_</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">p</span><span class="o">*</span><span class="mi">100</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">percentages</span><span class="p">}</span>
+
+        <span class="n">sfh_dict</span><span class="p">[</span><span class="s1">&#39;mass_assembly_times&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">mass_assembly_times</span>
+        <span class="k">return</span> <span class="n">ii</span><span class="p">,</span> <span class="n">jj</span><span class="p">,</span> <span class="n">sfh_dict</span>
+
+<div class="viewcode-block" id="SFHReconstructor.reconstruct_sfh">
+<a class="viewcode-back" href="../../api/sfh.html#galsyn.sfh.SFHReconstructor.reconstruct_sfh">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">reconstruct_sfh</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Executes the spatially resolved SFH reconstruction process.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sim_file</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;sim_file must be set before calling reconstruct_sfh.&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">name_out_sfh</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;name_out_sfh must be set before calling reconstruct_sfh.&quot;</span><span class="p">)</span>
+
+        <span class="n">cosmo</span> <span class="o">=</span> <span class="n">define_cosmo</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cosmo_str</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Processing </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">sim_file</span><span class="si">}</span><span class="s2"> at redshift z=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">z</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="c1"># --- Data Loading and Initial Calculations (Sequential) ---</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">f</span> <span class="o">=</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sim_file</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span>
+
+            <span class="c1"># Stellar particle data</span>
+            <span class="n">stars_init_mass_raw</span> <span class="o">=</span> <span class="n">f</span><span class="p">[</span><span class="s1">&#39;star&#39;</span><span class="p">][</span><span class="s1">&#39;init_mass&#39;</span><span class="p">][:]</span>
+            <span class="n">stars_form_z</span> <span class="o">=</span> <span class="n">f</span><span class="p">[</span><span class="s1">&#39;star&#39;</span><span class="p">][</span><span class="s1">&#39;form_z&#39;</span><span class="p">][:]</span>
+            <span class="n">stars_zmet</span> <span class="o">=</span> <span class="n">f</span><span class="p">[</span><span class="s1">&#39;star&#39;</span><span class="p">][</span><span class="s1">&#39;zmet&#39;</span><span class="p">][:]</span>
+            <span class="n">stars_zsol_raw</span> <span class="o">=</span> <span class="n">stars_zmet</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">Z_sun</span>
+            <span class="n">stars_coords_raw</span> <span class="o">=</span> <span class="n">f</span><span class="p">[</span><span class="s1">&#39;star&#39;</span><span class="p">][</span><span class="s1">&#39;coords&#39;</span><span class="p">][:]</span>   <span class="c1"># coordinates (N,3) in units of kpc</span>
+
+            <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error loading data from simulation file </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">sim_file</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="c1"># Convert formation time to lookback time</span>
+        <span class="n">snap_a</span> <span class="o">=</span> <span class="mf">1.0</span><span class="o">/</span><span class="p">(</span><span class="mf">1.0</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">z</span><span class="p">)</span>
+        <span class="n">stars_form_a</span> <span class="o">=</span> <span class="mf">1.0</span><span class="o">/</span><span class="p">(</span><span class="mf">1.0</span> <span class="o">+</span> <span class="n">stars_form_z</span><span class="p">)</span>
+        <span class="n">snap_univ_age</span> <span class="o">=</span> <span class="n">cosmo</span><span class="o">.</span><span class="n">age</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">z</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
+        <span class="n">stars_form_age_univ</span> <span class="o">=</span> <span class="n">interp_age_univ_from_z</span><span class="p">(</span><span class="n">stars_form_z</span><span class="p">,</span> <span class="n">cosmo</span><span class="p">)</span>
+        <span class="n">stars_form_lbt_raw</span> <span class="o">=</span> <span class="n">snap_univ_age</span> <span class="o">-</span> <span class="n">stars_form_age_univ</span>
+
+        <span class="c1"># Filter out invalid stellar particles (e.g., formation time 0 or negative age)</span>
+        <span class="n">idx_valid_stars</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">((</span><span class="n">stars_form_a</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">stars_form_lbt_raw</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="n">stars_init_mass</span> <span class="o">=</span> <span class="n">stars_init_mass_raw</span><span class="p">[</span><span class="n">idx_valid_stars</span><span class="p">]</span>
+        <span class="n">stars_zsol</span> <span class="o">=</span> <span class="n">stars_zsol_raw</span><span class="p">[</span><span class="n">idx_valid_stars</span><span class="p">]</span>
+        <span class="n">stars_form_lbt</span> <span class="o">=</span> <span class="n">stars_form_lbt_raw</span><span class="p">[</span><span class="n">idx_valid_stars</span><span class="p">]</span> <span class="c1"># This is the lookback time for SFH</span>
+        <span class="n">stars_coords</span> <span class="o">=</span> <span class="n">stars_coords_raw</span><span class="p">[</span><span class="n">idx_valid_stars</span><span class="p">,:]</span>
+        
+        <span class="n">pix_kpc</span> <span class="o">=</span> <span class="n">angular_to_physical</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">z</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">pix_arcsec</span><span class="p">,</span> <span class="n">cosmo</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Pixel size: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">pix_arcsec</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> arcsec or </span><span class="si">{</span><span class="n">pix_kpc</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> kpc&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Determine image dimension if not explicitly set</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dim_kpc</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dim_kpc</span> <span class="o">=</span> <span class="n">determine_image_size</span><span class="p">(</span><span class="n">stars_coords</span><span class="p">,</span> <span class="n">stars_init_mass</span><span class="p">,</span> <span class="n">pix_kpc</span><span class="p">,</span> 
+                                                <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">initdim_kpc</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">initdim_kpc</span><span class="p">),</span>
+                                                <span class="bp">self</span><span class="o">.</span><span class="n">polar_angle_deg</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">azimuth_angle_deg</span><span class="p">,</span>
+                                                <span class="n">gas_coords</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">gas_masses</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="c1"># SFH reconstruction only needs stars</span>
+                                                <span class="n">mass_percentage</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">initdim_mass_fraction</span><span class="p">,</span>
+                                                <span class="n">max_img_dim</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">initdim_kpc</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Automatically determined image dimension: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">dim_kpc</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> kpc&quot;</span><span class="p">)</span>
+
+        <span class="n">output_dimension_physical</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dim_kpc</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dim_kpc</span><span class="p">)</span>
+
+        <span class="c1"># Get 2D projection and pixel membership for star particles</span>
+        <span class="n">star_particle_membership</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">grid_info</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> \
+            <span class="n">get_2d_density_projection_no_los_binning</span><span class="p">(</span>
+                <span class="n">stars_coords</span><span class="p">,</span>
+                <span class="n">stars_init_mass</span><span class="p">,</span>
+                <span class="n">pix_kpc</span><span class="p">,</span>
+                <span class="n">output_dimension_physical</span><span class="p">,</span>
+                <span class="n">polar_angle_deg</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">polar_angle_deg</span><span class="p">,</span>
+                <span class="n">azimuth_angle_deg</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">azimuth_angle_deg</span><span class="p">,</span>
+                <span class="n">gas_coords</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                <span class="n">gas_masses</span><span class="o">=</span><span class="kc">None</span>
+            <span class="p">)</span>
+        
+        <span class="n">dimx</span><span class="p">,</span> <span class="n">dimy</span> <span class="o">=</span> <span class="n">grid_info</span><span class="p">[</span><span class="s1">&#39;num_pixels_x&#39;</span><span class="p">],</span> <span class="n">grid_info</span><span class="p">[</span><span class="s1">&#39;num_pixels_y&#39;</span><span class="p">]</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Cutout size: </span><span class="si">{</span><span class="n">dimx</span><span class="si">}</span><span class="s2"> x </span><span class="si">{</span><span class="n">dimy</span><span class="si">}</span><span class="s2"> pix or </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">dim_kpc</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> x </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">dim_kpc</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> kpc&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Define common lookback time bins for all pixels</span>
+        <span class="c1"># Ensure max_lbt does not exceed the age of the universe at the galaxy&#39;s redshift</span>
+        <span class="n">age_universe_at_galaxy_z</span> <span class="o">=</span> <span class="n">cosmo</span><span class="o">.</span><span class="n">age</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">z</span><span class="p">)</span><span class="o">.</span><span class="n">value</span> <span class="c1"># Age of the universe at the galaxy&#39;s redshift</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sfh_max_lbt</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sfh_max_lbt</span><span class="p">,</span> <span class="n">age_universe_at_galaxy_z</span><span class="p">)</span>
+
+        <span class="n">sfh_lbt_bins</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sfh_max_lbt</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">sfh_del_t</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sfh_del_t</span><span class="p">)</span>
+        <span class="c1"># Midpoints of the bins for FITS header</span>
+        <span class="n">sfh_lbt_midpoints</span> <span class="o">=</span> <span class="n">sfh_lbt_bins</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">sfh_del_t</span>
+        <span class="n">num_lbt_bins</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">sfh_lbt_midpoints</span><span class="p">)</span>
+
+        <span class="c1"># Initialize 3D arrays to store SFH quantities</span>
+        <span class="c1"># (dimy, dimx, num_lbt_bins)</span>
+        <span class="n">map_sfr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">dimy</span><span class="p">,</span> <span class="n">dimx</span><span class="p">,</span> <span class="n">num_lbt_bins</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+        <span class="n">map_nstars</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">dimy</span><span class="p">,</span> <span class="n">dimx</span><span class="p">,</span> <span class="n">num_lbt_bins</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+        <span class="n">map_mass</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">dimy</span><span class="p">,</span> <span class="n">dimx</span><span class="p">,</span> <span class="n">num_lbt_bins</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+        <span class="n">map_cumul_mass</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">dimy</span><span class="p">,</span> <span class="n">dimx</span><span class="p">,</span> <span class="n">num_lbt_bins</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+        <span class="n">map_metallicity</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">dimy</span><span class="p">,</span> <span class="n">dimx</span><span class="p">,</span> <span class="n">num_lbt_bins</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+
+        <span class="c1"># Initialize 2D arrays for mass assembly times</span>
+        <span class="n">map_t_05</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">((</span><span class="n">dimy</span><span class="p">,</span> <span class="n">dimx</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+        <span class="n">map_t_10</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">((</span><span class="n">dimy</span><span class="p">,</span> <span class="n">dimx</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+        <span class="n">map_t_25</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">((</span><span class="n">dimy</span><span class="p">,</span> <span class="n">dimx</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+        <span class="n">map_t_50</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">((</span><span class="n">dimy</span><span class="p">,</span> <span class="n">dimx</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+        <span class="n">map_t_75</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">((</span><span class="n">dimy</span><span class="p">,</span> <span class="n">dimx</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+        <span class="n">map_t_95</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">((</span><span class="n">dimy</span><span class="p">,</span> <span class="n">dimx</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+
+        <span class="c1"># Prepare tasks for parallel processing</span>
+        <span class="n">tasks</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">dimy</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">jj</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">dimx</span><span class="p">):</span>
+                <span class="n">num_stars_in_pixel</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">star_particle_membership</span><span class="p">[</span><span class="n">ii</span><span class="p">][</span><span class="n">jj</span><span class="p">])</span>
+                <span class="c1"># SFH reconstruction only depends on stars, so complexity is just num_stars_in_pixel</span>
+                <span class="n">complexity</span> <span class="o">=</span> <span class="n">num_stars_in_pixel</span> 
+                <span class="n">tasks</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">&#39;coords&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">ii</span><span class="p">,</span> <span class="n">jj</span><span class="p">),</span> <span class="s1">&#39;complexity&#39;</span><span class="p">:</span> <span class="n">complexity</span><span class="p">,</span> 
+                              <span class="s1">&#39;star_part_mem&#39;</span><span class="p">:</span> <span class="n">star_particle_membership</span><span class="p">[</span><span class="n">ii</span><span class="p">][</span><span class="n">jj</span><span class="p">]})</span>
+
+        <span class="c1"># Sort tasks from heaviest (largest number of stars) to lightest</span>
+        <span class="n">tasks</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="s1">&#39;complexity&#39;</span><span class="p">],</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="n">processed_tasks_args</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="n">tasks</span><span class="p">:</span>
+            <span class="n">ii</span><span class="p">,</span> <span class="n">jj</span> <span class="o">=</span> <span class="n">task</span><span class="p">[</span><span class="s1">&#39;coords&#39;</span><span class="p">]</span>
+            <span class="n">processed_tasks_args</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">ii</span><span class="p">,</span> <span class="n">jj</span><span class="p">,</span> <span class="n">task</span><span class="p">[</span><span class="s1">&#39;star_part_mem&#39;</span><span class="p">]))</span>
+
+        <span class="n">num_cores</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ncpu</span>
+        <span class="k">if</span> <span class="n">num_cores</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+            <span class="n">num_cores</span> <span class="o">=</span> <span class="n">multiprocessing</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">()</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Starting parallel SFH reconstruction on </span><span class="si">{</span><span class="n">num_cores</span><span class="si">}</span><span class="s2"> cores...&quot;</span><span class="p">)</span>
+
+        <span class="k">with</span> <span class="n">tqdm_joblib</span><span class="p">(</span><span class="n">total</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">tasks</span><span class="p">),</span> <span class="n">desc</span><span class="o">=</span><span class="s2">&quot;Processing pixels for SFH&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">progress_bar</span><span class="p">:</span>
+            <span class="n">results</span> <span class="o">=</span> <span class="n">Parallel</span><span class="p">(</span><span class="n">n_jobs</span><span class="o">=</span><span class="n">num_cores</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">initializer</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_init_worker</span><span class="p">,</span>
+                               <span class="n">initargs</span><span class="o">=</span><span class="p">(</span><span class="n">stars_form_lbt</span><span class="p">,</span> <span class="n">stars_init_mass</span><span class="p">,</span> <span class="n">stars_zsol</span><span class="p">,</span>
+                                         <span class="bp">self</span><span class="o">.</span><span class="n">sfh_del_t</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sfh_max_lbt</span><span class="p">,</span> <span class="n">sfh_lbt_bins</span><span class="p">))(</span>
+                <span class="n">delayed</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_process_pixel_sfh</span><span class="p">)(</span><span class="o">*</span><span class="n">task_args</span><span class="p">)</span> <span class="k">for</span> <span class="n">task_args</span> <span class="ow">in</span> <span class="n">processed_tasks_args</span>
+            <span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Finished parallel SFH reconstruction.&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Populate the 3D maps with results from parallel processing</span>
+        <span class="k">for</span> <span class="n">pixel_result_tuple</span> <span class="ow">in</span> <span class="n">results</span><span class="p">:</span>
+            <span class="n">ii</span><span class="p">,</span> <span class="n">jj</span><span class="p">,</span> <span class="n">sfh_data</span> <span class="o">=</span> <span class="n">pixel_result_tuple</span>
+
+            <span class="c1"># Ensure data is correctly assigned based on the common sfh_lbt_midpoints order</span>
+            <span class="n">map_sfr</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span> <span class="n">jj</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">sfh_data</span><span class="p">[</span><span class="s1">&#39;sfr&#39;</span><span class="p">]</span>
+            <span class="n">map_nstars</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span> <span class="n">jj</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">sfh_data</span><span class="p">[</span><span class="s1">&#39;nstars&#39;</span><span class="p">]</span>
+            <span class="n">map_mass</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span> <span class="n">jj</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">sfh_data</span><span class="p">[</span><span class="s1">&#39;mass&#39;</span><span class="p">]</span>
+            <span class="n">map_cumul_mass</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span> <span class="n">jj</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">sfh_data</span><span class="p">[</span><span class="s1">&#39;cumul_mass&#39;</span><span class="p">]</span>
+            <span class="n">map_metallicity</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span> <span class="n">jj</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">sfh_data</span><span class="p">[</span><span class="s1">&#39;metallicity&#39;</span><span class="p">]</span>
+
+            <span class="c1"># Populate new mass assembly time maps</span>
+            <span class="k">if</span> <span class="s1">&#39;mass_assembly_times&#39;</span> <span class="ow">in</span> <span class="n">sfh_data</span><span class="p">:</span>
+                <span class="n">map_t_05</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span> <span class="n">jj</span><span class="p">]</span> <span class="o">=</span> <span class="n">sfh_data</span><span class="p">[</span><span class="s1">&#39;mass_assembly_times&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;t_5&#39;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+                <span class="n">map_t_10</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span> <span class="n">jj</span><span class="p">]</span> <span class="o">=</span> <span class="n">sfh_data</span><span class="p">[</span><span class="s1">&#39;mass_assembly_times&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;t_10&#39;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+                <span class="n">map_t_25</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span> <span class="n">jj</span><span class="p">]</span> <span class="o">=</span> <span class="n">sfh_data</span><span class="p">[</span><span class="s1">&#39;mass_assembly_times&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;t_25&#39;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+                <span class="n">map_t_50</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span> <span class="n">jj</span><span class="p">]</span> <span class="o">=</span> <span class="n">sfh_data</span><span class="p">[</span><span class="s1">&#39;mass_assembly_times&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;t_50&#39;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+                <span class="n">map_t_75</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span> <span class="n">jj</span><span class="p">]</span> <span class="o">=</span> <span class="n">sfh_data</span><span class="p">[</span><span class="s1">&#39;mass_assembly_times&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;t_75&#39;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+                <span class="n">map_t_95</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span> <span class="n">jj</span><span class="p">]</span> <span class="o">=</span> <span class="n">sfh_data</span><span class="p">[</span><span class="s1">&#39;mass_assembly_times&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;t_95&#39;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+
+
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;All SFH calculations complete. Maps populated.&quot;</span><span class="p">)</span>
+
+        <span class="c1"># --- Save results to FITS file ---</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">hdul</span> <span class="o">=</span> <span class="n">fits</span><span class="o">.</span><span class="n">HDUList</span><span class="p">()</span>
+
+            <span class="c1"># Primary HDU (can be empty or contain general info)</span>
+            <span class="n">prihdr</span> <span class="o">=</span> <span class="n">fits</span><span class="o">.</span><span class="n">Header</span><span class="p">()</span>
+            <span class="n">prihdr</span><span class="p">[</span><span class="s1">&#39;COMMENT&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;Spatially Resolved Star Formation History&#39;</span>
+            <span class="n">prihdr</span><span class="p">[</span><span class="s1">&#39;REDSHIFT&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">z</span>
+            <span class="n">prihdr</span><span class="p">[</span><span class="s1">&#39;POLAR&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">polar_angle_deg</span>
+            <span class="n">prihdr</span><span class="p">[</span><span class="s1">&#39;AZIMUTH&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">azimuth_angle_deg</span>
+            <span class="n">prihdr</span><span class="p">[</span><span class="s1">&#39;DIM_KPC&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dim_kpc</span>
+            <span class="n">prihdr</span><span class="p">[</span><span class="s1">&#39;PIX_KPC&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pix_kpc</span>
+            <span class="n">prihdr</span><span class="p">[</span><span class="s1">&#39;PIXSIZE&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pix_arcsec</span>
+            <span class="n">prihdr</span><span class="p">[</span><span class="s1">&#39;SFH_DELT&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sfh_del_t</span>
+            <span class="c1"># Removed SFH_MAXLBT from header as it&#39;s now dynamically adjusted</span>
+            <span class="n">prihdr</span><span class="p">[</span><span class="s1">&#39;COSMO&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cosmo_str</span>
+            <span class="n">prihdr</span><span class="p">[</span><span class="s1">&#39;H0&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cosmo</span><span class="o">.</span><span class="n">H0</span><span class="o">.</span><span class="n">value</span>
+            <span class="n">prihdr</span><span class="p">[</span><span class="s1">&#39;OM0&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cosmo</span><span class="o">.</span><span class="n">Om0</span>
+            <span class="n">prihdr</span><span class="p">[</span><span class="s1">&#39;OL0&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cosmo</span><span class="o">.</span><span class="n">Ode0</span>
+            <span class="n">hdul</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">fits</span><span class="o">.</span><span class="n">PrimaryHDU</span><span class="p">(</span><span class="n">header</span><span class="o">=</span><span class="n">prihdr</span><span class="p">))</span>
+
+            <span class="c1"># Helper to add ImageHDU with WCS for 3D data</span>
+            <span class="k">def</span><span class="w"> </span><span class="nf">add_sfh_hdu</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">comment</span><span class="p">,</span> <span class="n">unit</span><span class="p">):</span>
+                <span class="n">ext_hdr</span> <span class="o">=</span> <span class="n">fits</span><span class="o">.</span><span class="n">Header</span><span class="p">()</span>
+                <span class="n">ext_hdr</span><span class="p">[</span><span class="s1">&#39;EXTNAME&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">name</span>
+                <span class="n">ext_hdr</span><span class="p">[</span><span class="s1">&#39;COMMENT&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">comment</span>
+                <span class="n">ext_hdr</span><span class="p">[</span><span class="s1">&#39;BUNIT&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">unit</span>
+                
+                <span class="c1"># Spatial WCS</span>
+                <span class="n">ext_hdr</span><span class="p">[</span><span class="s1">&#39;CRPIX1&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">dimx</span> <span class="o">/</span> <span class="mf">2.0</span> <span class="o">+</span> <span class="mf">0.5</span>
+                <span class="n">ext_hdr</span><span class="p">[</span><span class="s1">&#39;CRPIX2&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">dimy</span> <span class="o">/</span> <span class="mf">2.0</span> <span class="o">+</span> <span class="mf">0.5</span>
+                <span class="n">ext_hdr</span><span class="p">[</span><span class="s1">&#39;CDELT1&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pix_kpc</span>
+                <span class="n">ext_hdr</span><span class="p">[</span><span class="s1">&#39;CDELT2&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pix_kpc</span>
+                <span class="n">ext_hdr</span><span class="p">[</span><span class="s1">&#39;CUNIT1&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;kpc&#39;</span>
+                <span class="n">ext_hdr</span><span class="p">[</span><span class="s1">&#39;CUNIT2&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;kpc&#39;</span>
+
+                <span class="c1"># Lookback time WCS (3rd dimension)</span>
+                <span class="n">ext_hdr</span><span class="p">[</span><span class="s1">&#39;CRPIX3&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="c1"># Reference pixel for 3rd axis</span>
+                <span class="n">ext_hdr</span><span class="p">[</span><span class="s1">&#39;CDELT3&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sfh_del_t</span> <span class="c1"># Step size in Gyr</span>
+                <span class="n">ext_hdr</span><span class="p">[</span><span class="s1">&#39;CRVAL3&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">sfh_lbt_midpoints</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">num_lbt_bins</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="mf">0.0</span> <span class="c1"># Value at reference pixel</span>
+                <span class="n">ext_hdr</span><span class="p">[</span><span class="s1">&#39;CUNIT3&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;Gyr&#39;</span>
+                <span class="n">ext_hdr</span><span class="p">[</span><span class="s1">&#39;CTYPE3&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;LOOKBACK_TIME&#39;</span> <span class="c1"># Custom type for clarity</span>
+
+                <span class="n">hdul</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">fits</span><span class="o">.</span><span class="n">ImageHDU</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="n">ext_hdr</span><span class="p">))</span>
+
+            <span class="c1"># Add each SFH quantity as a separate extension</span>
+            <span class="n">add_sfh_hdu</span><span class="p">(</span><span class="n">map_sfr</span><span class="p">,</span> <span class="s1">&#39;SFR&#39;</span><span class="p">,</span> <span class="s1">&#39;Star Formation Rate&#39;</span><span class="p">,</span> <span class="s1">&#39;Msun/yr&#39;</span><span class="p">)</span>
+            <span class="n">add_sfh_hdu</span><span class="p">(</span><span class="n">map_nstars</span><span class="p">,</span> <span class="s1">&#39;N_STARS&#39;</span><span class="p">,</span> <span class="s1">&#39;Number of stars in SFH bin&#39;</span><span class="p">,</span> <span class="s1">&#39;count&#39;</span><span class="p">)</span>
+            <span class="n">add_sfh_hdu</span><span class="p">(</span><span class="n">map_mass</span><span class="p">,</span> <span class="s1">&#39;MASS&#39;</span><span class="p">,</span> <span class="s1">&#39;Initial stellar mass formed&#39;</span><span class="p">,</span> <span class="s1">&#39;Msun&#39;</span><span class="p">)</span>
+            <span class="n">add_sfh_hdu</span><span class="p">(</span><span class="n">map_cumul_mass</span><span class="p">,</span> <span class="s1">&#39;CUMUL_MASS&#39;</span><span class="p">,</span> <span class="s1">&#39;Cumulative initial stellar mass formed&#39;</span><span class="p">,</span> <span class="s1">&#39;Msun&#39;</span><span class="p">)</span>
+            <span class="n">add_sfh_hdu</span><span class="p">(</span><span class="n">map_metallicity</span><span class="p">,</span> <span class="s1">&#39;METALLICITY&#39;</span><span class="p">,</span> <span class="s1">&#39;Mass-weighted average metallicity&#39;</span><span class="p">,</span> <span class="s1">&#39;Z/Zsun&#39;</span><span class="p">)</span>
+
+            <span class="c1"># Add 2D maps for mass assembly times</span>
+            <span class="c1"># Helper to add 2D ImageHDU</span>
+            <span class="k">def</span><span class="w"> </span><span class="nf">add_2d_map_hdu</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">comment</span><span class="p">,</span> <span class="n">unit</span><span class="p">):</span>
+                <span class="n">ext_hdr</span> <span class="o">=</span> <span class="n">fits</span><span class="o">.</span><span class="n">Header</span><span class="p">()</span>
+                <span class="n">ext_hdr</span><span class="p">[</span><span class="s1">&#39;EXTNAME&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">name</span>
+                <span class="n">ext_hdr</span><span class="p">[</span><span class="s1">&#39;COMMENT&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">comment</span>
+                <span class="n">ext_hdr</span><span class="p">[</span><span class="s1">&#39;BUNIT&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">unit</span>
+                <span class="n">ext_hdr</span><span class="p">[</span><span class="s1">&#39;CRPIX1&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">dimx</span> <span class="o">/</span> <span class="mf">2.0</span> <span class="o">+</span> <span class="mf">0.5</span>
+                <span class="n">ext_hdr</span><span class="p">[</span><span class="s1">&#39;CRPIX2&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">dimy</span> <span class="o">/</span> <span class="mf">2.0</span> <span class="o">+</span> <span class="mf">0.5</span>
+                <span class="n">ext_hdr</span><span class="p">[</span><span class="s1">&#39;CDELT1&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pix_kpc</span>
+                <span class="n">ext_hdr</span><span class="p">[</span><span class="s1">&#39;CDELT2&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pix_kpc</span>
+                <span class="n">ext_hdr</span><span class="p">[</span><span class="s1">&#39;CUNIT1&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;kpc&#39;</span>
+                <span class="n">ext_hdr</span><span class="p">[</span><span class="s1">&#39;CUNIT2&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;kpc&#39;</span>
+                <span class="n">hdul</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">fits</span><span class="o">.</span><span class="n">ImageHDU</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="n">ext_hdr</span><span class="p">))</span>
+
+            <span class="n">add_2d_map_hdu</span><span class="p">(</span><span class="n">map_t_05</span><span class="p">,</span> <span class="s1">&#39;T_5_PERCENT&#39;</span><span class="p">,</span> <span class="s1">&#39;Lookback time for 5% mass assembly&#39;</span><span class="p">,</span> <span class="s1">&#39;Gyr&#39;</span><span class="p">)</span>
+            <span class="n">add_2d_map_hdu</span><span class="p">(</span><span class="n">map_t_10</span><span class="p">,</span> <span class="s1">&#39;T_10_PERCENT&#39;</span><span class="p">,</span> <span class="s1">&#39;Lookback time for 10% mass assembly&#39;</span><span class="p">,</span> <span class="s1">&#39;Gyr&#39;</span><span class="p">)</span>
+            <span class="n">add_2d_map_hdu</span><span class="p">(</span><span class="n">map_t_25</span><span class="p">,</span> <span class="s1">&#39;T_25_PERCENT&#39;</span><span class="p">,</span> <span class="s1">&#39;Lookback time for 25% mass assembly&#39;</span><span class="p">,</span> <span class="s1">&#39;Gyr&#39;</span><span class="p">)</span>
+            <span class="n">add_2d_map_hdu</span><span class="p">(</span><span class="n">map_t_50</span><span class="p">,</span> <span class="s1">&#39;T_50_PERCENT&#39;</span><span class="p">,</span> <span class="s1">&#39;Lookback time for 50% mass assembly&#39;</span><span class="p">,</span> <span class="s1">&#39;Gyr&#39;</span><span class="p">)</span>
+            <span class="n">add_2d_map_hdu</span><span class="p">(</span><span class="n">map_t_75</span><span class="p">,</span> <span class="s1">&#39;T_75_PERCENT&#39;</span><span class="p">,</span> <span class="s1">&#39;Lookback time for 75% mass assembly&#39;</span><span class="p">,</span> <span class="s1">&#39;Gyr&#39;</span><span class="p">)</span>
+            <span class="n">add_2d_map_hdu</span><span class="p">(</span><span class="n">map_t_95</span><span class="p">,</span> <span class="s1">&#39;T_95_PERCENT&#39;</span><span class="p">,</span> <span class="s1">&#39;Lookback time for 95% mass assembly&#39;</span><span class="p">,</span> <span class="s1">&#39;Gyr&#39;</span><span class="p">)</span>
+
+            <span class="c1"># Add Lookback Time bins as a 1D extension</span>
+            <span class="n">ext_hdr_lbt_bins</span> <span class="o">=</span> <span class="n">fits</span><span class="o">.</span><span class="n">Header</span><span class="p">()</span>
+            <span class="n">ext_hdr_lbt_bins</span><span class="p">[</span><span class="s1">&#39;EXTNAME&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;LOOKBACK_TIME_BINS&#39;</span>
+            <span class="n">ext_hdr_lbt_bins</span><span class="p">[</span><span class="s1">&#39;COMMENT&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;Midpoints of lookback time bins for SFH&#39;</span>
+            <span class="n">ext_hdr_lbt_bins</span><span class="p">[</span><span class="s1">&#39;BUNIT&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;Gyr&#39;</span>
+            <span class="n">ext_hdr_lbt_bins</span><span class="p">[</span><span class="s1">&#39;CRPIX1&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span>
+            <span class="n">ext_hdr_lbt_bins</span><span class="p">[</span><span class="s1">&#39;CDELT1&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sfh_del_t</span>
+            <span class="n">ext_hdr_lbt_bins</span><span class="p">[</span><span class="s1">&#39;CRVAL1&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">sfh_lbt_midpoints</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">num_lbt_bins</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="mf">0.0</span>
+            <span class="n">ext_hdr_lbt_bins</span><span class="p">[</span><span class="s1">&#39;CUNIT1&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;Gyr&#39;</span>
+            <span class="n">hdul</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">fits</span><span class="o">.</span><span class="n">ImageHDU</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">sfh_lbt_midpoints</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="n">ext_hdr_lbt_bins</span><span class="p">))</span>
+
+            <span class="n">output_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name_out_sfh</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">output_dir</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">output_dir</span><span class="p">):</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">output_dir</span><span class="p">)</span>
+
+            <span class="n">hdul</span><span class="o">.</span><span class="n">writeto</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name_out_sfh</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">output_verify</span><span class="o">=</span><span class="s1">&#39;fix&#39;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Spatially resolved SFH reconstruction completed successfully and results saved to FITS file: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name_out_sfh</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error saving FITS file </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name_out_sfh</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="kn">import</span><span class="w"> </span><span class="nn">traceback</span>
+            <span class="n">traceback</span><span class="o">.</span><span class="n">print_exc</span><span class="p">()</span></div>
+</div>
+
+</pre></div>
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Abdurrouf
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2025, Abdurrouf.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

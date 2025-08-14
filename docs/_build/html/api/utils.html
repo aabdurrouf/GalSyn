@@ -1,0 +1,881 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>utils &#8212; GalSyn 0.1.0 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../_static/documentation_options.js?v=a1637f0b"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'api/utils';</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="prev" title="ssp_generator_fsps" href="ssp_generator_fsps.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/galsyn_logo.png" class="logo__image only-light" alt="GalSyn 0.1.0 documentation - Home"/>
+    <script>document.write(`<img src="../_static/galsyn_logo.png" class="logo__image only-dark" alt="GalSyn 0.1.0 documentation - Home"/>`);</script>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../index.html">
+                    Welcome to GalSyn’s Documentation!
+                </a>
+            </li>
+        </ul>
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../introduction.html">Introduction and Capabilities</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../tutorials.html">Tutorials</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../tutorials/getting_started.html">Getting Started with GalSyn</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorials/basic_usage.html">Basic Usage of GalSyn</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorials/customizing_ssp_engines.html">Customizing SSP Engines (FSPS vs Bagpipes)</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../api.html">API Reference</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="galsyn.html">galsyn</a></li>
+<li class="toctree-l2"><a class="reference internal" href="config.html">config</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dust.html">dust</a></li>
+<li class="toctree-l2"><a class="reference internal" href="galsyn_run_bagpipes.html">galsyn_run_bagpipes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="galsyn_run_fsps.html">galsyn_run_fsps</a></li>
+<li class="toctree-l2"><a class="reference internal" href="imgutils.html">imgutils</a></li>
+<li class="toctree-l2"><a class="reference internal" href="observe.html">observe</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sfh.html">sfh</a></li>
+<li class="toctree-l2"><a class="reference internal" href="simutils_tng.html">simutils_tng</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ssp_generator_bagpipes.html">ssp_generator_bagpipes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ssp_generator_fsps.html">ssp_generator_fsps</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">utils</a></li>
+</ul>
+</details></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-source-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Source repositories">
+    <i class="fab fa-github"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="https://github.com/aabdurrouf/GalSyn" target="_blank"
+   class="btn btn-sm btn-source-repository-button dropdown-item"
+   title="Source repository"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="btn__text-container">Repository</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/aabdurrouf/GalSyn/issues/new?title=Issue%20on%20page%20%2Fapi/utils.html&body=Your%20issue%20content%20here." target="_blank"
+   class="btn btn-sm btn-source-issues-button dropdown-item"
+   title="Open an issue"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="btn__text-container">Open issue</span>
+</a>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../_sources/api/utils.rst" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.rst</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>utils</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> On this Page </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#galsyn.utils.construct_SFH"><code class="docutils literal notranslate"><span class="pre">construct_SFH()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#galsyn.utils.cosmo_redshifting"><code class="docutils literal notranslate"><span class="pre">cosmo_redshifting()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#galsyn.utils.create_hdf5_file"><code class="docutils literal notranslate"><span class="pre">create_hdf5_file()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#galsyn.utils.define_cosmo"><code class="docutils literal notranslate"><span class="pre">define_cosmo()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#galsyn.utils.determine_image_size"><code class="docutils literal notranslate"><span class="pre">determine_image_size()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#galsyn.utils.doppler_shift_spectrum"><code class="docutils literal notranslate"><span class="pre">doppler_shift_spectrum()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#galsyn.utils.filtering"><code class="docutils literal notranslate"><span class="pre">filtering()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#galsyn.utils.get_2d_density_projection_no_los_binning"><code class="docutils literal notranslate"><span class="pre">get_2d_density_projection_no_los_binning()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#galsyn.utils.get_effective_range"><code class="docutils literal notranslate"><span class="pre">get_effective_range()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#galsyn.utils.igm_att_inoue"><code class="docutils literal notranslate"><span class="pre">igm_att_inoue()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#galsyn.utils.igm_att_madau"><code class="docutils literal notranslate"><span class="pre">igm_att_madau()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#galsyn.utils.interp_age_univ_from_z"><code class="docutils literal notranslate"><span class="pre">interp_age_univ_from_z()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#galsyn.utils.make_filter_transmission_text_pixedfit"><code class="docutils literal notranslate"><span class="pre">make_filter_transmission_text_pixedfit()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#galsyn.utils.tau_DLA_LC"><code class="docutils literal notranslate"><span class="pre">tau_DLA_LC()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#galsyn.utils.tau_DLA_LS"><code class="docutils literal notranslate"><span class="pre">tau_DLA_LS()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#galsyn.utils.tau_LAF_LC"><code class="docutils literal notranslate"><span class="pre">tau_LAF_LC()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#galsyn.utils.tau_LAF_LS"><code class="docutils literal notranslate"><span class="pre">tau_LAF_LS()</span></code></a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="module-galsyn.utils">
+<span id="utils"></span><h1>utils<a class="headerlink" href="#module-galsyn.utils" title="Link to this heading">#</a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="galsyn.utils.construct_SFH">
+<span class="sig-prename descclassname"><span class="pre">galsyn.utils.</span></span><span class="sig-name descname"><span class="pre">construct_SFH</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stars_form_lbt</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stars_init_mass</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stars_metallicity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">del_t</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_lbt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">14.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/galsyn/utils.html#construct_SFH"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#galsyn.utils.construct_SFH" title="Link to this definition">#</a></dt>
+<dd><p>Constructs the Star Formation History (SFH) from stellar formation times,
+initial masses, and metallicities.</p>
+<p>Calculates the mass-weighted average metallicity within each lookback time bin.
+Ensures all bins are returned, even if empty, to maintain consistent binning across pixels.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>stars_form_lbt</strong> (<em>array-like</em>) – Array of stellar formation lookback times in Gyr.</p></li>
+<li><p><strong>stars_init_mass</strong> (<em>array-like</em>) – Array of initial stellar masses in solar mass,
+corresponding to stars_form_lbt.</p></li>
+<li><p><strong>stars_metallicity</strong> (<em>array-like</em>) – Array of stellar metallicities (e.g., [Fe/H] or Z),
+corresponding to stars_form_lbt.</p></li>
+<li><p><strong>del_t</strong> (<em>float</em><em>, </em><em>optional</em>) – Time bin width in Gyr. Defaults to 0.3 Gyr.</p></li>
+<li><p><strong>max_lbt</strong> (<em>float</em><em>, </em><em>optional</em>) – Maximum lookback time to consider for binning.
+Defaults to 18.0 Gyr.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>A dictionary containing:</dt><dd><ul class="simple">
+<li><p>’lbt’ (np.ndarray): Midpoints of all lookback time bins.</p></li>
+<li><p>’sfr’ (np.ndarray): Star formation rate in solar mass per year.</p></li>
+<li><p>’nstars’ (np.ndarray): Number of stars formed in each bin.</p></li>
+<li><p>’mass’ (np.ndarray): Total initial stellar mass formed within each bin.</p></li>
+<li><p>’cumul_mass’ (np.ndarray): Cumulative initial stellar mass formed.</p></li>
+<li><p>’metallicity’ (np.ndarray): Mass-weighted average metallicity in each bin.</p></li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If input arrays have incompatible shapes or invalid values.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="galsyn.utils.cosmo_redshifting">
+<span class="sig-prename descclassname"><span class="pre">galsyn.utils.</span></span><span class="sig-name descname"><span class="pre">cosmo_redshifting</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">wave_rest</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">L_lambda_rest</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cosmo</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/galsyn/utils.html#cosmo_redshifting"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#galsyn.utils.cosmo_redshifting" title="Link to this definition">#</a></dt>
+<dd><p>Performs cosmological redshifting of a spectrum.</p>
+<p>This function converts an emitted spectrum, provided in units of
+Solar luminosity per Angstrom, into an observed flux density in units
+of erg/s/cm^2/Angstrom, given a cosmological redshift.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>wave_rest</strong> (<cite>numpy.ndarray</cite>) – Wavelengths of the emitted spectrum in Angstrom.</p></li>
+<li><p><strong>L_lambda_rest</strong> (<cite>numpy.ndarray</cite>) – Luminosity per unit wavelength of the emitted spectrum in Solar Luminosity per Angstrom ($L_{odot}/AA$).</p></li>
+<li><p><strong>z</strong> (<em>float</em>) – The cosmological redshift (z) at which the spectrum is observed.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A tuple containing two astropy Quantity objects:
+- observed_wavelengths : Wavelengths in the observed frame, in Angstrom.
+- observed_flux_density : Flux density in the observed frame, in erg/s/cm^2/Angstrom.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple of <cite>astropy.units.Quantity</cite></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="galsyn.utils.create_hdf5_file">
+<span class="sig-prename descclassname"><span class="pre">galsyn.utils.</span></span><span class="sig-name descname"><span class="pre">create_hdf5_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stars_init_mass</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stars_form_z</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stars_mass</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stars_zmet</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stars_coords</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stars_vel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gas_mass</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gas_zmet</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gas_sfr_inst</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gas_temp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gas_coords</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gas_vel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gas_mass_H</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/galsyn/utils.html#create_hdf5_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#galsyn.utils.create_hdf5_file" title="Link to this definition">#</a></dt>
+<dd><p>Creates an HDF5 file with stellar and gas particle properties.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filename</strong> (<em>str</em>) – The name of the HDF5 file to create.</p></li>
+<li><p><strong>stars_init_mass</strong> (<em>np.ndarray</em>) – 1D array of initial stellar masses.</p></li>
+<li><p><strong>stars_form_z</strong> (<em>np.ndarray</em>) – 1D array of stellar formation redshifts.</p></li>
+<li><p><strong>stars_mass</strong> (<em>np.ndarray</em>) – 1D array of current stellar masses.</p></li>
+<li><p><strong>stars_zmet</strong> (<em>np.ndarray</em>) – 1D array of stellar metallicities.</p></li>
+<li><p><strong>stars_coords</strong> (<em>np.ndarray</em>) – (N,3) array of stellar coordinates in units of kpc.</p></li>
+<li><p><strong>stars_vel</strong> (<em>np.ndarray</em>) – (N,3) array of stellar peculiar velocities in units of km/s.</p></li>
+<li><p><strong>gas_mass</strong> (<em>np.ndarray</em>) – 1D array of gas masses.</p></li>
+<li><p><strong>gas_zmet</strong> (<em>np.ndarray</em>) – 1D array of gas metallicities.</p></li>
+<li><p><strong>gas_sfr_inst</strong> (<em>np.ndarray</em>) – 1D array of instantaneous SFR for gas.</p></li>
+<li><p><strong>gas_temp</strong> (<em>np.ndarray</em>) – 1D array of gas temperatures.</p></li>
+<li><p><strong>gas_coords</strong> (<em>np.ndarray</em>) – (N,3) array of gas coordinates in units of kpc.</p></li>
+<li><p><strong>gas_vel</strong> (<em>np.ndarray</em>) – (N,3) array of gas peculiar velocities in units of km/s.</p></li>
+<li><p><strong>gas_mass_H</strong> (<em>np.ndarray</em>) – hyrogen mass in unit of solar mass.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="galsyn.utils.define_cosmo">
+<span class="sig-prename descclassname"><span class="pre">galsyn.utils.</span></span><span class="sig-name descname"><span class="pre">define_cosmo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cosmo_str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/galsyn/utils.html#define_cosmo"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#galsyn.utils.define_cosmo" title="Link to this definition">#</a></dt>
+<dd><p>Selects and returns a specific cosmology model from the astropy.cosmology library.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>cosmo_str</strong> (<em>str</em>) – The name of the cosmology model to be used.
+Valid options are: “planck18”, “planck15”, “planck13”,
+“wmap5”, “wmap7”, or “wmap9”. The check is case-insensitive.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>An astropy.cosmology object containing the parameters for the
+selected model.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>cosmology object</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="galsyn.utils.determine_image_size">
+<span class="sig-prename descclassname"><span class="pre">galsyn.utils.</span></span><span class="sig-name descname"><span class="pre">determine_image_size</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">star_coords</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">particle_masses</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pixel_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dimension</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">polar_angle_deg</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">azimuth_angle_deg</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gas_coords</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gas_masses</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mass_percentage</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.98</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_img_dim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/galsyn/utils.html#determine_image_size"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#galsyn.utils.determine_image_size" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="galsyn.utils.doppler_shift_spectrum">
+<span class="sig-prename descclassname"><span class="pre">galsyn.utils.</span></span><span class="sig-name descname"><span class="pre">doppler_shift_spectrum</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">wave_rest</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flux_rest</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vel_los_km_s</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/galsyn/utils.html#doppler_shift_spectrum"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#galsyn.utils.doppler_shift_spectrum" title="Link to this definition">#</a></dt>
+<dd><p>Applies a Doppler shift to a spectrum.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>wave_rest</strong> (<em>np.ndarray</em>) – Rest-frame wavelength array in Angstroms.</p></li>
+<li><p><strong>flux_rest</strong> (<em>np.ndarray</em>) – Rest-frame flux array.</p></li>
+<li><p><strong>vel_los_km_s</strong> (<em>float</em>) – Line-of-sight velocity in km/s. Positive for redshift (recession),
+negative for blueshift (approach).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p>wave_shifted (np.ndarray): Doppler-shifted wavelength array.</p></li>
+<li><p>flux_shifted (np.ndarray): Corresponding flux array (intensity is conserved).</p></li>
+</ul>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="galsyn.utils.filtering">
+<span class="sig-prename descclassname"><span class="pre">galsyn.utils.</span></span><span class="sig-name descname"><span class="pre">filtering</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">wave_spec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flux_spec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wave_filter</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trans_filter</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/galsyn/utils.html#filtering"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#galsyn.utils.filtering" title="Link to this definition">#</a></dt>
+<dd><p>Compute photometric flux through a filter using spectrum in F_lambda units.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>wave_spec</strong> (<em>ndarray</em>) – Wavelength array of the spectrum [Å].</p></li>
+<li><p><strong>flux_spec</strong> (<em>ndarray</em>) – Flux density array of the spectrum [erg/s/cm²/Å].</p></li>
+<li><p><strong>wave_filter</strong> (<em>ndarray</em>) – Wavelength array of the filter transmission curve [Å].</p></li>
+<li><p><strong>trans_filter</strong> (<em>ndarray</em>) – Transmission values of the filter (unitless).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>flux_phot</strong> – Photometric flux in units of erg/s/cm²/Å.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="galsyn.utils.get_2d_density_projection_no_los_binning">
+<span class="sig-prename descclassname"><span class="pre">galsyn.utils.</span></span><span class="sig-name descname"><span class="pre">get_2d_density_projection_no_los_binning</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">star_coords</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">particle_masses</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pixel_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dimension</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">polar_angle_deg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">azimuth_angle_deg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gas_coords</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gas_masses</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">star_vels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gas_vels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/galsyn/utils.html#get_2d_density_projection_no_los_binning"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#galsyn.utils.get_2d_density_projection_no_los_binning" title="Link to this definition">#</a></dt>
+<dd><p>Calculates the 2D mass density projection of star particles given 3D coordinates,
+their masses, a fixed pixel size, and a desired output dimension (cutout size).
+The output grid is geometrically centered around the most massive pixel of the
+full projected star data. It also calculates the projected distance along the line of sight
+for each star particles within its 2D pixel, and outputs the geometric central pixel coordinate of the cutout.</p>
+<p>If <cite>gas_coords</cite> and <cite>gas_masses</cite> are provided, it also calculates the membership of gas particles
+and their mass density within the <em>same</em> projected pixel gridding defined by the star particles.</p>
+<p>The line-of-sight distance for each particle (star or gas) is normalized such that the closest
+particle (considering both stars and gas, if gas is provided) has a line-of-sight
+distance of 0, and distances increase farther away from this closest point.</p>
+<p>The projection is defined by a camera/observer position (viewing angle)
+using polar and azimuth angles. The line-of-sight (LOS) direction is from the
+observer’s position towards the origin (0,0,0).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>star_coords</strong> (<em>np.ndarray</em>) – A NumPy array of shape (N, 3) representing the
+(x, y, z) coordinates of N star particles.</p></li>
+<li><p><strong>particle_masses</strong> (<em>np.ndarray</em>) – A NumPy array of shape (N,) representing the
+masses of N star particles.</p></li>
+<li><p><strong>pixel_size</strong> (<em>float</em>) – The size of each pixel in the 2D grid. Must be positive.</p></li>
+<li><p><strong>output_dimension</strong> (<em>tuple</em>) – A tuple (width, height) specifying the desired total
+physical width and height of the 2D output map.
+Each dimension must be positive.</p></li>
+<li><p><strong>polar_angle_deg</strong> (<em>float</em><em>, </em><em>optional</em>) – The polar angle (inclination) in degrees,
+measured from the positive Z-axis. Defaults to 0.</p></li>
+<li><p><strong>azimuth_angle_deg</strong> (<em>float</em><em>, </em><em>optional</em>) – The azimuth angle (longitude) in degrees,
+measured counter-clockwise from the positive X-axis
+in the XY-plane. Defaults to 0.</p></li>
+<li><p><strong>gas_coords</strong> (<em>np.ndarray</em><em>, </em><em>optional</em>) – A NumPy array of shape (M, 3) representing the
+(x, y, z) coordinates of M gas particles.
+Defaults to None.</p></li>
+<li><p><strong>gas_masses</strong> (<em>np.ndarray</em><em>, </em><em>optional</em>) – A NumPy array of shape (M,) representing the
+masses of M gas particles. Must be provided if
+<cite>gas_coords</cite> is provided. Defaults to None.</p></li>
+<li><p><strong>star_vels</strong> (<em>np.ndarray</em><em>, </em><em>optional</em>) – A NumPy array of shape (N, 3) representing the
+(vx, vy, vz) velocities of N star particles.
+Defaults to None.</p></li>
+<li><p><strong>gas_vels</strong> (<em>np.ndarray</em><em>, </em><em>optional</em>) – A NumPy array of shape (M, 3) representing the
+(vx, vy, vz) velocities of M gas particles.
+Defaults to None.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>A tuple containing:</dt><dd><ul class="simple">
+<li><p>star_particle_membership (list of lists of lists): A 2D list (grid) where
+each element <cite>star_particle_membership[y_idx][x_idx]</cite> is a list of
+tuples <cite>(original_particle_index, line_of_sight_distance)</cite>
+for star particles that fall into that pixel. The <cite>line_of_sight_distance</cite>
+is now relative to the closest particle (0 being the closest).</p></li>
+<li><p>star_mass_density_map (np.ndarray): A 2D NumPy array representing the mass
+density map (sum of masses per pixel) for star particles.
+Its shape is (num_pixels_y, num_pixels_x).</p></li>
+<li><p>central_pixel_coords (tuple): A tuple (x_pixel_coord, y_pixel_coord)
+representing the geometric central pixel coordinate <em>within the cutout</em>.</p></li>
+<li><p>grid_info (dict): A dictionary containing information about the grid:
+‘min_x_proj’: The minimum x-coordinate of the projected cutout.
+‘min_y_proj’: The minimum y-coordinate of the projected cutout.
+‘num_pixels_x’: The number of pixels along the x-dimension.
+‘num_pixels_y’: The number of pixels along the y-dimension.
+‘effective_pixel_size_x’: The actual pixel size used for x-dimension (same as pixel_size).
+‘effective_pixel_size_y’: The actual pixel size used for y-dimension (same as pixel_size).</p></li>
+<li><p>gas_particle_membership (list of lists of lists or None): Same structure as
+<cite>star_particle_membership</cite> but for gas particles. None if <cite>gas_coords</cite> not provided.</p></li>
+<li><p>gas_mass_density_map (np.ndarray or None): A 2D NumPy array representing the mass
+density map for gas particles. Its shape is (num_pixels_y, num_pixels_x).
+None if <cite>gas_coords</cite> not provided.</p></li>
+<li><p>stars_vel_los_proj (np.ndarray): 1D array of projected line-of-sight velocities for stars.</p></li>
+<li><p>gas_vel_los_proj (np.ndarray): 1D array of projected line-of-sight velocities for gas.</p></li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If star_coords/particle_masses are invalid, pixel_size is not positive,
+    output_dimension is invalid, or <cite>gas_coords</cite> is provided without <cite>gas_masses</cite> (or vice-versa).</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="galsyn.utils.get_effective_range">
+<span class="sig-prename descclassname"><span class="pre">galsyn.utils.</span></span><span class="sig-name descname"><span class="pre">get_effective_range</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">profile</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mass_percentage_threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.95</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/galsyn/utils.html#get_effective_range"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#galsyn.utils.get_effective_range" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="galsyn.utils.igm_att_inoue">
+<span class="sig-prename descclassname"><span class="pre">galsyn.utils.</span></span><span class="sig-name descname"><span class="pre">igm_att_inoue</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">wave</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/galsyn/utils.html#igm_att_inoue"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#galsyn.utils.igm_att_inoue" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="galsyn.utils.igm_att_madau">
+<span class="sig-prename descclassname"><span class="pre">galsyn.utils.</span></span><span class="sig-name descname"><span class="pre">igm_att_madau</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">wave</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/galsyn/utils.html#igm_att_madau"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#galsyn.utils.igm_att_madau" title="Link to this definition">#</a></dt>
+<dd><p>Compute IGM attenuation (transmission) due to Lyman series and Lyman continuum
+following Madau et al. 1995.</p>
+<section id="parameters">
+<h2>Parameters:<a class="headerlink" href="#parameters" title="Link to this heading">#</a></h2>
+<dl class="simple">
+<dt>wave<span class="classifier">array_like</span></dt><dd><p>Observed-frame wavelength array in Angstroms.</p>
+</dd>
+<dt>z<span class="classifier">float</span></dt><dd><p>Source redshift.</p>
+</dd>
+</dl>
+</section>
+<section id="returns">
+<h2>Returns:<a class="headerlink" href="#returns" title="Link to this heading">#</a></h2>
+<dl class="simple">
+<dt>transmission<span class="classifier">ndarray</span></dt><dd><p>Transmission factor at each wavelength (same shape as input).</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="galsyn.utils.interp_age_univ_from_z">
+<span class="sig-prename descclassname"><span class="pre">galsyn.utils.</span></span><span class="sig-name descname"><span class="pre">interp_age_univ_from_z</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">z</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cosmo</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/galsyn/utils.html#interp_age_univ_from_z"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#galsyn.utils.interp_age_univ_from_z" title="Link to this definition">#</a></dt>
+<dd><p>Interpolates the age of the universe at a given redshift (z).</p>
+<p>This function first creates an array of redshifts and calculates the age of the universe
+for each redshift using a provided cosmology object. It then creates an interpolation
+function and uses it to find the age of the universe at the specific redshift(s)
+provided as input.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>z</strong> (<em>float</em><em> or </em><em>array_like</em>) – The redshift(s) at which to calculate the age of the universe.</p></li>
+<li><p><strong>cosmo</strong> (<em>astropy.cosmology object</em>) – The cosmology object to use for the age calculation. This object
+should be an instance from the <cite>astropy.cosmology</cite> module.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The age(s) of the universe at the given redshift(s), in Gyr.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float or ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="galsyn.utils.make_filter_transmission_text_pixedfit">
+<span class="sig-prename descclassname"><span class="pre">galsyn.utils.</span></span><span class="sig-name descname"><span class="pre">make_filter_transmission_text_pixedfit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filters</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'filters'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/galsyn/utils.html#make_filter_transmission_text_pixedfit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#galsyn.utils.make_filter_transmission_text_pixedfit" title="Link to this definition">#</a></dt>
+<dd><p>Creates text files containing filter transmission functions and stores them
+in a specified directory. It uses the piXedfit library to get the filter curves.</p>
+<section id="id1">
+<h2>Parameters:<a class="headerlink" href="#id1" title="Link to this heading">#</a></h2>
+<dl class="simple">
+<dt>filters<span class="classifier">list of str</span></dt><dd><p>List of filter names recognized in piXedfit.</p>
+</dd>
+<dt>output_dir<span class="classifier">str, optional</span></dt><dd><p>The directory where the filter transmission text files will be saved.
+Defaults to “filters”.</p>
+</dd>
+</dl>
+</section>
+<section id="id2">
+<h2>Returns:<a class="headerlink" href="#id2" title="Link to this heading">#</a></h2>
+<dl class="simple">
+<dt>filter_transmission_path<span class="classifier">dict</span></dt><dd><p>A dictionary where keys are filter names and values are the paths to
+the generated text files containing the transmission function.</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="galsyn.utils.tau_DLA_LC">
+<span class="sig-prename descclassname"><span class="pre">galsyn.utils.</span></span><span class="sig-name descname"><span class="pre">tau_DLA_LC</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">wave</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/galsyn/utils.html#tau_DLA_LC"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#galsyn.utils.tau_DLA_LC" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="galsyn.utils.tau_DLA_LS">
+<span class="sig-prename descclassname"><span class="pre">galsyn.utils.</span></span><span class="sig-name descname"><span class="pre">tau_DLA_LS</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">wave</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/galsyn/utils.html#tau_DLA_LS"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#galsyn.utils.tau_DLA_LS" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="galsyn.utils.tau_LAF_LC">
+<span class="sig-prename descclassname"><span class="pre">galsyn.utils.</span></span><span class="sig-name descname"><span class="pre">tau_LAF_LC</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">wave</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/galsyn/utils.html#tau_LAF_LC"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#galsyn.utils.tau_LAF_LC" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="galsyn.utils.tau_LAF_LS">
+<span class="sig-prename descclassname"><span class="pre">galsyn.utils.</span></span><span class="sig-name descname"><span class="pre">tau_LAF_LS</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">wave</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/galsyn/utils.html#tau_LAF_LS"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#galsyn.utils.tau_LAF_LS" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="ssp_generator_fsps.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">ssp_generator_fsps</p>
+      </div>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this Page
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#galsyn.utils.construct_SFH"><code class="docutils literal notranslate"><span class="pre">construct_SFH()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#galsyn.utils.cosmo_redshifting"><code class="docutils literal notranslate"><span class="pre">cosmo_redshifting()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#galsyn.utils.create_hdf5_file"><code class="docutils literal notranslate"><span class="pre">create_hdf5_file()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#galsyn.utils.define_cosmo"><code class="docutils literal notranslate"><span class="pre">define_cosmo()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#galsyn.utils.determine_image_size"><code class="docutils literal notranslate"><span class="pre">determine_image_size()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#galsyn.utils.doppler_shift_spectrum"><code class="docutils literal notranslate"><span class="pre">doppler_shift_spectrum()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#galsyn.utils.filtering"><code class="docutils literal notranslate"><span class="pre">filtering()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#galsyn.utils.get_2d_density_projection_no_los_binning"><code class="docutils literal notranslate"><span class="pre">get_2d_density_projection_no_los_binning()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#galsyn.utils.get_effective_range"><code class="docutils literal notranslate"><span class="pre">get_effective_range()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#galsyn.utils.igm_att_inoue"><code class="docutils literal notranslate"><span class="pre">igm_att_inoue()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#galsyn.utils.igm_att_madau"><code class="docutils literal notranslate"><span class="pre">igm_att_madau()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#galsyn.utils.interp_age_univ_from_z"><code class="docutils literal notranslate"><span class="pre">interp_age_univ_from_z()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#galsyn.utils.make_filter_transmission_text_pixedfit"><code class="docutils literal notranslate"><span class="pre">make_filter_transmission_text_pixedfit()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#galsyn.utils.tau_DLA_LC"><code class="docutils literal notranslate"><span class="pre">tau_DLA_LC()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#galsyn.utils.tau_DLA_LS"><code class="docutils literal notranslate"><span class="pre">tau_DLA_LS()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#galsyn.utils.tau_LAF_LC"><code class="docutils literal notranslate"><span class="pre">tau_LAF_LC()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#galsyn.utils.tau_LAF_LS"><code class="docutils literal notranslate"><span class="pre">tau_LAF_LS()</span></code></a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Abdurrouf
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2025, Abdurrouf.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

@@ -1,0 +1,665 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>galsyn.ssp_generator_fsps &#8212; GalSyn 0.1.0 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../../_static/documentation_options.js?v=a1637f0b"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/galsyn/ssp_generator_fsps';</script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../_static/galsyn_logo.png" class="logo__image only-light" alt="GalSyn 0.1.0 documentation - Home"/>
+    <script>document.write(`<img src="../../_static/galsyn_logo.png" class="logo__image only-dark" alt="GalSyn 0.1.0 documentation - Home"/>`);</script>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../../index.html">
+                    Welcome to GalSyn’s Documentation!
+                </a>
+            </li>
+        </ul>
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../introduction.html">Introduction and Capabilities</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../tutorials.html">Tutorials</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../tutorials/getting_started.html">Getting Started with GalSyn</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../tutorials/basic_usage.html">Basic Usage of GalSyn</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../tutorials/customizing_ssp_engines.html">Customizing SSP Engines (FSPS vs Bagpipes)</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../api.html">API Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../api/galsyn.html">galsyn</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/config.html">config</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/dust.html">dust</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/galsyn_run_bagpipes.html">galsyn_run_bagpipes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/galsyn_run_fsps.html">galsyn_run_fsps</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/imgutils.html">imgutils</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/observe.html">observe</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/sfh.html">sfh</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/simutils_tng.html">simutils_tng</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/ssp_generator_bagpipes.html">ssp_generator_bagpipes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/ssp_generator_fsps.html">ssp_generator_fsps</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/utils.html">utils</a></li>
+</ul>
+</details></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-source-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Source repositories">
+    <i class="fab fa-github"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="https://github.com/aabdurrouf/GalSyn" target="_blank"
+   class="btn btn-sm btn-source-repository-button dropdown-item"
+   title="Source repository"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="btn__text-container">Repository</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/aabdurrouf/GalSyn/issues/new?title=Issue%20on%20page%20%2F_modules/galsyn/ssp_generator_fsps.html&body=Your%20issue%20content%20here." target="_blank"
+   class="btn btn-sm btn-source-issues-button dropdown-item"
+   title="Open an issue"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="btn__text-container">Open issue</span>
+</a>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1></h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for galsyn.ssp_generator_fsps</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">h5py</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">fsps</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqdm.auto</span><span class="w"> </span><span class="kn">import</span> <span class="n">tqdm</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">joblib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Parallel</span><span class="p">,</span> <span class="n">delayed</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqdm_joblib</span><span class="w"> </span><span class="kn">import</span> <span class="n">tqdm_joblib</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">multiprocessing</span>
+
+<span class="c1"># Constants for solar metallicity (from FSPS documentation or common usage)</span>
+<span class="c1"># Z_sun = 0.019 (solar metallicity in FSPS for default BaSeL models)</span>
+<span class="c1"># FSPS logzsol is log10(Z/Z_sun)</span>
+<span class="n">FSPS_Z_SUN</span> <span class="o">=</span> <span class="mf">0.019</span>
+
+<span class="c1"># Global variable for the FSPS StellarPopulation instance in each worker process</span>
+<span class="c1"># This will be initialized once per worker by the initializer function.</span>
+<span class="n">_ssp_worker_sp_instance</span> <span class="o">=</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="init_ssp_worker">
+<a class="viewcode-back" href="../../api/ssp_generator_fsps.html#galsyn.ssp_generator_fsps.init_ssp_worker">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">init_ssp_worker</span><span class="p">(</span><span class="n">imf_type_val</span><span class="p">,</span> <span class="n">gas_logu_val</span><span class="p">,</span>
+                    <span class="n">imf_upper_limit_val</span><span class="p">,</span> <span class="n">imf_lower_limit_val</span><span class="p">,</span>
+                    <span class="n">imf1_val</span><span class="p">,</span> <span class="n">imf2_val</span><span class="p">,</span> <span class="n">imf3_val</span><span class="p">,</span> <span class="n">vdmc_val</span><span class="p">,</span> <span class="n">mdave_val</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Initializer function for each worker process in the SSP generation.</span>
+<span class="sd">    Initializes the FSPS StellarPopulation object once per worker.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">global</span> <span class="n">_ssp_worker_sp_instance</span>
+    <span class="n">_ssp_worker_sp_instance</span> <span class="o">=</span> <span class="n">fsps</span><span class="o">.</span><span class="n">StellarPopulation</span><span class="p">(</span><span class="n">zcontinuous</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">_ssp_worker_sp_instance</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;imf_type&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">imf_type_val</span>
+    <span class="n">_ssp_worker_sp_instance</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;add_dust_emission&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">_ssp_worker_sp_instance</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;gas_logu&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">gas_logu_val</span>
+    <span class="n">_ssp_worker_sp_instance</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;fagn&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">_ssp_worker_sp_instance</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;sfh&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>   <span class="c1"># SSP</span>
+    <span class="n">_ssp_worker_sp_instance</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;dust1&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="n">_ssp_worker_sp_instance</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;dust2&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>   <span class="c1"># optical depth</span>
+
+    <span class="c1"># Set new IMF parameters</span>
+    <span class="n">_ssp_worker_sp_instance</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;imf_upper_limit&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">imf_upper_limit_val</span>
+    <span class="n">_ssp_worker_sp_instance</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;imf_lower_limit&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">imf_lower_limit_val</span>
+    <span class="n">_ssp_worker_sp_instance</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;imf1&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">imf1_val</span>
+    <span class="n">_ssp_worker_sp_instance</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;imf2&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">imf2_val</span>
+    <span class="n">_ssp_worker_sp_instance</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;imf3&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">imf3_val</span>
+    <span class="n">_ssp_worker_sp_instance</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;vdmc&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">vdmc_val</span>
+    <span class="n">_ssp_worker_sp_instance</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;mdave&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">mdave_val</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_generate_single_ssp</span><span class="p">(</span><span class="n">age</span><span class="p">,</span> <span class="n">logzsol</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Helper function to generate a single SSP spectrum (stellar continuum only and nebular emission only)</span>
+<span class="sd">    and its surviving stellar mass.</span>
+<span class="sd">    This function will be called in parallel and uses the pre-initialized FSPS instance.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">    -----------</span>
+<span class="sd">    age : float</span>
+<span class="sd">        Age of the SSP in Gyr.</span>
+<span class="sd">    logzsol : float</span>
+<span class="sd">        Logarithm of metallicity relative to solar (log10(Z/Z_sun)).</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">    --------</span>
+<span class="sd">    tuple: (stellar_continuum_spectrum, nebular_emission_spectrum, stellar_mass)</span>
+<span class="sd">        stellar_continuum_spectrum : np.ndarray</span>
+<span class="sd">            SSP spectrum with stellar continuum only in L_sun/AA.</span>
+<span class="sd">        nebular_emission_spectrum : np.ndarray</span>
+<span class="sd">            SSP spectrum with nebular emission only in L_sun/AA.</span>
+<span class="sd">        stellar_mass : float</span>
+<span class="sd">            Surviving stellar mass of the SSP.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">global</span> <span class="n">_ssp_worker_sp_instance</span>
+
+    <span class="c1"># Set parameters for the current SSP</span>
+    <span class="n">_ssp_worker_sp_instance</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;logzsol&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">logzsol</span>
+    <span class="n">_ssp_worker_sp_instance</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;gas_logz&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">logzsol</span> <span class="c1"># Ensure gas_logz is also set for nebular emission consistency</span>
+
+    <span class="c1"># 1. Generate SSP spectrum including nebular emission</span>
+    <span class="n">_ssp_worker_sp_instance</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;add_neb_emission&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">_</span><span class="p">,</span> <span class="n">spec_total</span> <span class="o">=</span> <span class="n">_ssp_worker_sp_instance</span><span class="o">.</span><span class="n">get_spectrum</span><span class="p">(</span><span class="n">peraa</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">tage</span><span class="o">=</span><span class="n">age</span><span class="p">)</span>
+
+    <span class="c1"># 2. Generate SSP spectrum with stellar continuum only (no nebular emission)</span>
+    <span class="n">_ssp_worker_sp_instance</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;add_neb_emission&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">_</span><span class="p">,</span> <span class="n">spec_stellar_continuum</span> <span class="o">=</span> <span class="n">_ssp_worker_sp_instance</span><span class="o">.</span><span class="n">get_spectrum</span><span class="p">(</span><span class="n">peraa</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">tage</span><span class="o">=</span><span class="n">age</span><span class="p">)</span>
+
+    <span class="c1"># 3. Subtract to get nebular emission only</span>
+    <span class="n">spec_nebular_emission</span> <span class="o">=</span> <span class="n">spec_total</span> <span class="o">-</span> <span class="n">spec_stellar_continuum</span>
+
+    <span class="c1"># Get the surviving stellar mass for this SSP</span>
+    <span class="n">stellar_mass</span> <span class="o">=</span> <span class="n">_ssp_worker_sp_instance</span><span class="o">.</span><span class="n">stellar_mass</span> <span class="c1"># This is the surviving stellar mass</span>
+
+    <span class="k">return</span> <span class="n">spec_stellar_continuum</span><span class="p">,</span> <span class="n">spec_nebular_emission</span><span class="p">,</span> <span class="n">stellar_mass</span>
+
+
+<div class="viewcode-block" id="generate_ssp_grid">
+<a class="viewcode-back" href="../../api/ssp_generator_fsps.html#galsyn.ssp_generator_fsps.generate_ssp_grid">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">generate_ssp_grid</span><span class="p">(</span><span class="n">output_filename</span><span class="o">=</span><span class="s2">&quot;ssp_spectra.hdf5&quot;</span><span class="p">,</span>
+                      <span class="n">ages_gyr</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                      <span class="n">logzsol_grid</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                      <span class="n">imf_type</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                      <span class="n">gas_logu</span><span class="o">=-</span><span class="mf">2.0</span><span class="p">,</span>
+                      <span class="n">imf_upper_limit</span><span class="o">=</span><span class="mf">120.0</span><span class="p">,</span>
+                      <span class="n">imf_lower_limit</span><span class="o">=</span><span class="mf">0.08</span><span class="p">,</span>
+                      <span class="n">imf1</span><span class="o">=</span><span class="mf">1.3</span><span class="p">,</span>
+                      <span class="n">imf2</span><span class="o">=</span><span class="mf">2.3</span><span class="p">,</span>
+                      <span class="n">imf3</span><span class="o">=</span><span class="mf">2.3</span><span class="p">,</span>
+                      <span class="n">vdmc</span><span class="o">=</span><span class="mf">0.08</span><span class="p">,</span>
+                      <span class="n">mdave</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+                      <span class="n">overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                      <span class="n">n_jobs</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span>
+                      <span class="n">rest_wave_min</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span>  <span class="c1"># New parameter for minimum wavelength</span>
+                      <span class="n">rest_wave_max</span><span class="o">=</span><span class="mi">30000</span><span class="p">):</span> <span class="c1"># New parameter for maximum wavelength</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generates a grid of Simple Stellar Population (SSP) spectra (stellar continuum only and nebular emission only)</span>
+<span class="sd">    and their corresponding surviving stellar masses using FSPS, and saves them to an HDF5 file.</span>
+<span class="sd">    Supports parallel computation by initializing FSPS once per worker process.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">    -----------</span>
+<span class="sd">    output_filename : str, optional</span>
+<span class="sd">        The name of the HDF5 file to save the SSP grid.</span>
+<span class="sd">        Defaults to &quot;ssp_spectra.hdf5&quot;.</span>
+<span class="sd">    ages_gyr : np.ndarray, optional</span>
+<span class="sd">        A 1D numpy array of ages in Gyr for which to generate SSP spectra.</span>
+<span class="sd">        If None, a default logarithmic grid from 0.001 Gyr to 13.8 Gyr is used.</span>
+<span class="sd">    logzsol_grid : np.ndarray, optional</span>
+<span class="sd">        A 1D numpy array of log10(Z/Z_sun) values for which to generate SSP spectra.</span>
+<span class="sd">        If None, a default linear grid from -2.0 to 0.2 is used.</span>
+<span class="sd">    imf_type : int, optional</span>
+<span class="sd">        Initial Mass Function (IMF) type for FSPS. Defaults to 1 (Chabrier).</span>
+<span class="sd">    gas_logu : float, optional</span>
+<span class="sd">        Logarithm of the ionization parameter for nebular emission. Defaults to -2.0.</span>
+<span class="sd">    imf_upper_limit : float, optional</span>
+<span class="sd">        The upper limit of the IMF, in solar masses. Defaults to 120.0.</span>
+<span class="sd">    imf_lower_limit : float, optional</span>
+<span class="sd">        The lower limit of the IMF, in solar masses. Defaults to 0.08.</span>
+<span class="sd">    imf1 : float, optional</span>
+<span class="sd">        Logarithmic slope of the IMF over the range. Only used if imf_type=2. Defaults to 1.3.</span>
+<span class="sd">    imf2 : float, optional</span>
+<span class="sd">        Logarithmic slope of the IMF over the range. Only used if imf_type=2. Defaults to 2.3.</span>
+<span class="sd">    imf3 : float, optional</span>
+<span class="sd">        Logarithmic slope of the IMF over the range. Only used if imf_type=2. Defaults to 2.3.</span>
+<span class="sd">    vdmc : float, optional</span>
+<span class="sd">        IMF parameter defined in van Dokkum (2008). Only used if imf_type=3. Defaults to 0.08.</span>
+<span class="sd">    mdave : float, optional</span>
+<span class="sd">        IMF parameter defined in Dave (2008). Only used if imf_type=4. Defaults to 0.5.</span>
+<span class="sd">    overwrite : bool, optional</span>
+<span class="sd">        If True, overwrite the output file if it already exists. Defaults to False.</span>
+<span class="sd">    n_jobs : int, optional</span>
+<span class="sd">        Number of CPU cores to use for parallel processing. Defaults to -1 (all available).</span>
+<span class="sd">    rest_wave_min : float, optional</span>
+<span class="sd">        Minimum rest-frame wavelength in Angstroms to include in the output spectra. Defaults to 500.</span>
+<span class="sd">    rest_wave_max : float, optional</span>
+<span class="sd">        Maximum rest-frame wavelength in Angstroms to include in the output spectra. Defaults to 30000.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">    --------</span>
+<span class="sd">    str</span>
+<span class="sd">        The path to the generated HDF5 file.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">output_filename</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">overwrite</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;SSP grid file &#39;</span><span class="si">{</span><span class="n">output_filename</span><span class="si">}</span><span class="s2">&#39; already exists. &quot;</span>
+              <span class="s2">&quot;Set overwrite=True to regenerate.&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">output_filename</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Generating SSP grid and saving to </span><span class="si">{</span><span class="n">output_filename</span><span class="si">}</span><span class="s2">...&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Define default age grid if not provided</span>
+    <span class="k">if</span> <span class="n">ages_gyr</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># Logarithmic grid from 1 Myr to 13.8 Gyr (approx age of universe)</span>
+        <span class="n">ages_gyr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logspace</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="mf">0.001</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="mf">13.8</span><span class="p">),</span> <span class="mi">100</span><span class="p">)</span> <span class="c1"># 100 ages</span>
+
+    <span class="c1"># Define default metallicity grid if not provided</span>
+    <span class="k">if</span> <span class="n">logzsol_grid</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># Linear grid for log10(Z/Z_sun)</span>
+        <span class="n">logzsol_grid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mf">2.0</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mi">20</span><span class="p">)</span> <span class="c1"># 20 metallicities</span>
+
+    <span class="c1"># Get the wavelength array once (it&#39;s constant for all SSPs)</span>
+    <span class="c1"># Use a dummy FSPS instance just to get the wavelength grid</span>
+    <span class="n">dummy_sp</span> <span class="o">=</span> <span class="n">fsps</span><span class="o">.</span><span class="n">StellarPopulation</span><span class="p">(</span><span class="n">zcontinuous</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">full_wave</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">dummy_sp</span><span class="o">.</span><span class="n">get_spectrum</span><span class="p">(</span><span class="n">peraa</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">tage</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span>
+    <span class="k">del</span> <span class="n">dummy_sp</span> <span class="c1"># Delete dummy instance to free resources</span>
+
+    <span class="c1"># Apply wavelength cut</span>
+    <span class="n">wave_mask</span> <span class="o">=</span> <span class="p">(</span><span class="n">full_wave</span> <span class="o">&gt;=</span> <span class="n">rest_wave_min</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">full_wave</span> <span class="o">&lt;=</span> <span class="n">rest_wave_max</span><span class="p">)</span>
+    <span class="n">wave</span> <span class="o">=</span> <span class="n">full_wave</span><span class="p">[</span><span class="n">wave_mask</span><span class="p">]</span>
+
+    <span class="c1"># Initialize arrays to store spectra and surviving stellar masses</span>
+    <span class="c1"># Dimensions: (num_ages, num_metallicities, num_wavelengths) for spectra</span>
+    <span class="c1"># Dimensions: (num_ages, num_metallicities) for stellar_mass</span>
+    <span class="n">ssp_stellar_continuum_spectra</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">ages_gyr</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">logzsol_grid</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">wave</span><span class="p">)),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+    <span class="n">ssp_nebular_emission_spectra</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">ages_gyr</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">logzsol_grid</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">wave</span><span class="p">)),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+    <span class="n">ssp_stellar_masses</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">ages_gyr</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">logzsol_grid</span><span class="p">)),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+
+    <span class="c1"># Determine the number of CPU cores to use</span>
+    <span class="n">num_cores</span> <span class="o">=</span> <span class="n">n_jobs</span>
+    <span class="k">if</span> <span class="n">num_cores</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+        <span class="n">num_cores</span> <span class="o">=</span> <span class="n">multiprocessing</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">()</span> <span class="c1"># Use all available cores</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Generating SSP spectra and surviving stellar masses on </span><span class="si">{</span><span class="n">num_cores</span><span class="si">}</span><span class="s2"> cores...&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Create a list of tasks for parallel processing</span>
+    <span class="n">tasks</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">age</span> <span class="ow">in</span> <span class="n">ages_gyr</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">logzsol</span> <span class="ow">in</span> <span class="n">logzsol_grid</span><span class="p">:</span>
+            <span class="n">tasks</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">age</span><span class="p">,</span> <span class="n">logzsol</span><span class="p">))</span>
+
+    <span class="c1"># Execute tasks in parallel, with FSPS initialized once per worker</span>
+    <span class="k">with</span> <span class="n">tqdm_joblib</span><span class="p">(</span><span class="n">total</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">tasks</span><span class="p">),</span> <span class="n">desc</span><span class="o">=</span><span class="s2">&quot;Generating SSPs&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">progress_bar</span><span class="p">:</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="n">Parallel</span><span class="p">(</span><span class="n">n_jobs</span><span class="o">=</span><span class="n">num_cores</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">initializer</span><span class="o">=</span><span class="n">init_ssp_worker</span><span class="p">,</span>
+                           <span class="n">initargs</span><span class="o">=</span><span class="p">(</span><span class="n">imf_type</span><span class="p">,</span> <span class="n">gas_logu</span><span class="p">,</span>
+                                     <span class="n">imf_upper_limit</span><span class="p">,</span> <span class="n">imf_lower_limit</span><span class="p">,</span>
+                                     <span class="n">imf1</span><span class="p">,</span> <span class="n">imf2</span><span class="p">,</span> <span class="n">imf3</span><span class="p">,</span> <span class="n">vdmc</span><span class="p">,</span> <span class="n">mdave</span><span class="p">))(</span>
+            <span class="n">delayed</span><span class="p">(</span><span class="n">_generate_single_ssp</span><span class="p">)(</span><span class="n">age</span><span class="p">,</span> <span class="n">logzsol</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">age</span><span class="p">,</span> <span class="n">logzsol</span> <span class="ow">in</span> <span class="n">tasks</span>
+        <span class="p">)</span>
+
+    <span class="c1"># Populate the ssp_stellar_continuum_spectra, ssp_nebular_emission_spectra, and ssp_stellar_masses arrays from results</span>
+    <span class="c1"># We need to map results back to their original grid positions</span>
+    <span class="n">k</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">i_age</span><span class="p">,</span> <span class="n">age</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">ages_gyr</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">i_z</span><span class="p">,</span> <span class="n">logzsol</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">logzsol_grid</span><span class="p">):</span>
+            <span class="n">spec_stellar_continuum_full</span><span class="p">,</span> <span class="n">spec_nebular_emission_full</span><span class="p">,</span> <span class="n">stellar_mass</span> <span class="o">=</span> <span class="n">results</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
+            <span class="c1"># Apply the wavelength mask to the generated spectra</span>
+            <span class="n">ssp_stellar_continuum_spectra</span><span class="p">[</span><span class="n">i_age</span><span class="p">,</span> <span class="n">i_z</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">spec_stellar_continuum_full</span><span class="p">[</span><span class="n">wave_mask</span><span class="p">]</span>
+            <span class="n">ssp_nebular_emission_spectra</span><span class="p">[</span><span class="n">i_age</span><span class="p">,</span> <span class="n">i_z</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">spec_nebular_emission_full</span><span class="p">[</span><span class="n">wave_mask</span><span class="p">]</span>
+            <span class="n">ssp_stellar_masses</span><span class="p">[</span><span class="n">i_age</span><span class="p">,</span> <span class="n">i_z</span><span class="p">]</span> <span class="o">=</span> <span class="n">stellar_mass</span>
+            <span class="n">k</span> <span class="o">+=</span> <span class="mi">1</span>
+
+    <span class="c1"># Save to HDF5 file</span>
+    <span class="k">with</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">output_filename</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">create_dataset</span><span class="p">(</span><span class="s1">&#39;wavelength&#39;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">wave</span><span class="p">,</span> <span class="n">compression</span><span class="o">=</span><span class="s2">&quot;gzip&quot;</span><span class="p">)</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">create_dataset</span><span class="p">(</span><span class="s1">&#39;ages_gyr&#39;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">ages_gyr</span><span class="p">,</span> <span class="n">compression</span><span class="o">=</span><span class="s2">&quot;gzip&quot;</span><span class="p">)</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">create_dataset</span><span class="p">(</span><span class="s1">&#39;logzsol&#39;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">logzsol_grid</span><span class="p">,</span> <span class="n">compression</span><span class="o">=</span><span class="s2">&quot;gzip&quot;</span><span class="p">)</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">create_dataset</span><span class="p">(</span><span class="s1">&#39;stellar_continuum_spectra&#39;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">ssp_stellar_continuum_spectra</span><span class="p">,</span> <span class="n">compression</span><span class="o">=</span><span class="s2">&quot;gzip&quot;</span><span class="p">)</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">create_dataset</span><span class="p">(</span><span class="s1">&#39;nebular_emission_spectra&#39;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">ssp_nebular_emission_spectra</span><span class="p">,</span> <span class="n">compression</span><span class="o">=</span><span class="s2">&quot;gzip&quot;</span><span class="p">)</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">create_dataset</span><span class="p">(</span><span class="s1">&#39;stellar_mass&#39;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">ssp_stellar_masses</span><span class="p">,</span> <span class="n">compression</span><span class="o">=</span><span class="s2">&quot;gzip&quot;</span><span class="p">)</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;imf_type&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">imf_type</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;gas_logu&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">gas_logu</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;imf_upper_limit&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">imf_upper_limit</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;imf_lower_limit&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">imf_lower_limit</span>
+        <span class="k">if</span> <span class="n">imf_type</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;imf1&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">imf1</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;imf2&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">imf2</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;imf3&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">imf3</span>
+        <span class="k">if</span> <span class="n">imf_type</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;vdmc&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">vdmc</span>
+        <span class="k">if</span> <span class="n">imf_type</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;mdave&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">mdave</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;z_sun&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">FSPS_Z_SUN</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;flux_unit&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;L_sun/Angstrom&#39;</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;code&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;FSPS&#39;</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;rest_wave_min&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">rest_wave_min</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;rest_wave_max&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">rest_wave_max</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;SSP grid generation complete. Saved to &#39;</span><span class="si">{</span><span class="n">output_filename</span><span class="si">}</span><span class="s2">&#39;.&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">output_filename</span></div>
+
+</pre></div>
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Abdurrouf
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2025, Abdurrouf.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

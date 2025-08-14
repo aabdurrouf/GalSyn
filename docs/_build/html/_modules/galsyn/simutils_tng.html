@@ -1,0 +1,597 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>galsyn.simutils_tng &#8212; GalSyn 0.1.0 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../../_static/documentation_options.js?v=a1637f0b"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/galsyn/simutils_tng';</script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../_static/galsyn_logo.png" class="logo__image only-light" alt="GalSyn 0.1.0 documentation - Home"/>
+    <script>document.write(`<img src="../../_static/galsyn_logo.png" class="logo__image only-dark" alt="GalSyn 0.1.0 documentation - Home"/>`);</script>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../../index.html">
+                    Welcome to GalSyn’s Documentation!
+                </a>
+            </li>
+        </ul>
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../introduction.html">Introduction and Capabilities</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../tutorials.html">Tutorials</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../tutorials/getting_started.html">Getting Started with GalSyn</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../tutorials/basic_usage.html">Basic Usage of GalSyn</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../tutorials/customizing_ssp_engines.html">Customizing SSP Engines (FSPS vs Bagpipes)</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../api.html">API Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../api/galsyn.html">galsyn</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/config.html">config</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/dust.html">dust</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/galsyn_run_bagpipes.html">galsyn_run_bagpipes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/galsyn_run_fsps.html">galsyn_run_fsps</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/imgutils.html">imgutils</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/observe.html">observe</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/sfh.html">sfh</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/simutils_tng.html">simutils_tng</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/ssp_generator_bagpipes.html">ssp_generator_bagpipes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/ssp_generator_fsps.html">ssp_generator_fsps</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/utils.html">utils</a></li>
+</ul>
+</details></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-source-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Source repositories">
+    <i class="fab fa-github"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="https://github.com/aabdurrouf/GalSyn" target="_blank"
+   class="btn btn-sm btn-source-repository-button dropdown-item"
+   title="Source repository"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="btn__text-container">Repository</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/aabdurrouf/GalSyn/issues/new?title=Issue%20on%20page%20%2F_modules/galsyn/simutils_tng.html&body=Your%20issue%20content%20here." target="_blank"
+   class="btn btn-sm btn-source-issues-button dropdown-item"
+   title="Open an issue"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="btn__text-container">Open issue</span>
+</a>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1></h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for galsyn.simutils_tng</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span><span class="o">,</span><span class="w"> </span><span class="nn">sys</span> 
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">astropy.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">fits</span> 
+<span class="kn">from</span><span class="w"> </span><span class="nn">.imgutils</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.utils</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">baseUrl_tng</span> <span class="o">=</span> <span class="s1">&#39;http://www.tng-project.org/api/&#39;</span>
+<span class="n">headers</span> <span class="o">=</span> <span class="p">{}</span>
+
+<div class="viewcode-block" id="get">
+<a class="viewcode-back" href="../../api/simutils_tng.html#galsyn.simutils_tng.get">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">requests</span>
+
+    <span class="c1"># make HTTP GET request to path</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">)</span>
+
+    <span class="c1"># raise exception if response code is not HTTP SUCCESS (200)</span>
+    <span class="n">r</span><span class="o">.</span><span class="n">raise_for_status</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">r</span><span class="o">.</span><span class="n">headers</span><span class="p">[</span><span class="s1">&#39;content-type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;application/json&#39;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">r</span><span class="o">.</span><span class="n">json</span><span class="p">()</span> <span class="c1"># parse json responses automatically</span>
+
+    <span class="k">if</span> <span class="s1">&#39;content-disposition&#39;</span> <span class="ow">in</span> <span class="n">r</span><span class="o">.</span><span class="n">headers</span><span class="p">:</span>
+        <span class="n">filename</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">headers</span><span class="p">[</span><span class="s1">&#39;content-disposition&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;filename=&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">filename</span> <span class="c1"># return the filename string</span>
+
+    <span class="k">return</span> <span class="n">r</span></div>
+
+
+<div class="viewcode-block" id="get_tng_snaps_info">
+<a class="viewcode-back" href="../../api/simutils_tng.html#galsyn.simutils_tng.get_tng_snaps_info">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_tng_snaps_info</span><span class="p">(</span><span class="n">sim</span><span class="o">=</span><span class="s1">&#39;TNG50-1&#39;</span><span class="p">,</span> <span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;api-key&quot;</span><span class="p">):</span>
+    <span class="k">global</span> <span class="n">headers</span>
+    <span class="n">headers</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;api-key&quot;</span><span class="p">:</span><span class="n">api_key</span><span class="p">}</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">get</span><span class="p">(</span><span class="n">baseUrl_tng</span><span class="p">)</span>
+    <span class="n">names</span> <span class="o">=</span> <span class="p">[</span><span class="n">sim</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">sim</span> <span class="ow">in</span> <span class="n">r</span><span class="p">[</span><span class="s1">&#39;simulations&#39;</span><span class="p">]]</span>
+    <span class="n">sim_info</span> <span class="o">=</span> <span class="n">get</span><span class="p">(</span> <span class="n">r</span><span class="p">[</span><span class="s1">&#39;simulations&#39;</span><span class="p">][</span><span class="n">names</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">sim</span><span class="p">)][</span><span class="s1">&#39;url&#39;</span><span class="p">])</span>
+    <span class="n">snaps</span> <span class="o">=</span> <span class="n">get</span><span class="p">(</span><span class="n">sim_info</span><span class="p">[</span><span class="s1">&#39;snapshots&#39;</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">snaps</span></div>
+
+
+<div class="viewcode-block" id="get_snap_z">
+<a class="viewcode-back" href="../../api/simutils_tng.html#galsyn.simutils_tng.get_snap_z">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_snap_z</span><span class="p">(</span><span class="n">snap_number</span><span class="p">,</span> <span class="n">sim</span><span class="o">=</span><span class="s1">&#39;TNG50-1&#39;</span><span class="p">,</span> <span class="n">snaps_info</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;api-key&quot;</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">snaps_info</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">snaps_info</span> <span class="o">=</span> <span class="n">get_tng_snaps_info</span><span class="p">(</span><span class="n">sim</span><span class="p">,</span> <span class="n">api_key</span><span class="o">=</span><span class="n">api_key</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">snaps_info</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">snap_number</span><span class="p">)][</span><span class="s1">&#39;redshift&#39;</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="get_snap_z_batch">
+<a class="viewcode-back" href="../../api/simutils_tng.html#galsyn.simutils_tng.get_snap_z_batch">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_snap_z_batch</span><span class="p">(</span><span class="n">snap_numbers</span><span class="p">,</span> <span class="n">sim</span><span class="o">=</span><span class="s1">&#39;TNG50-1&#39;</span><span class="p">,</span> <span class="n">snaps_info</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;api-key&quot;</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">snaps_info</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">snaps_info</span> <span class="o">=</span> <span class="n">get_tng_snaps_info</span><span class="p">(</span><span class="n">sim</span><span class="p">,</span> <span class="n">api_key</span><span class="o">=</span><span class="n">api_key</span><span class="p">)</span>
+
+    <span class="n">snap_z</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="n">snap_numbers</span><span class="p">:</span>
+        <span class="n">snap_z</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">snaps_info</span><span class="p">[</span><span class="n">ii</span><span class="p">][</span><span class="s1">&#39;redshift&#39;</span><span class="p">])</span>
+ 
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">snap_z</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="get_num_subhalos">
+<a class="viewcode-back" href="../../api/simutils_tng.html#galsyn.simutils_tng.get_num_subhalos">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_num_subhalos</span><span class="p">(</span><span class="n">snap_number</span><span class="p">,</span> <span class="n">sim</span><span class="o">=</span><span class="s1">&#39;TNG50-1&#39;</span><span class="p">,</span> <span class="n">snaps_info</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;api-key&quot;</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">snaps_info</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">snaps_info</span> <span class="o">=</span> <span class="n">get_tng_snaps_info</span><span class="p">(</span><span class="n">sim</span><span class="p">,</span> <span class="n">api_key</span><span class="o">=</span><span class="n">api_key</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">snaps_info</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">snap_number</span><span class="p">)][</span><span class="s1">&#39;num_groups_subfind&#39;</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="cosmic_times_snapshots">
+<a class="viewcode-back" href="../../api/simutils_tng.html#galsyn.simutils_tng.cosmic_times_snapshots">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">cosmic_times_snapshots</span><span class="p">(</span><span class="n">sim</span><span class="o">=</span><span class="s1">&#39;TNG50-1&#39;</span><span class="p">,</span><span class="n">snaps_info</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cosmo</span><span class="o">=</span><span class="s1">&#39;Planck18&#39;</span><span class="p">,</span> <span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;api-key&quot;</span><span class="p">):</span>
+
+    <span class="k">if</span> <span class="n">snaps_info</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">snaps_info</span> <span class="o">=</span> <span class="n">get_tng_snaps_info</span><span class="p">(</span><span class="n">sim</span><span class="p">,</span> <span class="n">api_key</span><span class="o">=</span><span class="n">api_key</span><span class="p">)</span>
+
+    <span class="n">nsnaps</span> <span class="o">=</span> <span class="mi">100</span>
+    <span class="n">cosmic_times</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">nsnaps</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nsnaps</span><span class="p">):</span>
+        <span class="n">snap_z</span> <span class="o">=</span> <span class="n">get_snap_z</span><span class="p">(</span><span class="n">ii</span><span class="p">,</span> <span class="n">sim</span><span class="o">=</span><span class="n">sim</span><span class="p">,</span> <span class="n">snaps_info</span><span class="o">=</span><span class="n">snaps_info</span><span class="p">,</span> <span class="n">api_key</span><span class="o">=</span><span class="n">api_key</span><span class="p">)</span>
+        <span class="n">cosmic_times</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span> <span class="o">=</span> <span class="n">cosmo</span><span class="o">.</span><span class="n">age</span><span class="p">(</span><span class="n">snap_z</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
+
+    <span class="k">return</span> <span class="n">cosmic_times</span></div>
+
+
+<div class="viewcode-block" id="cosmic_times_of_snapshots">
+<a class="viewcode-back" href="../../api/simutils_tng.html#galsyn.simutils_tng.cosmic_times_of_snapshots">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">cosmic_times_of_snapshots</span><span class="p">(</span><span class="n">snaps</span><span class="p">,</span> <span class="n">sim</span><span class="o">=</span><span class="s1">&#39;TNG50-1&#39;</span><span class="p">,</span> <span class="n">snaps_info</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cosmo</span><span class="o">=</span><span class="s1">&#39;Planck18&#39;</span><span class="p">,</span> <span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;api-key&quot;</span><span class="p">):</span>
+
+    <span class="k">if</span> <span class="n">snaps_info</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">snaps_info</span> <span class="o">=</span> <span class="n">get_tng_snaps_info</span><span class="p">(</span><span class="n">sim</span><span class="p">,</span> <span class="n">api_key</span><span class="o">=</span><span class="n">api_key</span><span class="p">)</span>
+
+    <span class="n">cosmic_times</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="n">snaps</span><span class="p">:</span>
+        <span class="n">snap_z</span> <span class="o">=</span> <span class="n">get_snap_z</span><span class="p">(</span><span class="n">ii</span><span class="p">,</span> <span class="n">sim</span><span class="o">=</span><span class="n">sim</span><span class="p">,</span> <span class="n">snaps_info</span><span class="o">=</span><span class="n">snaps_info</span><span class="p">,</span> <span class="n">api_key</span><span class="o">=</span><span class="n">api_key</span><span class="p">)</span>
+        <span class="n">cosmic_times</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cosmo</span><span class="o">.</span><span class="n">age</span><span class="p">(</span><span class="n">snap_z</span><span class="p">)</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">cosmic_times</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="download_cutout_subhalo_hdf5">
+<a class="viewcode-back" href="../../api/simutils_tng.html#galsyn.simutils_tng.download_cutout_subhalo_hdf5">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">download_cutout_subhalo_hdf5</span><span class="p">(</span><span class="n">snap_number</span><span class="p">,</span> <span class="n">subhalo_id</span><span class="p">,</span> <span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;api-key&quot;</span><span class="p">,</span> <span class="n">sim</span><span class="o">=</span><span class="s1">&#39;TNG50-1&#39;</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">global</span> <span class="n">headers</span>
+    <span class="n">headers</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;api-key&quot;</span><span class="p">:</span><span class="n">api_key</span><span class="p">}</span>
+    <span class="n">url</span> <span class="o">=</span> <span class="s2">&quot;http://www.tng-project.org/api/&quot;</span> <span class="o">+</span> <span class="n">sim</span> <span class="o">+</span> <span class="s2">&quot;/snapshots/&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">snap_number</span><span class="p">))</span> <span class="o">+</span> <span class="s2">&quot;/subhalos/&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">subhalo_id</span><span class="p">))</span>
+    <span class="n">sub</span> <span class="o">=</span> <span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span>
+    <span class="n">name0</span> <span class="o">=</span> <span class="n">get</span><span class="p">(</span><span class="n">sub</span><span class="p">[</span><span class="s1">&#39;cutouts&#39;</span><span class="p">][</span><span class="s1">&#39;subhalo&#39;</span><span class="p">],</span><span class="n">params</span><span class="p">)</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;cutout_shalo_&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">snap_number</span><span class="p">))</span><span class="o">+</span><span class="s1">&#39;_&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">subhalo_id</span><span class="p">))</span><span class="o">+</span><span class="s1">&#39;.hdf5&#39;</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">name0</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">name</span> </div>
+
+
+<div class="viewcode-block" id="download_cutout_parent_halo_hdf5">
+<a class="viewcode-back" href="../../api/simutils_tng.html#galsyn.simutils_tng.download_cutout_parent_halo_hdf5">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">download_cutout_parent_halo_hdf5</span><span class="p">(</span><span class="n">snap_number</span><span class="p">,</span> <span class="n">subhalo_id</span><span class="p">,</span> <span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;api-key&quot;</span><span class="p">,</span> <span class="n">sim</span><span class="o">=</span><span class="s1">&#39;TNG50-1&#39;</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">global</span> <span class="n">headers</span>
+    <span class="n">headers</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;api-key&quot;</span><span class="p">:</span><span class="n">api_key</span><span class="p">}</span>
+    <span class="n">url</span> <span class="o">=</span> <span class="s2">&quot;http://www.tng-project.org/api/&quot;</span> <span class="o">+</span> <span class="n">sim</span> <span class="o">+</span> <span class="s2">&quot;/snapshots/&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">snap_number</span><span class="p">))</span> <span class="o">+</span> <span class="s2">&quot;/subhalos/&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">subhalo_id</span><span class="p">))</span>
+    <span class="n">sub</span> <span class="o">=</span> <span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span>
+    <span class="n">name0</span> <span class="o">=</span> <span class="n">get</span><span class="p">(</span><span class="n">sub</span><span class="p">[</span><span class="s1">&#39;cutouts&#39;</span><span class="p">][</span><span class="s1">&#39;parent_halo&#39;</span><span class="p">],</span><span class="n">params</span><span class="p">)</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;cutout_phalo_&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">snap_number</span><span class="p">))</span><span class="o">+</span><span class="s1">&#39;_&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">subhalo_id</span><span class="p">))</span><span class="o">+</span><span class="s1">&#39;.hdf5&#39;</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">name0</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">name</span></div>
+
+
+<div class="viewcode-block" id="get_basic_subhalo_properties">
+<a class="viewcode-back" href="../../api/simutils_tng.html#galsyn.simutils_tng.get_basic_subhalo_properties">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_basic_subhalo_properties</span><span class="p">(</span><span class="n">snap_number</span><span class="p">,</span> <span class="n">subhalo_id</span><span class="p">,</span> <span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;api-key&quot;</span><span class="p">,</span> <span class="n">sim</span><span class="o">=</span><span class="s1">&#39;TNG50-1&#39;</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">global</span> <span class="n">headers</span>
+    <span class="n">headers</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;api-key&quot;</span><span class="p">:</span><span class="n">api_key</span><span class="p">}</span>
+    <span class="n">url</span> <span class="o">=</span> <span class="s2">&quot;http://www.tng-project.org/api/&quot;</span> <span class="o">+</span> <span class="n">sim</span> <span class="o">+</span> <span class="s2">&quot;/snapshots/&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">snap_number</span><span class="p">))</span> <span class="o">+</span> <span class="s2">&quot;/subhalos/&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">subhalo_id</span><span class="p">))</span>
+    <span class="n">sub</span> <span class="o">=</span> <span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">sub</span></div>
+
+
+<div class="viewcode-block" id="make_sim_file_from_tng_data">
+<a class="viewcode-back" href="../../api/simutils_tng.html#galsyn.simutils_tng.make_sim_file_from_tng_data">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">make_sim_file_from_tng_data</span><span class="p">(</span><span class="n">input_hdf5</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">cosmo_h</span><span class="o">=</span><span class="mf">0.6774</span><span class="p">,</span> <span class="n">XH</span><span class="o">=</span><span class="mf">0.76</span><span class="p">,</span> <span class="n">output_hdf5</span><span class="o">=</span><span class="s1">&#39;sim_file_tng.hdf5&#39;</span><span class="p">):</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">h5py</span>
+
+    <span class="n">f</span> <span class="o">=</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">input_hdf5</span><span class="p">,</span><span class="s1">&#39;r&#39;</span><span class="p">)</span>
+
+    <span class="c1"># get star particles data</span>
+    <span class="n">stars_init_mass</span> <span class="o">=</span> <span class="n">f</span><span class="p">[</span><span class="s1">&#39;PartType4&#39;</span><span class="p">][</span><span class="s1">&#39;GFM_InitialMass&#39;</span><span class="p">][:]</span> <span class="o">*</span> <span class="mf">1e+10</span> <span class="o">/</span> <span class="n">cosmo_h</span>
+    <span class="n">stars_form_a</span> <span class="o">=</span> <span class="n">f</span><span class="p">[</span><span class="s1">&#39;PartType4&#39;</span><span class="p">][</span><span class="s1">&#39;GFM_StellarFormationTime&#39;</span><span class="p">][:]</span>
+    <span class="n">stars_form_z</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1.0</span><span class="o">/</span><span class="n">stars_form_a</span><span class="p">)</span> <span class="o">-</span> <span class="mf">1.0</span>
+    <span class="n">stars_mass</span> <span class="o">=</span> <span class="n">f</span><span class="p">[</span><span class="s1">&#39;PartType4&#39;</span><span class="p">][</span><span class="s1">&#39;Masses&#39;</span><span class="p">][:]</span> <span class="o">*</span> <span class="mf">1e+10</span> <span class="o">/</span> <span class="n">cosmo_h</span>
+    <span class="n">stars_zmet</span> <span class="o">=</span> <span class="n">f</span><span class="p">[</span><span class="s1">&#39;PartType4&#39;</span><span class="p">][</span><span class="s1">&#39;GFM_Metallicity&#39;</span><span class="p">][:]</span>
+    <span class="n">snap_a</span> <span class="o">=</span> <span class="mf">1.0</span><span class="o">/</span><span class="p">(</span><span class="mf">1.0</span> <span class="o">+</span> <span class="n">z</span><span class="p">)</span>
+    <span class="n">stars_coords</span> <span class="o">=</span> <span class="n">f</span><span class="p">[</span><span class="s1">&#39;PartType4&#39;</span><span class="p">][</span><span class="s1">&#39;Coordinates&#39;</span><span class="p">][:]</span> <span class="o">*</span> <span class="n">snap_a</span> <span class="o">/</span> <span class="n">cosmo_h</span>  <span class="c1"># in kpc</span>
+    <span class="n">stars_vel</span> <span class="o">=</span> <span class="n">f</span><span class="p">[</span><span class="s1">&#39;PartType4&#39;</span><span class="p">][</span><span class="s1">&#39;Velocities&#39;</span><span class="p">][:]</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">snap_a</span><span class="p">)</span>  <span class="c1"># peculiar velocities in km/s</span>
+
+    <span class="n">idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">stars_form_a</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">stars_init_mass</span> <span class="o">=</span> <span class="n">stars_init_mass</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
+    <span class="n">stars_form_z</span> <span class="o">=</span> <span class="n">stars_form_z</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
+    <span class="n">stars_mass</span> <span class="o">=</span> <span class="n">stars_mass</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
+    <span class="n">stars_zmet</span> <span class="o">=</span> <span class="n">stars_zmet</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
+    <span class="n">stars_coords</span> <span class="o">=</span> <span class="n">stars_coords</span><span class="p">[</span><span class="n">idx</span><span class="p">,:]</span>
+    <span class="n">stars_vel</span> <span class="o">=</span> <span class="n">stars_vel</span><span class="p">[</span><span class="n">idx</span><span class="p">,:]</span>
+
+    <span class="c1"># get gas particles data</span>
+    <span class="n">gas_mass</span> <span class="o">=</span> <span class="n">f</span><span class="p">[</span><span class="s1">&#39;PartType0&#39;</span><span class="p">][</span><span class="s1">&#39;Masses&#39;</span><span class="p">][:]</span> <span class="o">*</span> <span class="mf">1e+10</span> <span class="o">/</span> <span class="n">cosmo_h</span>
+    <span class="n">gas_zmet</span> <span class="o">=</span> <span class="n">f</span><span class="p">[</span><span class="s1">&#39;PartType0&#39;</span><span class="p">][</span><span class="s1">&#39;GFM_Metallicity&#39;</span><span class="p">][:]</span>
+    <span class="n">gas_sfr_inst</span> <span class="o">=</span> <span class="n">f</span><span class="p">[</span><span class="s1">&#39;PartType0&#39;</span><span class="p">][</span><span class="s1">&#39;StarFormationRate&#39;</span><span class="p">][:]</span>   <span class="c1"># in Msun/yr</span>
+    <span class="n">u</span> <span class="o">=</span> <span class="n">f</span><span class="p">[</span><span class="s1">&#39;PartType0&#39;</span><span class="p">][</span><span class="s1">&#39;InternalEnergy&#39;</span><span class="p">][:]</span>
+    <span class="n">Xe</span> <span class="o">=</span> <span class="n">f</span><span class="p">[</span><span class="s1">&#39;PartType0&#39;</span><span class="p">][</span><span class="s1">&#39;ElectronAbundance&#39;</span><span class="p">][:]</span>
+    <span class="n">gamma</span> <span class="o">=</span> <span class="mf">5.0</span><span class="o">/</span><span class="mf">3.0</span>
+    <span class="n">KB</span> <span class="o">=</span> <span class="mf">1.3807e-16</span>
+    <span class="n">mp</span> <span class="o">=</span> <span class="mf">1.6726e-24</span>
+    <span class="n">mu</span> <span class="o">=</span> <span class="p">(</span><span class="mi">4</span><span class="o">*</span><span class="n">mp</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="p">(</span><span class="mi">3</span><span class="o">*</span><span class="n">XH</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="mi">4</span><span class="o">*</span><span class="n">XH</span><span class="o">*</span><span class="n">Xe</span><span class="p">))</span>
+    <span class="n">gas_temp</span> <span class="o">=</span> <span class="p">(</span><span class="n">gamma</span><span class="o">-</span><span class="mf">1.0</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">u</span><span class="o">/</span><span class="n">KB</span><span class="p">)</span><span class="o">*</span><span class="n">mu</span><span class="o">*</span><span class="mf">1e+10</span>
+    <span class="n">gas_coords</span> <span class="o">=</span> <span class="n">f</span><span class="p">[</span><span class="s1">&#39;PartType0&#39;</span><span class="p">][</span><span class="s1">&#39;Coordinates&#39;</span><span class="p">][:]</span> <span class="o">*</span> <span class="n">snap_a</span> <span class="o">/</span> <span class="n">cosmo_h</span>   <span class="c1"># in kpc</span>
+    <span class="n">gas_vel</span> <span class="o">=</span> <span class="n">f</span><span class="p">[</span><span class="s1">&#39;PartType0&#39;</span><span class="p">][</span><span class="s1">&#39;Velocities&#39;</span><span class="p">][:]</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">snap_a</span><span class="p">)</span>   <span class="c1"># peculiar velocity in km/s</span>
+    <span class="n">gas_mass_H</span> <span class="o">=</span> <span class="n">gas_mass</span> <span class="o">*</span> <span class="n">XH</span>
+    
+    <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+    <span class="n">create_hdf5_file</span><span class="p">(</span><span class="n">output_hdf5</span><span class="p">,</span> <span class="n">stars_init_mass</span><span class="p">,</span> <span class="n">stars_form_z</span><span class="p">,</span> <span class="n">stars_mass</span><span class="p">,</span> <span class="n">stars_zmet</span><span class="p">,</span> <span class="n">stars_coords</span><span class="p">,</span>
+                    <span class="n">stars_vel</span><span class="p">,</span> <span class="n">gas_mass</span><span class="p">,</span> <span class="n">gas_zmet</span><span class="p">,</span> <span class="n">gas_sfr_inst</span><span class="p">,</span> <span class="n">gas_temp</span><span class="p">,</span> <span class="n">gas_coords</span><span class="p">,</span> <span class="n">gas_vel</span><span class="p">,</span> <span class="n">gas_mass_H</span><span class="p">)</span></div>
+
+
+
+
+
+
+
+</pre></div>
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Abdurrouf
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2025, Abdurrouf.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

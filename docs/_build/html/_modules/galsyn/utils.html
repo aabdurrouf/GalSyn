@@ -1,0 +1,1422 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>galsyn.utils &#8212; GalSyn 0.1.0 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../../_static/documentation_options.js?v=a1637f0b"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/galsyn/utils';</script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../_static/galsyn_logo.png" class="logo__image only-light" alt="GalSyn 0.1.0 documentation - Home"/>
+    <script>document.write(`<img src="../../_static/galsyn_logo.png" class="logo__image only-dark" alt="GalSyn 0.1.0 documentation - Home"/>`);</script>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../../index.html">
+                    Welcome to GalSyn’s Documentation!
+                </a>
+            </li>
+        </ul>
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../introduction.html">Introduction and Capabilities</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../tutorials.html">Tutorials</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../tutorials/getting_started.html">Getting Started with GalSyn</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../tutorials/basic_usage.html">Basic Usage of GalSyn</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../tutorials/customizing_ssp_engines.html">Customizing SSP Engines (FSPS vs Bagpipes)</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../api.html">API Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../api/galsyn.html">galsyn</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/config.html">config</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/dust.html">dust</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/galsyn_run_bagpipes.html">galsyn_run_bagpipes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/galsyn_run_fsps.html">galsyn_run_fsps</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/imgutils.html">imgutils</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/observe.html">observe</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/sfh.html">sfh</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/simutils_tng.html">simutils_tng</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/ssp_generator_bagpipes.html">ssp_generator_bagpipes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/ssp_generator_fsps.html">ssp_generator_fsps</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/utils.html">utils</a></li>
+</ul>
+</details></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-source-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Source repositories">
+    <i class="fab fa-github"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="https://github.com/aabdurrouf/GalSyn" target="_blank"
+   class="btn btn-sm btn-source-repository-button dropdown-item"
+   title="Source repository"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="btn__text-container">Repository</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/aabdurrouf/GalSyn/issues/new?title=Issue%20on%20page%20%2F_modules/galsyn/utils.html&body=Your%20issue%20content%20here." target="_blank"
+   class="btn btn-sm btn-source-issues-button dropdown-item"
+   title="Open an issue"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="btn__text-container">Open issue</span>
+</a>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1></h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for galsyn.utils</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">sys</span><span class="o">,</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">operator</span><span class="w"> </span><span class="kn">import</span> <span class="n">itemgetter</span>
+
+<div class="viewcode-block" id="define_cosmo">
+<a class="viewcode-back" href="../../api/utils.html#galsyn.utils.define_cosmo">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">define_cosmo</span><span class="p">(</span><span class="n">cosmo_str</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Selects and returns a specific cosmology model from the astropy.cosmology library.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    cosmo_str : str</span>
+<span class="sd">        The name of the cosmology model to be used.</span>
+<span class="sd">        Valid options are: &quot;planck18&quot;, &quot;planck15&quot;, &quot;planck13&quot;,</span>
+<span class="sd">        &quot;wmap5&quot;, &quot;wmap7&quot;, or &quot;wmap9&quot;. The check is case-insensitive.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    cosmology object</span>
+<span class="sd">        An astropy.cosmology object containing the parameters for the</span>
+<span class="sd">        selected model.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">cosmo_name</span> <span class="o">=</span> <span class="n">cosmo_str</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>  <span class="c1"># Make case-insensitive</span>
+
+    <span class="k">if</span> <span class="n">cosmo_name</span> <span class="o">==</span> <span class="s2">&quot;planck18&quot;</span><span class="p">:</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">astropy.cosmology</span><span class="w"> </span><span class="kn">import</span> <span class="n">Planck18</span> <span class="k">as</span> <span class="n">cosmo</span>
+    <span class="k">elif</span> <span class="n">cosmo_name</span> <span class="o">==</span> <span class="s2">&quot;planck15&quot;</span><span class="p">:</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">astropy.cosmology</span><span class="w"> </span><span class="kn">import</span> <span class="n">Planck15</span> <span class="k">as</span> <span class="n">cosmo</span>
+    <span class="k">elif</span> <span class="n">cosmo_name</span> <span class="o">==</span> <span class="s2">&quot;planck13&quot;</span><span class="p">:</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">astropy.cosmology</span><span class="w"> </span><span class="kn">import</span> <span class="n">Planck13</span> <span class="k">as</span> <span class="n">cosmo</span>
+    <span class="k">elif</span> <span class="n">cosmo_name</span> <span class="o">==</span> <span class="s2">&quot;wmap5&quot;</span><span class="p">:</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">astropy.cosmology</span><span class="w"> </span><span class="kn">import</span> <span class="n">WMAP5</span> <span class="k">as</span> <span class="n">cosmo</span>
+    <span class="k">elif</span> <span class="n">cosmo_name</span> <span class="o">==</span> <span class="s2">&quot;wmap7&quot;</span><span class="p">:</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">astropy.cosmology</span><span class="w"> </span><span class="kn">import</span> <span class="n">WMAP7</span> <span class="k">as</span> <span class="n">cosmo</span>
+    <span class="k">elif</span> <span class="n">cosmo_name</span> <span class="o">==</span> <span class="s2">&quot;wmap9&quot;</span><span class="p">:</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">astropy.cosmology</span><span class="w"> </span><span class="kn">import</span> <span class="n">WMAP9</span> <span class="k">as</span> <span class="n">cosmo</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Selected cosmology is not recognized!&quot;</span><span class="p">)</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="n">cosmo</span></div>
+
+
+<div class="viewcode-block" id="interp_age_univ_from_z">
+<a class="viewcode-back" href="../../api/utils.html#galsyn.utils.interp_age_univ_from_z">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">interp_age_univ_from_z</span><span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="n">cosmo</span><span class="p">):</span>
+
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Interpolates the age of the universe at a given redshift (z).</span>
+
+<span class="sd">    This function first creates an array of redshifts and calculates the age of the universe</span>
+<span class="sd">    for each redshift using a provided cosmology object. It then creates an interpolation</span>
+<span class="sd">    function and uses it to find the age of the universe at the specific redshift(s)</span>
+<span class="sd">    provided as input.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    z : float or array_like</span>
+<span class="sd">        The redshift(s) at which to calculate the age of the universe.</span>
+
+<span class="sd">    cosmo : astropy.cosmology object</span>
+<span class="sd">        The cosmology object to use for the age calculation. This object</span>
+<span class="sd">        should be an instance from the `astropy.cosmology` module.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    float or ndarray</span>
+<span class="sd">        The age(s) of the universe at the given redshift(s), in Gyr.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="kn">from</span><span class="w"> </span><span class="nn">scipy.interpolate</span><span class="w"> </span><span class="kn">import</span> <span class="n">interp1d</span>
+    
+    <span class="n">arr_z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">12.0</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+    <span class="n">age_univ</span> <span class="o">=</span> <span class="n">cosmo</span><span class="o">.</span><span class="n">age</span><span class="p">(</span><span class="n">arr_z</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
+
+    <span class="n">f</span> <span class="o">=</span> <span class="n">interp1d</span><span class="p">(</span><span class="n">arr_z</span><span class="p">,</span> <span class="n">age_univ</span><span class="p">,</span> <span class="n">fill_value</span><span class="o">=</span><span class="s2">&quot;extrapolate&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">f</span><span class="p">(</span><span class="n">z</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="cosmo_redshifting">
+<a class="viewcode-back" href="../../api/utils.html#galsyn.utils.cosmo_redshifting">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">cosmo_redshifting</span><span class="p">(</span><span class="n">wave_rest</span><span class="p">,</span> <span class="n">L_lambda_rest</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">cosmo</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Performs cosmological redshifting of a spectrum.</span>
+
+<span class="sd">    This function converts an emitted spectrum, provided in units of</span>
+<span class="sd">    Solar luminosity per Angstrom, into an observed flux density in units</span>
+<span class="sd">    of erg/s/cm^2/Angstrom, given a cosmological redshift.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    wave_rest : `numpy.ndarray`</span>
+<span class="sd">        Wavelengths of the emitted spectrum in Angstrom.</span>
+<span class="sd">    L_lambda_rest : `numpy.ndarray` </span>
+<span class="sd">        Luminosity per unit wavelength of the emitted spectrum in Solar Luminosity per Angstrom ($L_{\odot}/\AA$).</span>
+<span class="sd">    z : float</span>
+<span class="sd">        The cosmological redshift (z) at which the spectrum is observed.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    tuple of `astropy.units.Quantity`</span>
+<span class="sd">        A tuple containing two astropy Quantity objects:</span>
+<span class="sd">        - observed_wavelengths : Wavelengths in the observed frame, in Angstrom.</span>
+<span class="sd">        - observed_flux_density : Flux density in the observed frame, in erg/s/cm^2/Angstrom.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="kn">from</span><span class="w"> </span><span class="nn">astropy.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">L_sun</span>
+
+    <span class="c1"># Observed wavelength (redshifted)</span>
+    <span class="n">wave_obs</span> <span class="o">=</span> <span class="n">wave_rest</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">z</span><span class="p">)</span>
+
+    <span class="c1"># Convert luminosity to erg/s/Angstrom</span>
+    <span class="n">L_lambda_erg</span> <span class="o">=</span> <span class="n">L_lambda_rest</span> <span class="o">*</span> <span class="n">L_sun</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s1">&#39;erg/s&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>  <span class="c1"># Now in erg/s/Angstrom</span>
+
+    <span class="c1"># Get luminosity distance in cm</span>
+    <span class="n">D_L_cm</span> <span class="o">=</span> <span class="n">cosmo</span><span class="o">.</span><span class="n">luminosity_distance</span><span class="p">(</span><span class="n">z</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s1">&#39;cm&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
+
+    <span class="c1"># Compute observed flux density using:</span>
+    <span class="c1"># F_lambda = (1 / (4 * pi * D_L^2)) * (1 / (1 + z)) * L_lambda_rest</span>
+    <span class="n">F_lambda_obs</span> <span class="o">=</span> <span class="p">(</span><span class="n">L_lambda_erg</span> <span class="o">/</span> <span class="p">(</span><span class="mi">4</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">D_L_cm</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span> <span class="o">/</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">z</span><span class="p">)</span>  <span class="c1"># in erg/s/cm^2/Angstrom</span>
+
+    <span class="k">return</span> <span class="n">wave_obs</span><span class="p">,</span> <span class="n">F_lambda_obs</span></div>
+
+    
+
+<div class="viewcode-block" id="filtering">
+<a class="viewcode-back" href="../../api/utils.html#galsyn.utils.filtering">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">filtering</span><span class="p">(</span><span class="n">wave_spec</span><span class="p">,</span> <span class="n">flux_spec</span><span class="p">,</span> <span class="n">wave_filter</span><span class="p">,</span> <span class="n">trans_filter</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute photometric flux through a filter using spectrum in F_lambda units.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    wave_spec : ndarray</span>
+<span class="sd">        Wavelength array of the spectrum [Å].</span>
+<span class="sd">    flux_spec : ndarray</span>
+<span class="sd">        Flux density array of the spectrum [erg/s/cm²/Å].</span>
+<span class="sd">    wave_filter : ndarray</span>
+<span class="sd">        Wavelength array of the filter transmission curve [Å].</span>
+<span class="sd">    trans_filter : ndarray</span>
+<span class="sd">        Transmission values of the filter (unitless).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    flux_phot : float</span>
+<span class="sd">        Photometric flux in units of erg/s/cm²/Å.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="kn">from</span><span class="w"> </span><span class="nn">scipy.interpolate</span><span class="w"> </span><span class="kn">import</span> <span class="n">interp1d</span>
+
+    <span class="c1"># Interpolate spectrum and filter to common wavelength grid</span>
+    <span class="n">wave_min</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">wave_spec</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">wave_filter</span><span class="p">))</span>
+    <span class="n">wave_max</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">wave_spec</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">wave_filter</span><span class="p">))</span>
+
+    <span class="n">wave_common</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">wave_min</span><span class="p">,</span> <span class="n">wave_max</span><span class="p">,</span> <span class="mi">10000</span><span class="p">)</span>
+
+    <span class="n">flux_interp</span> <span class="o">=</span> <span class="n">interp1d</span><span class="p">(</span><span class="n">wave_spec</span><span class="p">,</span> <span class="n">flux_spec</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s1">&#39;linear&#39;</span><span class="p">,</span> <span class="n">bounds_error</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">fill_value</span><span class="o">=</span><span class="mf">0.0</span><span class="p">)</span>
+    <span class="n">trans_interp</span> <span class="o">=</span> <span class="n">interp1d</span><span class="p">(</span><span class="n">wave_filter</span><span class="p">,</span> <span class="n">trans_filter</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s1">&#39;linear&#39;</span><span class="p">,</span> <span class="n">bounds_error</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">fill_value</span><span class="o">=</span><span class="mf">0.0</span><span class="p">)</span>
+
+    <span class="n">F_lambda</span> <span class="o">=</span> <span class="n">flux_interp</span><span class="p">(</span><span class="n">wave_common</span><span class="p">)</span>
+    <span class="n">T_lambda</span> <span class="o">=</span> <span class="n">trans_interp</span><span class="p">(</span><span class="n">wave_common</span><span class="p">)</span>
+
+    <span class="n">numerator</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">trapz</span><span class="p">(</span><span class="n">F_lambda</span> <span class="o">*</span> <span class="n">T_lambda</span> <span class="o">*</span> <span class="n">wave_common</span><span class="p">,</span> <span class="n">wave_common</span><span class="p">)</span>
+    <span class="n">denominator</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">trapz</span><span class="p">(</span><span class="n">T_lambda</span> <span class="o">*</span> <span class="n">wave_common</span><span class="p">,</span> <span class="n">wave_common</span><span class="p">)</span>
+
+    <span class="n">flux_phot</span> <span class="o">=</span> <span class="n">numerator</span> <span class="o">/</span> <span class="n">denominator</span>
+
+    <span class="k">return</span> <span class="n">flux_phot</span></div>
+
+
+
+<div class="viewcode-block" id="get_effective_range">
+<a class="viewcode-back" href="../../api/utils.html#galsyn.utils.get_effective_range">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_effective_range</span><span class="p">(</span><span class="n">profile</span><span class="p">,</span> <span class="n">mass_percentage_threshold</span><span class="o">=</span><span class="mf">0.95</span><span class="p">):</span>
+    <span class="n">total_mass</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">profile</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">total_mass</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span> <span class="c1"># Or handle as an error/empty galaxy</span>
+    <span class="n">cumulative_mass</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">profile</span><span class="p">)</span>
+
+    <span class="c1"># Find the first index where cumulative mass exceeds (1 - threshold)/2 of total mass</span>
+    <span class="c1"># and the last index where it exceeds total_mass * threshold + (1 - threshold)/2 of total mass</span>
+    <span class="c1"># This centers the &quot;significant&quot; mass.</span>
+
+    <span class="c1"># Find the start index: mass from beginning to this point is (1-threshold)/2</span>
+    <span class="c1"># Find the end index: mass from beginning to this point is threshold + (1-threshold)/2</span>
+
+    <span class="c1"># Alternative: find where cumulative mass first exceeds (1-fraction_to_trim_each_side) of total mass</span>
+    <span class="c1"># And where it first exceeds fraction_to_trim_each_side</span>
+
+    <span class="c1"># More robust for finding a central region:</span>
+    <span class="c1"># Find the indices corresponding to the inner `mass_percentage_threshold` of mass.</span>
+
+    <span class="c1"># Find the first index where cumulative mass is greater than or equal to (1 - mass_percentage_threshold) / 2 * total_mass</span>
+    <span class="c1"># This is the left/bottom boundary</span>
+    <span class="n">lower_bound_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">searchsorted</span><span class="p">(</span><span class="n">cumulative_mass</span><span class="p">,</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">mass_percentage_threshold</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">total_mass</span><span class="p">)</span>
+
+    <span class="c1"># Find the first index where cumulative mass is greater than or equal to (1 + mass_percentage_threshold) / 2 * total_mass</span>
+    <span class="c1"># This is the right/top boundary. We add 1 to include that pixel.</span>
+    <span class="n">upper_bound_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">searchsorted</span><span class="p">(</span><span class="n">cumulative_mass</span><span class="p">,</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">mass_percentage_threshold</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">total_mass</span><span class="p">)</span>
+
+    <span class="c1"># Ensure indices are within bounds</span>
+    <span class="n">lower_bound_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">lower_bound_idx</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">profile</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">upper_bound_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">upper_bound_idx</span><span class="p">,</span> <span class="n">lower_bound_idx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">profile</span><span class="p">))</span> <span class="c1"># ensure at least 1 pixel wide</span>
+
+    <span class="k">return</span> <span class="n">lower_bound_idx</span><span class="p">,</span> <span class="n">upper_bound_idx</span></div>
+
+
+
+<div class="viewcode-block" id="determine_image_size">
+<a class="viewcode-back" href="../../api/utils.html#galsyn.utils.determine_image_size">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">determine_image_size</span><span class="p">(</span><span class="n">star_coords</span><span class="p">,</span> <span class="n">particle_masses</span><span class="p">,</span> <span class="n">pixel_size</span><span class="p">,</span> <span class="n">output_dimension</span><span class="p">,</span> <span class="n">polar_angle_deg</span><span class="p">,</span> 
+                         <span class="n">azimuth_angle_deg</span><span class="p">,</span> <span class="n">gas_coords</span><span class="p">,</span> <span class="n">gas_masses</span><span class="p">,</span> <span class="n">mass_percentage</span><span class="o">=</span><span class="mf">0.98</span><span class="p">,</span> <span class="n">max_img_dim</span><span class="o">=</span><span class="mi">100</span><span class="p">):</span>
+
+    <span class="c1"># Temporarily call get_2d_density_projection_no_los_binning to get grid info for image sizing</span>
+    <span class="c1"># Pass dummy velocity arrays as they are not needed for image sizing</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="n">get_2d_density_projection_no_los_binning</span><span class="p">(</span><span class="n">star_coords</span><span class="p">,</span> <span class="n">particle_masses</span><span class="p">,</span> <span class="n">pixel_size</span><span class="p">,</span> <span class="n">output_dimension</span><span class="p">,</span> 
+                                                   <span class="n">polar_angle_deg</span><span class="o">=</span><span class="n">polar_angle_deg</span><span class="p">,</span> <span class="n">azimuth_angle_deg</span><span class="o">=</span><span class="n">azimuth_angle_deg</span><span class="p">,</span> 
+                                                   <span class="n">gas_coords</span><span class="o">=</span><span class="n">gas_coords</span><span class="p">,</span> <span class="n">gas_masses</span><span class="o">=</span><span class="n">gas_masses</span><span class="p">,</span> 
+                                                   <span class="n">star_vels</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">star_coords</span><span class="p">),</span> <span class="n">gas_vels</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">gas_coords</span><span class="p">)</span> <span class="k">if</span> <span class="n">gas_coords</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="n">star_particle_membership</span><span class="p">,</span> <span class="n">star_mass_density_map</span><span class="p">,</span> <span class="n">central_pixel_coords</span><span class="p">,</span> <span class="n">grid_info</span><span class="p">,</span> <span class="n">gas_particle_membership</span><span class="p">,</span> <span class="n">gas_mass_density_map</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">out</span>
+
+    <span class="c1"># Summing along columns (axis=0) gives profile along X-axis</span>
+    <span class="n">mass_profile_x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">star_mass_density_map</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="c1"># Summing along rows (axis=1) gives profile along Y-axis</span>
+    <span class="n">mass_profile_y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">star_mass_density_map</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="n">x_start_idx</span><span class="p">,</span> <span class="n">x_end_idx</span> <span class="o">=</span> <span class="n">get_effective_range</span><span class="p">(</span><span class="n">mass_profile_x</span><span class="p">,</span> <span class="n">mass_percentage</span><span class="p">)</span>
+    <span class="n">y_start_idx</span><span class="p">,</span> <span class="n">y_end_idx</span> <span class="o">=</span> <span class="n">get_effective_range</span><span class="p">(</span><span class="n">mass_profile_y</span><span class="p">,</span> <span class="n">mass_percentage</span><span class="p">)</span>
+
+    <span class="c1"># Calculate effective physical dimensions</span>
+    <span class="n">effective_width_pixels</span> <span class="o">=</span> <span class="n">x_end_idx</span> <span class="o">-</span> <span class="n">x_start_idx</span>
+    <span class="n">effective_height_pixels</span> <span class="o">=</span> <span class="n">y_end_idx</span> <span class="o">-</span> <span class="n">y_start_idx</span>
+
+    <span class="n">effective_width_physical</span> <span class="o">=</span> <span class="n">effective_width_pixels</span> <span class="o">*</span> <span class="n">pixel_size</span>
+    <span class="n">effective_height_physical</span> <span class="o">=</span> <span class="n">effective_height_pixels</span> <span class="o">*</span> <span class="n">pixel_size</span>
+
+    <span class="c1"># A small buffer can be added to the effective dimensions to avoid cutting off edges exactly</span>
+    <span class="n">buffer_factor</span> <span class="o">=</span> <span class="mf">1.1</span> <span class="c1"># e.g., add 10% buffer</span>
+    <span class="n">final_output_width</span> <span class="o">=</span> <span class="n">effective_width_physical</span> <span class="o">*</span> <span class="n">buffer_factor</span>
+    <span class="n">final_output_height</span> <span class="o">=</span> <span class="n">effective_height_physical</span> <span class="o">*</span> <span class="n">buffer_factor</span>
+
+    <span class="c1"># Ensure minimum size to avoid issues with very sparse data</span>
+    <span class="n">min_dim_physical</span> <span class="o">=</span> <span class="mi">10</span> <span class="o">*</span> <span class="n">pixel_size</span> <span class="c1"># e.g., at least 10 pixels wide</span>
+    <span class="n">final_output_width</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">final_output_width</span><span class="p">,</span> <span class="n">min_dim_physical</span><span class="p">)</span>
+    <span class="n">final_output_height</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">final_output_height</span><span class="p">,</span> <span class="n">min_dim_physical</span><span class="p">)</span>
+
+    <span class="n">img_dim</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">final_output_width</span><span class="p">,</span> <span class="n">final_output_height</span><span class="p">)))</span>
+    
+    <span class="k">if</span> <span class="n">img_dim</span> <span class="o">&gt;</span> <span class="n">max_img_dim</span><span class="p">:</span>
+         <span class="n">img_dim</span> <span class="o">=</span> <span class="n">max_img_dim</span>
+
+    <span class="k">return</span> <span class="n">img_dim</span></div>
+
+
+
+<span class="c1"># wave: wavelength in Angstroms</span>
+<div class="viewcode-block" id="igm_att_madau">
+<a class="viewcode-back" href="../../api/utils.html#galsyn.utils.igm_att_madau">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">igm_att_madau</span><span class="p">(</span><span class="n">wave</span><span class="p">,</span><span class="n">z</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute IGM attenuation (transmission) due to Lyman series and Lyman continuum</span>
+<span class="sd">    following Madau et al. 1995.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">    -----------</span>
+<span class="sd">    wave : array_like</span>
+<span class="sd">        Observed-frame wavelength array in Angstroms.</span>
+<span class="sd">    z : float</span>
+<span class="sd">        Source redshift.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">    --------</span>
+<span class="sd">    transmission : ndarray</span>
+<span class="sd">        Transmission factor at each wavelength (same shape as input).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">wave</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">wave</span><span class="p">)</span>
+    <span class="n">nwaves</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">wave</span><span class="p">)</span>
+
+    <span class="n">lylambda</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">32</span><span class="p">)</span>
+    <span class="n">madauA</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">32</span><span class="p">)</span>
+
+    <span class="n">nseries</span> <span class="o">=</span> <span class="mi">4</span>
+    <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="nb">int</span><span class="p">(</span><span class="n">nseries</span><span class="p">)</span><span class="o">+</span><span class="mi">2</span><span class="p">):</span>
+        <span class="n">lylambda</span><span class="p">[</span><span class="n">ii</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="mf">912.0</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">ii</span><span class="p">,</span><span class="mf">2.0</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">ii</span><span class="p">,</span><span class="mf">2.0</span><span class="p">)</span><span class="o">-</span><span class="mf">1.0</span><span class="p">)</span>
+
+    <span class="n">madauA</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0036</span>
+    <span class="n">madauA</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0017</span>
+    <span class="n">madauA</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0012</span>
+    <span class="n">madauA</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.00093</span>
+
+    <span class="n">teffline</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">nwaves</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">nseries</span><span class="p">):</span>
+        <span class="n">lmin</span> <span class="o">=</span> <span class="n">lylambda</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span>
+        <span class="n">lmax</span> <span class="o">=</span> <span class="n">lylambda</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span><span class="o">*</span><span class="p">(</span><span class="mf">1.0</span><span class="o">+</span><span class="n">z</span><span class="p">)</span>
+
+        <span class="n">idx0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">((</span><span class="n">wave</span><span class="o">&gt;=</span><span class="n">lmin</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">wave</span><span class="o">&lt;=</span><span class="n">lmax</span><span class="p">))</span>
+        <span class="n">teffline</span><span class="p">[</span><span class="n">idx0</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">+=</span> <span class="n">madauA</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="mf">3.46</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">wave</span><span class="p">[</span><span class="n">idx0</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span><span class="o">/</span><span class="n">lylambda</span><span class="p">[</span><span class="n">ii</span><span class="p">]))</span>
+
+    <span class="n">xc</span> <span class="o">=</span> <span class="n">wave</span><span class="o">/</span><span class="mf">912.0</span>
+    <span class="n">xem</span> <span class="o">=</span> <span class="mf">1.0</span><span class="o">+</span><span class="n">z</span>
+
+    <span class="n">idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">xc</span><span class="o">&lt;</span><span class="mf">1.0</span><span class="p">)</span>
+    <span class="n">xc</span><span class="p">[</span><span class="n">idx</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="mf">1.0</span>
+
+    <span class="n">idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">xc</span><span class="o">&gt;</span><span class="n">xem</span><span class="p">)</span>
+    <span class="n">xc</span><span class="p">[</span><span class="n">idx</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="n">xem</span>
+
+    <span class="n">teffcont</span> <span class="o">=</span> <span class="mf">0.25</span><span class="o">*</span><span class="n">xc</span><span class="o">*</span><span class="n">xc</span><span class="o">*</span><span class="n">xc</span><span class="o">*</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="mf">0.46</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">xem</span><span class="p">))</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="mf">0.46</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">xc</span><span class="p">)))</span>
+    <span class="n">teffcont</span> <span class="o">=</span> <span class="n">teffcont</span> <span class="o">+</span> <span class="mf">9.4</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="mf">1.5</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">xc</span><span class="p">))</span><span class="o">*</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="mf">0.18</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">xem</span><span class="p">))</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="mf">0.18</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">xc</span><span class="p">)))</span>
+    <span class="n">teffcont</span> <span class="o">=</span> <span class="n">teffcont</span> <span class="o">-</span> <span class="mf">0.7</span><span class="o">*</span><span class="n">xc</span><span class="o">*</span><span class="n">xc</span><span class="o">*</span><span class="n">xc</span><span class="o">*</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="mf">1.32</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">xc</span><span class="p">))</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="mf">1.32</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">xem</span><span class="p">)))</span>
+    <span class="n">teffcont</span> <span class="o">=</span> <span class="n">teffcont</span> <span class="o">-</span> <span class="mf">0.023</span><span class="o">*</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="mf">1.68</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">xem</span><span class="p">))</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="mf">1.68</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">xc</span><span class="p">)))</span>
+    <span class="n">tefftot</span> <span class="o">=</span> <span class="n">teffline</span> <span class="o">+</span> <span class="n">teffcont</span>
+
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="mf">1.0</span><span class="o">*</span><span class="n">tefftot</span><span class="p">)</span></div>
+
+
+<span class="c1">#==&gt; IGM absorption based on Inoue+2014:</span>
+
+<div class="viewcode-block" id="tau_LAF_LS">
+<a class="viewcode-back" href="../../api/utils.html#galsyn.utils.tau_LAF_LS">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">tau_LAF_LS</span><span class="p">(</span><span class="n">wave</span><span class="p">,</span><span class="n">z</span><span class="p">):</span>
+	<span class="c1"># based on table 2 of inoue et al. 2014</span>
+	<span class="n">nj</span> <span class="o">=</span> <span class="mi">39</span>
+	<span class="n">lj</span>  <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="mf">1215.67</span><span class="p">,</span> <span class="mf">1025.72</span><span class="p">,</span> <span class="mf">972.537</span><span class="p">,</span> <span class="mf">949.743</span><span class="p">,</span> <span class="mf">937.803</span><span class="p">,</span> <span class="mf">930.748</span><span class="p">,</span> <span class="mf">926.226</span><span class="p">,</span> <span class="mf">923.150</span><span class="p">,</span> <span class="mf">920.963</span><span class="p">,</span> <span class="mf">919.352</span><span class="p">,</span> <span class="mf">918.129</span><span class="p">,</span> <span class="mf">917.181</span><span class="p">,</span> <span class="mf">916.429</span><span class="p">,</span> <span class="mf">915.824</span><span class="p">,</span> <span class="mf">915.329</span><span class="p">,</span> <span class="mf">914.919</span><span class="p">,</span> <span class="mf">914.576</span><span class="p">,</span> <span class="mf">914.286</span><span class="p">,</span> <span class="mf">914.039</span><span class="p">,</span> <span class="mf">913.826</span><span class="p">,</span> <span class="mf">913.641</span><span class="p">,</span> <span class="mf">913.480</span><span class="p">,</span> <span class="mf">913.339</span><span class="p">,</span> <span class="mf">913.215</span><span class="p">,</span> <span class="mf">913.104</span><span class="p">,</span> <span class="mf">913.006</span><span class="p">,</span> <span class="mf">912.918</span><span class="p">,</span> <span class="mf">912.839</span><span class="p">,</span> <span class="mf">912.768</span><span class="p">,</span> <span class="mf">912.703</span><span class="p">,</span> <span class="mf">912.645</span><span class="p">,</span> <span class="mf">912.592</span><span class="p">,</span> <span class="mf">912.543</span><span class="p">,</span> <span class="mf">912.499</span><span class="p">,</span> <span class="mf">912.458</span><span class="p">,</span> <span class="mf">912.420</span><span class="p">,</span> <span class="mf">912.385</span><span class="p">,</span> <span class="mf">912.353</span><span class="p">,</span> <span class="mf">912.324</span><span class="p">])</span>
+	<span class="n">Aj1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="mf">1.690e-2</span><span class="p">,</span><span class="mf">4.692e-3</span><span class="p">,</span><span class="mf">2.239e-3</span><span class="p">,</span><span class="mf">1.319e-3</span><span class="p">,</span><span class="mf">8.707e-4</span><span class="p">,</span><span class="mf">6.178e-4</span><span class="p">,</span><span class="mf">4.609e-4</span><span class="p">,</span><span class="mf">3.569e-4</span><span class="p">,</span><span class="mf">2.843e-4</span><span class="p">,</span><span class="mf">2.318e-4</span><span class="p">,</span><span class="mf">1.923e-4</span><span class="p">,</span><span class="mf">1.622e-4</span><span class="p">,</span><span class="mf">1.385e-4</span><span class="p">,</span><span class="mf">1.196e-4</span><span class="p">,</span><span class="mf">1.043e-4</span><span class="p">,</span><span class="mf">9.174e-5</span><span class="p">,</span><span class="mf">8.128e-5</span><span class="p">,</span><span class="mf">7.251e-5</span><span class="p">,</span><span class="mf">6.505e-5</span><span class="p">,</span><span class="mf">5.868e-5</span><span class="p">,</span><span class="mf">5.319e-5</span><span class="p">,</span><span class="mf">4.843e-5</span><span class="p">,</span><span class="mf">4.427e-5</span><span class="p">,</span><span class="mf">4.063e-5</span><span class="p">,</span><span class="mf">3.738e-5</span><span class="p">,</span><span class="mf">3.454e-5</span><span class="p">,</span><span class="mf">3.199e-5</span><span class="p">,</span><span class="mf">2.971e-5</span><span class="p">,</span><span class="mf">2.766e-5</span><span class="p">,</span><span class="mf">2.582e-5</span><span class="p">,</span><span class="mf">2.415e-5</span><span class="p">,</span><span class="mf">2.263e-5</span><span class="p">,</span><span class="mf">2.126e-5</span><span class="p">,</span><span class="mf">2.000e-5</span><span class="p">,</span><span class="mf">1.885e-5</span><span class="p">,</span><span class="mf">1.779e-5</span><span class="p">,</span><span class="mf">1.682e-5</span><span class="p">,</span><span class="mf">1.593e-5</span><span class="p">,</span><span class="mf">1.510e-5</span><span class="p">])</span>
+	<span class="n">Aj2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="mf">2.354e-3</span><span class="p">,</span><span class="mf">6.536e-4</span><span class="p">,</span><span class="mf">3.119e-4</span><span class="p">,</span><span class="mf">1.837e-4</span><span class="p">,</span><span class="mf">1.213e-4</span><span class="p">,</span><span class="mf">8.606e-5</span><span class="p">,</span><span class="mf">6.421e-5</span><span class="p">,</span><span class="mf">4.971e-5</span><span class="p">,</span><span class="mf">3.960e-5</span><span class="p">,</span><span class="mf">3.229e-5</span><span class="p">,</span><span class="mf">2.679e-5</span><span class="p">,</span><span class="mf">2.259e-5</span><span class="p">,</span><span class="mf">1.929e-5</span><span class="p">,</span><span class="mf">1.666e-5</span><span class="p">,</span><span class="mf">1.453e-5</span><span class="p">,</span><span class="mf">1.278e-5</span><span class="p">,</span><span class="mf">1.132e-5</span><span class="p">,</span><span class="mf">1.010e-5</span><span class="p">,</span><span class="mf">9.062e-6</span><span class="p">,</span><span class="mf">8.174e-6</span><span class="p">,</span><span class="mf">7.409e-6</span><span class="p">,</span><span class="mf">6.746e-6</span><span class="p">,</span><span class="mf">6.167e-6</span><span class="p">,</span><span class="mf">5.660e-6</span><span class="p">,</span><span class="mf">5.207e-6</span><span class="p">,</span><span class="mf">4.811e-6</span><span class="p">,</span><span class="mf">4.456e-6</span><span class="p">,</span><span class="mf">4.139e-6</span><span class="p">,</span><span class="mf">3.853e-6</span><span class="p">,</span><span class="mf">3.596e-6</span><span class="p">,</span><span class="mf">3.364e-6</span><span class="p">,</span><span class="mf">3.153e-6</span><span class="p">,</span><span class="mf">2.961e-6</span><span class="p">,</span><span class="mf">2.785e-6</span><span class="p">,</span><span class="mf">2.625e-6</span><span class="p">,</span><span class="mf">2.479e-6</span><span class="p">,</span><span class="mf">2.343e-6</span><span class="p">,</span><span class="mf">2.219e-6</span><span class="p">,</span><span class="mf">2.103e-6</span><span class="p">])</span>
+	<span class="n">Aj3</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="mf">1.026e-4</span><span class="p">,</span><span class="mf">2.849e-5</span><span class="p">,</span><span class="mf">1.360e-5</span><span class="p">,</span><span class="mf">8.010e-6</span><span class="p">,</span><span class="mf">5.287e-6</span><span class="p">,</span><span class="mf">3.752e-6</span><span class="p">,</span><span class="mf">2.799e-6</span><span class="p">,</span><span class="mf">2.167e-6</span><span class="p">,</span><span class="mf">1.726e-6</span><span class="p">,</span><span class="mf">1.407e-6</span><span class="p">,</span><span class="mf">1.168e-6</span><span class="p">,</span><span class="mf">9.847e-7</span><span class="p">,</span><span class="mf">8.410e-7</span><span class="p">,</span><span class="mf">7.263e-7</span><span class="p">,</span><span class="mf">6.334e-7</span><span class="p">,</span><span class="mf">5.571e-7</span><span class="p">,</span><span class="mf">4.936e-7</span><span class="p">,</span><span class="mf">4.403e-7</span><span class="p">,</span><span class="mf">3.950e-7</span><span class="p">,</span><span class="mf">3.563e-7</span><span class="p">,</span><span class="mf">3.230e-7</span><span class="p">,</span><span class="mf">2.941e-7</span><span class="p">,</span><span class="mf">2.689e-7</span><span class="p">,</span><span class="mf">2.467e-7</span><span class="p">,</span><span class="mf">2.270e-7</span><span class="p">,</span><span class="mf">2.097e-7</span><span class="p">,</span><span class="mf">1.943e-7</span><span class="p">,</span><span class="mf">1.804e-7</span><span class="p">,</span><span class="mf">1.680e-7</span><span class="p">,</span><span class="mf">1.568e-7</span><span class="p">,</span><span class="mf">1.466e-7</span><span class="p">,</span><span class="mf">1.375e-7</span><span class="p">,</span><span class="mf">1.291e-7</span><span class="p">,</span><span class="mf">1.214e-7</span><span class="p">,</span><span class="mf">1.145e-7</span><span class="p">,</span><span class="mf">1.080e-7</span><span class="p">,</span><span class="mf">1.022e-7</span><span class="p">,</span><span class="mf">9.673e-8</span><span class="p">,</span><span class="mf">9.169e-8</span><span class="p">])</span>
+
+	<span class="n">tau</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">wave</span><span class="p">))</span>
+	<span class="k">for</span> <span class="n">jj</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="nb">int</span><span class="p">(</span><span class="n">nj</span><span class="p">)):</span>
+		<span class="c1"># eqn 21 of inoue et al. 2014</span>
+		<span class="n">idx0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">((</span><span class="n">wave</span><span class="o">&gt;</span><span class="n">lj</span><span class="p">[</span><span class="n">jj</span><span class="p">])</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">wave</span><span class="o">&lt;</span><span class="n">lj</span><span class="p">[</span><span class="n">jj</span><span class="p">]</span><span class="o">*</span><span class="p">(</span><span class="mf">1.0</span><span class="o">+</span><span class="n">z</span><span class="p">))</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">wave</span><span class="o">&lt;</span><span class="mf">2.2</span><span class="o">*</span><span class="n">lj</span><span class="p">[</span><span class="n">jj</span><span class="p">]))</span>
+		<span class="n">tau</span><span class="p">[</span><span class="n">idx0</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">+=</span> <span class="n">Aj1</span><span class="p">[</span><span class="n">jj</span><span class="p">]</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">wave</span><span class="p">[</span><span class="n">idx0</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span><span class="o">/</span><span class="n">lj</span><span class="p">[</span><span class="n">jj</span><span class="p">],</span><span class="mf">1.2</span><span class="p">)</span>
+
+		<span class="n">idx1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">((</span><span class="n">wave</span><span class="o">&gt;</span><span class="n">lj</span><span class="p">[</span><span class="n">jj</span><span class="p">])</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">wave</span><span class="o">&lt;</span><span class="n">lj</span><span class="p">[</span><span class="n">jj</span><span class="p">]</span><span class="o">*</span><span class="p">(</span><span class="mf">1.0</span><span class="o">+</span><span class="n">z</span><span class="p">))</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">wave</span><span class="o">&gt;=</span><span class="mf">2.2</span><span class="o">*</span><span class="n">lj</span><span class="p">[</span><span class="n">jj</span><span class="p">])</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">wave</span><span class="o">&lt;</span><span class="mf">5.7</span><span class="o">*</span><span class="n">lj</span><span class="p">[</span><span class="n">jj</span><span class="p">]))</span>
+		<span class="n">tau</span><span class="p">[</span><span class="n">idx1</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">+=</span> <span class="n">Aj2</span><span class="p">[</span><span class="n">jj</span><span class="p">]</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">wave</span><span class="p">[</span><span class="n">idx1</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span><span class="o">/</span><span class="n">lj</span><span class="p">[</span><span class="n">jj</span><span class="p">],</span><span class="mf">3.7</span><span class="p">)</span>
+
+		<span class="n">idx2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">((</span><span class="n">wave</span><span class="o">&gt;</span><span class="n">lj</span><span class="p">[</span><span class="n">jj</span><span class="p">])</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">wave</span><span class="o">&lt;</span><span class="n">lj</span><span class="p">[</span><span class="n">jj</span><span class="p">]</span><span class="o">*</span><span class="p">(</span><span class="mf">1.0</span><span class="o">+</span><span class="n">z</span><span class="p">))</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">wave</span><span class="o">&gt;=</span><span class="mf">5.7</span><span class="o">*</span><span class="n">lj</span><span class="p">[</span><span class="n">jj</span><span class="p">]))</span>
+		<span class="n">tau</span><span class="p">[</span><span class="n">idx2</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">+=</span> <span class="n">Aj3</span><span class="p">[</span><span class="n">jj</span><span class="p">]</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">wave</span><span class="p">[</span><span class="n">idx2</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span><span class="o">/</span><span class="n">lj</span><span class="p">[</span><span class="n">jj</span><span class="p">],</span><span class="mf">5.5</span><span class="p">)</span>
+
+	<span class="k">return</span> <span class="n">tau</span></div>
+
+
+
+<div class="viewcode-block" id="tau_DLA_LS">
+<a class="viewcode-back" href="../../api/utils.html#galsyn.utils.tau_DLA_LS">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">tau_DLA_LS</span><span class="p">(</span><span class="n">wave</span><span class="p">,</span><span class="n">z</span><span class="p">):</span>
+	<span class="c1"># table 2 of inoue et al. 2014</span>
+	<span class="n">nj</span> <span class="o">=</span> <span class="mi">39</span>
+	<span class="n">lj</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="mf">1215.67</span><span class="p">,</span> <span class="mf">1025.72</span><span class="p">,</span> <span class="mf">972.537</span><span class="p">,</span> <span class="mf">949.743</span><span class="p">,</span> <span class="mf">937.803</span><span class="p">,</span> <span class="mf">930.748</span><span class="p">,</span> <span class="mf">926.226</span><span class="p">,</span> <span class="mf">923.150</span><span class="p">,</span> <span class="mf">920.963</span><span class="p">,</span> <span class="mf">919.352</span><span class="p">,</span> <span class="mf">918.129</span><span class="p">,</span> <span class="mf">917.181</span><span class="p">,</span> <span class="mf">916.429</span><span class="p">,</span> <span class="mf">915.824</span><span class="p">,</span> <span class="mf">915.329</span><span class="p">,</span> <span class="mf">914.919</span><span class="p">,</span> <span class="mf">914.576</span><span class="p">,</span> <span class="mf">914.286</span><span class="p">,</span> <span class="mf">914.039</span><span class="p">,</span> <span class="mf">913.826</span><span class="p">,</span> <span class="mf">913.641</span><span class="p">,</span> <span class="mf">913.480</span><span class="p">,</span> <span class="mf">913.339</span><span class="p">,</span> <span class="mf">913.215</span><span class="p">,</span> <span class="mf">913.104</span><span class="p">,</span> <span class="mf">913.006</span><span class="p">,</span> <span class="mf">912.918</span><span class="p">,</span> <span class="mf">912.839</span><span class="p">,</span> <span class="mf">912.768</span><span class="p">,</span> <span class="mf">912.703</span><span class="p">,</span> <span class="mf">912.645</span><span class="p">,</span> <span class="mf">912.592</span><span class="p">,</span> <span class="mf">912.543</span><span class="p">,</span> <span class="mf">912.499</span><span class="p">,</span> <span class="mf">912.458</span><span class="p">,</span> <span class="mf">912.420</span><span class="p">,</span> <span class="mf">912.385</span><span class="p">,</span> <span class="mf">912.353</span><span class="p">,</span> <span class="mf">912.324</span><span class="p">])</span>
+	<span class="n">Aj1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="mf">1.617e-4</span><span class="p">,</span><span class="mf">1.545e-4</span><span class="p">,</span><span class="mf">1.498e-4</span><span class="p">,</span><span class="mf">1.460e-4</span><span class="p">,</span><span class="mf">1.429e-4</span><span class="p">,</span><span class="mf">1.402e-4</span><span class="p">,</span><span class="mf">1.377e-4</span><span class="p">,</span><span class="mf">1.355e-4</span><span class="p">,</span><span class="mf">1.335e-4</span><span class="p">,</span><span class="mf">1.316e-4</span><span class="p">,</span><span class="mf">1.298e-4</span><span class="p">,</span><span class="mf">1.281e-4</span><span class="p">,</span><span class="mf">1.265e-4</span><span class="p">,</span><span class="mf">1.250e-4</span><span class="p">,</span><span class="mf">1.236e-4</span><span class="p">,</span><span class="mf">1.222e-4</span><span class="p">,</span><span class="mf">1.209e-4</span><span class="p">,</span><span class="mf">1.197e-4</span><span class="p">,</span><span class="mf">1.185e-4</span><span class="p">,</span><span class="mf">1.173e-4</span><span class="p">,</span><span class="mf">1.162e-4</span><span class="p">,</span><span class="mf">1.151e-4</span><span class="p">,</span><span class="mf">1.140e-4</span><span class="p">,</span><span class="mf">1.130e-4</span><span class="p">,</span><span class="mf">1.120e-4</span><span class="p">,</span><span class="mf">1.110e-4</span><span class="p">,</span><span class="mf">1.101e-4</span><span class="p">,</span><span class="mf">1.091e-4</span><span class="p">,</span><span class="mf">1.082e-4</span><span class="p">,</span><span class="mf">1.073e-4</span><span class="p">,</span><span class="mf">1.065e-4</span><span class="p">,</span><span class="mf">1.056e-4</span><span class="p">,</span><span class="mf">1.048e-4</span><span class="p">,</span><span class="mf">1.040e-4</span><span class="p">,</span><span class="mf">1.032e-4</span><span class="p">,</span><span class="mf">1.024e-4</span><span class="p">,</span><span class="mf">1.017e-4</span><span class="p">,</span><span class="mf">1.009e-4</span><span class="p">,</span><span class="mf">1.002e-4</span><span class="p">])</span>
+	<span class="n">Aj2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="mf">5.390e-5</span><span class="p">,</span><span class="mf">5.151e-5</span><span class="p">,</span><span class="mf">4.992e-5</span><span class="p">,</span><span class="mf">4.868e-5</span><span class="p">,</span><span class="mf">4.763e-5</span><span class="p">,</span><span class="mf">4.672e-5</span><span class="p">,</span><span class="mf">4.590e-5</span><span class="p">,</span><span class="mf">4.516e-5</span><span class="p">,</span><span class="mf">4.448e-5</span><span class="p">,</span><span class="mf">4.385e-5</span><span class="p">,</span><span class="mf">4.326e-5</span><span class="p">,</span><span class="mf">4.271e-5</span><span class="p">,</span><span class="mf">4.218e-5</span><span class="p">,</span><span class="mf">4.168e-5</span><span class="p">,</span><span class="mf">4.120e-5</span><span class="p">,</span><span class="mf">4.075e-5</span><span class="p">,</span><span class="mf">4.031e-5</span><span class="p">,</span><span class="mf">3.989e-5</span><span class="p">,</span><span class="mf">3.949e-5</span><span class="p">,</span><span class="mf">3.910e-5</span><span class="p">,</span><span class="mf">3.872e-5</span><span class="p">,</span><span class="mf">3.836e-5</span><span class="p">,</span><span class="mf">3.800e-5</span><span class="p">,</span><span class="mf">3.766e-5</span><span class="p">,</span><span class="mf">3.732e-5</span><span class="p">,</span><span class="mf">3.700e-5</span><span class="p">,</span><span class="mf">3.668e-5</span><span class="p">,</span><span class="mf">3.637e-5</span><span class="p">,</span><span class="mf">3.607e-5</span><span class="p">,</span><span class="mf">3.578e-5</span><span class="p">,</span><span class="mf">3.549e-5</span><span class="p">,</span><span class="mf">3.521e-5</span><span class="p">,</span><span class="mf">3.493e-5</span><span class="p">,</span><span class="mf">3.466e-5</span><span class="p">,</span><span class="mf">3.440e-5</span><span class="p">,</span><span class="mf">3.414e-5</span><span class="p">,</span><span class="mf">3.389e-5</span><span class="p">,</span><span class="mf">3.364e-5</span><span class="p">,</span><span class="mf">3.339e-5</span><span class="p">])</span>
+
+	<span class="n">tau</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">wave</span><span class="p">))</span>
+	<span class="k">for</span> <span class="n">jj</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="nb">int</span><span class="p">(</span><span class="n">nj</span><span class="p">)):</span>
+		<span class="c1"># eqn 22 of inoue et al. 2014</span>
+		<span class="n">idx0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">((</span><span class="n">wave</span><span class="o">&gt;</span><span class="n">lj</span><span class="p">[</span><span class="n">jj</span><span class="p">])</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">wave</span><span class="o">&lt;</span><span class="n">lj</span><span class="p">[</span><span class="n">jj</span><span class="p">]</span><span class="o">*</span><span class="p">(</span><span class="mf">1.0</span><span class="o">+</span><span class="n">z</span><span class="p">))</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">wave</span><span class="o">&lt;</span><span class="mf">3.0</span><span class="o">*</span><span class="n">lj</span><span class="p">[</span><span class="n">jj</span><span class="p">]))</span>
+		<span class="n">tau</span><span class="p">[</span><span class="n">idx0</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">+=</span> <span class="n">Aj1</span><span class="p">[</span><span class="n">jj</span><span class="p">]</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">wave</span><span class="p">[</span><span class="n">idx0</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span><span class="o">/</span><span class="n">lj</span><span class="p">[</span><span class="n">jj</span><span class="p">],</span><span class="mf">2.0</span><span class="p">)</span>
+
+		<span class="n">idx0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">((</span><span class="n">wave</span><span class="o">&gt;</span><span class="n">lj</span><span class="p">[</span><span class="n">jj</span><span class="p">])</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">wave</span><span class="o">&lt;</span><span class="n">lj</span><span class="p">[</span><span class="n">jj</span><span class="p">]</span><span class="o">*</span><span class="p">(</span><span class="mf">1.0</span><span class="o">+</span><span class="n">z</span><span class="p">))</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">wave</span><span class="o">&gt;=</span><span class="mf">3.0</span><span class="o">*</span><span class="n">lj</span><span class="p">[</span><span class="n">jj</span><span class="p">]))</span>
+		<span class="n">tau</span><span class="p">[</span><span class="n">idx0</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">+=</span> <span class="n">Aj2</span><span class="p">[</span><span class="n">jj</span><span class="p">]</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">wave</span><span class="p">[</span><span class="n">idx0</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span><span class="o">/</span><span class="n">lj</span><span class="p">[</span><span class="n">jj</span><span class="p">],</span><span class="mf">3.0</span><span class="p">)</span>
+
+	<span class="k">return</span> <span class="n">tau</span></div>
+
+
+
+<div class="viewcode-block" id="tau_DLA_LC">
+<a class="viewcode-back" href="../../api/utils.html#galsyn.utils.tau_DLA_LC">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">tau_DLA_LC</span><span class="p">(</span><span class="n">wave</span><span class="p">,</span><span class="n">z</span><span class="p">):</span>
+	<span class="n">lL</span> <span class="o">=</span> <span class="mf">911.8</span>   <span class="c1"># Lyman limit</span>
+
+	<span class="c1"># eqn 28 and 29 of Inoue et al. 2014</span>
+	<span class="n">tau</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">wave</span><span class="p">))</span>
+	<span class="k">if</span> <span class="n">z</span><span class="o">&lt;</span><span class="mf">2.0</span><span class="p">:</span>
+		<span class="n">idx0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">wave</span><span class="o">&lt;</span><span class="n">lL</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="o">+</span><span class="n">z</span><span class="p">))</span>
+		<span class="n">tau</span><span class="p">[</span><span class="n">idx0</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="mf">0.211</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="mf">1.0</span><span class="o">+</span><span class="n">z</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span> <span class="o">-</span> <span class="mf">7.66e-2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="mf">1.0</span><span class="o">+</span><span class="n">z</span><span class="p">,</span><span class="mf">2.3</span><span class="p">)</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">wave</span><span class="p">[</span><span class="n">idx0</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span><span class="o">/</span><span class="n">lL</span><span class="p">,</span><span class="o">-</span><span class="mf">0.3</span><span class="p">)</span> <span class="o">-</span> <span class="mf">0.135</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">wave</span><span class="p">[</span><span class="n">idx0</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span><span class="o">/</span><span class="n">lL</span><span class="p">,</span><span class="mf">2.0</span><span class="p">)</span>
+
+		<span class="n">idx1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">wave</span><span class="o">&gt;=</span><span class="n">lL</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="o">+</span><span class="n">z</span><span class="p">))</span>
+		<span class="n">tau</span><span class="p">[</span><span class="n">idx1</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="mf">0.0</span>
+
+	<span class="k">else</span><span class="p">:</span>
+		<span class="n">idx0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">wave</span><span class="o">&lt;</span><span class="mf">3.0</span><span class="o">*</span><span class="n">lL</span><span class="p">)</span>
+		<span class="n">tau</span><span class="p">[</span><span class="n">idx0</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="mf">0.634</span> <span class="o">+</span> <span class="mf">4.70e-2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="mf">1.0</span><span class="o">+</span><span class="n">z</span><span class="p">,</span><span class="mf">3.0</span><span class="p">)</span> <span class="o">-</span> <span class="mf">1.78e-2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="mf">1.0</span><span class="o">+</span><span class="n">z</span><span class="p">,</span><span class="mf">3.3</span><span class="p">)</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">wave</span><span class="p">[</span><span class="n">idx0</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span><span class="o">/</span><span class="n">lL</span><span class="p">,</span><span class="o">-</span><span class="mf">0.3</span><span class="p">)</span> <span class="o">-</span> <span class="mf">0.135</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">wave</span><span class="p">[</span><span class="n">idx0</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span><span class="o">/</span><span class="n">lL</span><span class="p">,</span><span class="mf">2.0</span><span class="p">)</span> <span class="o">-</span> <span class="mf">0.291</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">wave</span><span class="p">[</span><span class="n">idx0</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span><span class="o">/</span><span class="n">lL</span><span class="p">,</span><span class="o">-</span><span class="mf">0.3</span><span class="p">)</span>
+
+		<span class="n">idx1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">((</span><span class="n">wave</span><span class="o">&gt;=</span><span class="mf">3.0</span><span class="o">*</span><span class="n">lL</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">wave</span><span class="o">&lt;</span><span class="n">lL</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="o">+</span><span class="n">z</span><span class="p">)))</span>
+		<span class="n">tau</span><span class="p">[</span><span class="n">idx1</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="mf">4.70e-2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="mf">1.0</span><span class="o">+</span><span class="n">z</span><span class="p">,</span><span class="mf">3.0</span><span class="p">)</span> <span class="o">-</span> <span class="mf">1.78e-2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="mf">1.0</span><span class="o">+</span><span class="n">z</span><span class="p">,</span><span class="mf">3.3</span><span class="p">)</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">wave</span><span class="p">[</span><span class="n">idx1</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span><span class="o">/</span><span class="n">lL</span><span class="p">,</span><span class="o">-</span><span class="mf">0.3</span><span class="p">)</span> <span class="o">-</span> <span class="mf">2.92e-2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">wave</span><span class="p">[</span><span class="n">idx1</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span><span class="o">/</span><span class="n">lL</span><span class="p">,</span><span class="mi">3</span><span class="p">)</span>
+
+		<span class="n">idx2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">wave</span><span class="o">&gt;=</span><span class="n">lL</span><span class="o">*</span><span class="p">(</span><span class="mf">1.0</span><span class="o">+</span><span class="n">z</span><span class="p">))</span>
+		<span class="n">tau</span><span class="p">[</span><span class="n">idx2</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="mf">0.0</span>
+
+	<span class="k">return</span> <span class="n">tau</span></div>
+
+
+
+<div class="viewcode-block" id="tau_LAF_LC">
+<a class="viewcode-back" href="../../api/utils.html#galsyn.utils.tau_LAF_LC">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">tau_LAF_LC</span><span class="p">(</span><span class="n">wave</span><span class="p">,</span><span class="n">z</span><span class="p">):</span>
+	<span class="c1"># eqn 25, 26 and 29 of Inoue et al. 2014:</span>
+	<span class="n">lL</span> <span class="o">=</span> <span class="mf">911.8</span>   <span class="c1"># Lyman limit</span>
+
+	<span class="n">tau</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">wave</span><span class="p">))</span>
+
+	<span class="k">if</span> <span class="n">z</span><span class="o">&lt;</span><span class="mf">1.2</span><span class="p">:</span>
+		<span class="n">idx0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">wave</span><span class="o">&lt;</span><span class="n">lL</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="o">+</span><span class="n">z</span><span class="p">))</span>
+		<span class="n">tau</span><span class="p">[</span><span class="n">idx0</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="mf">0.325</span><span class="o">*</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">wave</span><span class="p">[</span><span class="n">idx0</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span><span class="o">/</span><span class="n">lL</span><span class="p">,</span><span class="mf">1.2</span><span class="p">)</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="mf">1.0</span><span class="o">+</span><span class="n">z</span><span class="p">,</span><span class="o">-</span><span class="mf">0.9</span><span class="p">)</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">wave</span><span class="p">[</span><span class="n">idx0</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span><span class="o">/</span><span class="n">lL</span><span class="p">,</span><span class="mf">2.1</span><span class="p">))</span>
+
+		<span class="n">idx1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">wave</span><span class="o">&gt;=</span><span class="n">lL</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="o">+</span><span class="n">z</span><span class="p">))</span>
+		<span class="n">tau</span><span class="p">[</span><span class="n">idx1</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="mf">0.0</span>
+
+	<span class="k">elif</span> <span class="n">z</span><span class="o">&lt;</span><span class="mf">4.7</span><span class="p">:</span>
+		<span class="n">idx0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">wave</span><span class="o">&lt;</span><span class="mf">2.2</span><span class="o">*</span><span class="n">lL</span><span class="p">)</span>
+		<span class="n">tau</span><span class="p">[</span><span class="n">idx0</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="mf">2.55e-2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="mf">1.0</span><span class="o">+</span><span class="n">z</span><span class="p">,</span><span class="mf">1.6</span><span class="p">)</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">wave</span><span class="p">[</span><span class="n">idx0</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span><span class="o">/</span><span class="n">lL</span><span class="p">,</span><span class="mf">2.1</span><span class="p">)</span> <span class="o">+</span> <span class="mf">0.325</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">wave</span><span class="p">[</span><span class="n">idx0</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span><span class="o">/</span><span class="n">lL</span><span class="p">,</span><span class="mf">1.2</span><span class="p">)</span> <span class="o">-</span> <span class="mf">0.250</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">wave</span><span class="p">[</span><span class="n">idx0</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span><span class="o">/</span><span class="n">lL</span><span class="p">,</span><span class="mf">2.1</span><span class="p">)</span>
+
+		<span class="n">idx1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">((</span><span class="n">wave</span><span class="o">&gt;=</span><span class="mf">2.2</span><span class="o">*</span><span class="n">lL</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">wave</span><span class="o">&lt;</span><span class="n">lL</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="o">+</span><span class="n">z</span><span class="p">)))</span>
+		<span class="n">tau</span><span class="p">[</span><span class="n">idx1</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="mf">2.55e-2</span><span class="o">*</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="mf">1.0</span><span class="o">+</span><span class="n">z</span><span class="p">,</span><span class="mf">1.6</span><span class="p">)</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">wave</span><span class="p">[</span><span class="n">idx1</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span><span class="o">/</span><span class="n">lL</span><span class="p">,</span><span class="mf">2.1</span><span class="p">)</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">wave</span><span class="p">[</span><span class="n">idx1</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span><span class="o">/</span><span class="n">lL</span><span class="p">,</span><span class="mf">3.7</span><span class="p">))</span>
+
+		<span class="n">idx2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">wave</span><span class="o">&gt;=</span><span class="n">lL</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="o">+</span><span class="n">z</span><span class="p">))</span>
+		<span class="n">tau</span><span class="p">[</span><span class="n">idx2</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="mf">0.0</span>
+			
+	<span class="k">else</span><span class="p">:</span>
+		<span class="n">idx0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">wave</span><span class="o">&lt;</span><span class="mf">2.2</span><span class="o">*</span><span class="n">lL</span><span class="p">)</span>
+		<span class="n">tau</span><span class="p">[</span><span class="n">idx0</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="mf">5.22e-4</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="mf">1.0</span><span class="o">+</span><span class="n">z</span><span class="p">,</span><span class="mf">3.4</span><span class="p">)</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">wave</span><span class="p">[</span><span class="n">idx0</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span><span class="o">/</span><span class="n">lL</span><span class="p">,</span><span class="mf">2.1</span><span class="p">)</span> <span class="o">+</span> <span class="mf">0.325</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">wave</span><span class="p">[</span><span class="n">idx0</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span><span class="o">/</span><span class="n">lL</span><span class="p">,</span><span class="mf">1.2</span><span class="p">)</span> <span class="o">-</span> <span class="mf">3.14e-2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">wave</span><span class="p">[</span><span class="n">idx0</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span><span class="o">/</span><span class="n">lL</span><span class="p">,</span><span class="mf">2.1</span><span class="p">)</span>
+
+		<span class="n">idx1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">((</span><span class="n">wave</span><span class="o">&gt;=</span><span class="mf">2.2</span><span class="o">*</span><span class="n">lL</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">wave</span><span class="o">&lt;</span><span class="mf">5.7</span><span class="o">*</span><span class="n">lL</span><span class="p">))</span>
+		<span class="n">tau</span><span class="p">[</span><span class="n">idx1</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="mf">5.22e-4</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="mf">1.0</span><span class="o">+</span><span class="n">z</span><span class="p">,</span><span class="mf">3.4</span><span class="p">)</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">wave</span><span class="p">[</span><span class="n">idx1</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span><span class="o">/</span><span class="n">lL</span><span class="p">,</span><span class="mf">2.1</span><span class="p">)</span> <span class="o">+</span> <span class="mf">0.218</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">wave</span><span class="p">[</span><span class="n">idx1</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span><span class="o">/</span><span class="n">lL</span><span class="p">,</span><span class="mf">2.1</span><span class="p">)</span> <span class="o">-</span> <span class="mf">2.55e-2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">wave</span><span class="p">[</span><span class="n">idx1</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span><span class="o">/</span><span class="n">lL</span><span class="p">,</span><span class="mf">3.7</span><span class="p">)</span>
+
+		<span class="n">idx2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">((</span><span class="n">wave</span><span class="o">&gt;=</span><span class="mf">5.7</span><span class="o">*</span><span class="n">lL</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">wave</span><span class="o">&lt;</span><span class="n">lL</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="o">+</span><span class="n">z</span><span class="p">)))</span>
+		<span class="n">tau</span><span class="p">[</span><span class="n">idx2</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="mf">5.22e-4</span><span class="o">*</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="mf">1.0</span><span class="o">+</span><span class="n">z</span><span class="p">,</span><span class="mf">3.4</span><span class="p">)</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">wave</span><span class="p">[</span><span class="n">idx2</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span><span class="o">/</span><span class="n">lL</span><span class="p">,</span><span class="mf">2.1</span><span class="p">)</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">wave</span><span class="p">[</span><span class="n">idx2</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span><span class="o">/</span><span class="n">lL</span><span class="p">,</span><span class="mf">5.5</span><span class="p">))</span>
+
+		<span class="n">idx3</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">wave</span><span class="o">&gt;=</span><span class="n">lL</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="o">+</span><span class="n">z</span><span class="p">))</span>
+		<span class="n">tau</span><span class="p">[</span><span class="n">idx3</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="mf">0.0</span>
+
+	<span class="k">return</span> <span class="n">tau</span></div>
+
+
+
+<div class="viewcode-block" id="igm_att_inoue">
+<a class="viewcode-back" href="../../api/utils.html#galsyn.utils.igm_att_inoue">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">igm_att_inoue</span><span class="p">(</span><span class="n">wave</span><span class="p">,</span><span class="n">z</span><span class="p">):</span>
+	<span class="c1"># eq. 15 of Inoue + 2014:</span>
+	<span class="n">tau</span> <span class="o">=</span> <span class="n">tau_LAF_LS</span><span class="p">(</span><span class="n">wave</span><span class="p">,</span><span class="n">z</span><span class="p">)</span> <span class="o">+</span> <span class="n">tau_DLA_LS</span><span class="p">(</span><span class="n">wave</span><span class="p">,</span><span class="n">z</span><span class="p">)</span> <span class="o">+</span> <span class="n">tau_LAF_LC</span><span class="p">(</span><span class="n">wave</span><span class="p">,</span><span class="n">z</span><span class="p">)</span> <span class="o">+</span> <span class="n">tau_DLA_LC</span><span class="p">(</span><span class="n">wave</span><span class="p">,</span><span class="n">z</span><span class="p">)</span>
+
+	<span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="mf">1.0</span><span class="o">*</span><span class="n">tau</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="construct_SFH">
+<a class="viewcode-back" href="../../api/utils.html#galsyn.utils.construct_SFH">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">construct_SFH</span><span class="p">(</span><span class="n">stars_form_lbt</span><span class="p">,</span> <span class="n">stars_init_mass</span><span class="p">,</span> <span class="n">stars_metallicity</span><span class="p">,</span> <span class="n">del_t</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span> <span class="n">max_lbt</span><span class="o">=</span><span class="mf">14.0</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Constructs the Star Formation History (SFH) from stellar formation times,</span>
+<span class="sd">    initial masses, and metallicities.</span>
+
+<span class="sd">    Calculates the mass-weighted average metallicity within each lookback time bin.</span>
+<span class="sd">    Ensures all bins are returned, even if empty, to maintain consistent binning across pixels.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        stars_form_lbt (array-like): Array of stellar formation lookback times in Gyr.</span>
+<span class="sd">        stars_init_mass (array-like): Array of initial stellar masses in solar mass,</span>
+<span class="sd">                                       corresponding to stars_form_lbt.</span>
+<span class="sd">        stars_metallicity (array-like): Array of stellar metallicities (e.g., [Fe/H] or Z),</span>
+<span class="sd">                                        corresponding to stars_form_lbt.</span>
+<span class="sd">        del_t (float, optional): Time bin width in Gyr. Defaults to 0.3 Gyr.</span>
+<span class="sd">        max_lbt (float, optional): Maximum lookback time to consider for binning.</span>
+<span class="sd">                                   Defaults to 18.0 Gyr.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        dict: A dictionary containing:</span>
+<span class="sd">              - &#39;lbt&#39; (np.ndarray): Midpoints of all lookback time bins.</span>
+<span class="sd">              - &#39;sfr&#39; (np.ndarray): Star formation rate in solar mass per year.</span>
+<span class="sd">              - &#39;nstars&#39; (np.ndarray): Number of stars formed in each bin.</span>
+<span class="sd">              - &#39;mass&#39; (np.ndarray): Total initial stellar mass formed within each bin.</span>
+<span class="sd">              - &#39;cumul_mass&#39; (np.ndarray): Cumulative initial stellar mass formed.</span>
+<span class="sd">              - &#39;metallicity&#39; (np.ndarray): Mass-weighted average metallicity in each bin.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError: If input arrays have incompatible shapes or invalid values.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">stars_form_lbt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">stars_form_lbt</span><span class="p">)</span>
+    <span class="n">stars_init_mass</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">stars_init_mass</span><span class="p">)</span>
+    <span class="n">stars_metallicity</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">stars_metallicity</span><span class="p">)</span>
+
+    <span class="c1"># --- Input Validation ---</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">stars_form_lbt</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="n">stars_init_mass</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="n">stars_metallicity</span><span class="o">.</span><span class="n">shape</span> <span class="ow">and</span> <span class="n">stars_form_lbt</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;stars_form_lbt, stars_init_mass, and stars_metallicity must be 1D arrays of the same shape.&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">del_t</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;del_t (time bin width) must be positive.&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">max_lbt</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;max_lbt (maximum lookback time) must be positive.&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Define the bins for lookback time.</span>
+    <span class="c1"># The bins are inclusive of the lower bound and exclusive of the upper bound [t, t + del_t).</span>
+    <span class="c1"># We add a small epsilon to max_lbt to ensure that max_lbt itself is included in a bin</span>
+    <span class="c1"># if it falls exactly on a bin edge.</span>
+    <span class="n">bins</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">max_lbt</span> <span class="o">+</span> <span class="n">del_t</span><span class="p">,</span> <span class="n">del_t</span><span class="p">)</span>
+    <span class="n">sfh_lbt_midpoints</span> <span class="o">=</span> <span class="n">bins</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">del_t</span>
+
+    <span class="c1"># Handle empty particle set: return arrays of correct size filled with zeros/NaNs</span>
+    <span class="n">num_bins</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">sfh_lbt_midpoints</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">stars_form_lbt</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s1">&#39;lbt&#39;</span><span class="p">:</span> <span class="n">sfh_lbt_midpoints</span><span class="p">,</span>
+            <span class="s1">&#39;sfr&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">num_bins</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">),</span>
+            <span class="s1">&#39;nstars&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">num_bins</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">),</span>
+            <span class="s1">&#39;mass&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">num_bins</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">),</span>
+            <span class="s1">&#39;cumul_mass&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">num_bins</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">),</span> <span class="c1"># Will be filled later</span>
+            <span class="s1">&#39;metallicity&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">num_bins</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+        <span class="p">}</span>
+
+    <span class="c1"># Use np.histogram to efficiently bin the data</span>
+    <span class="c1"># mass_in_bins will correspond to bins from youngest LBT to oldest LBT</span>
+    <span class="n">mass_in_bins</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">histogram</span><span class="p">(</span><span class="n">stars_form_lbt</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="n">bins</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="n">stars_init_mass</span><span class="p">)</span>
+    <span class="n">nstars_in_bins</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">histogram</span><span class="p">(</span><span class="n">stars_form_lbt</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="n">bins</span><span class="p">)</span>
+    <span class="n">mass_times_metallicity_in_bins</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">histogram</span><span class="p">(</span><span class="n">stars_form_lbt</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="n">bins</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="n">stars_init_mass</span> <span class="o">*</span> <span class="n">stars_metallicity</span><span class="p">)</span>
+
+    <span class="c1"># Calculate Star Formation Rate (SFR)</span>
+    <span class="n">sfh_sfr</span> <span class="o">=</span> <span class="n">mass_in_bins</span> <span class="o">/</span> <span class="n">del_t</span> <span class="o">/</span> <span class="mf">1e9</span>
+
+    <span class="c1"># Total stellar mass in each bin</span>
+    <span class="n">sfh_total_stellar_mass_in_bin</span> <span class="o">=</span> <span class="n">mass_in_bins</span>
+
+    <span class="c1"># Calculate Cumulative Mass Formed (increasing with decreasing lookback time)</span>
+    <span class="c1"># The bins are ordered from youngest lookback time to oldest lookback time.</span>
+    <span class="c1"># To get cumulative mass from Big Bang towards present, we need to:</span>
+    <span class="c1"># 1. Reverse the mass_in_bins array to get mass from oldest to youngest.</span>
+    <span class="c1"># 2. Compute cumulative sum on this reversed array.</span>
+    <span class="c1"># 3. Reverse the result back to match the original lbt order (youngest to oldest).</span>
+    <span class="n">sfh_cumul_mass</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">mass_in_bins</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">])[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+
+    <span class="c1"># Calculate Mass-Weighted Average Metallicity</span>
+    <span class="n">sfh_metallicity</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="n">mass_in_bins</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+    <span class="n">non_zero_mass_mask</span> <span class="o">=</span> <span class="n">mass_in_bins</span> <span class="o">&gt;</span> <span class="mi">0</span>
+    <span class="n">sfh_metallicity</span><span class="p">[</span><span class="n">non_zero_mass_mask</span><span class="p">]</span> <span class="o">=</span> <span class="n">mass_times_metallicity_in_bins</span><span class="p">[</span><span class="n">non_zero_mass_mask</span><span class="p">]</span> <span class="o">/</span> <span class="n">mass_in_bins</span><span class="p">[</span><span class="n">non_zero_mass_mask</span><span class="p">]</span>
+
+    <span class="c1"># Construct the sfh dictionary</span>
+    <span class="n">sfh</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;lbt&#39;</span><span class="p">:</span> <span class="n">sfh_lbt_midpoints</span><span class="p">,</span>
+        <span class="s1">&#39;sfr&#39;</span><span class="p">:</span> <span class="n">sfh_sfr</span><span class="p">,</span>
+        <span class="s1">&#39;nstars&#39;</span><span class="p">:</span> <span class="n">nstars_in_bins</span><span class="p">,</span>
+        <span class="s1">&#39;mass&#39;</span><span class="p">:</span> <span class="n">sfh_total_stellar_mass_in_bin</span><span class="p">,</span>
+        <span class="s1">&#39;cumul_mass&#39;</span><span class="p">:</span> <span class="n">sfh_cumul_mass</span><span class="p">,</span>
+        <span class="s1">&#39;metallicity&#39;</span><span class="p">:</span> <span class="n">sfh_metallicity</span>
+    <span class="p">}</span>
+
+    <span class="k">return</span> <span class="n">sfh</span></div>
+
+
+
+<div class="viewcode-block" id="make_filter_transmission_text_pixedfit">
+<a class="viewcode-back" href="../../api/utils.html#galsyn.utils.make_filter_transmission_text_pixedfit">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">make_filter_transmission_text_pixedfit</span><span class="p">(</span><span class="n">filters</span><span class="p">,</span> <span class="n">output_dir</span><span class="o">=</span><span class="s2">&quot;filters&quot;</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Creates text files containing filter transmission functions and stores them</span>
+<span class="sd">    in a specified directory. It uses the piXedfit library to get the filter curves.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">    -----------</span>
+<span class="sd">    filters : list of str</span>
+<span class="sd">        List of filter names recognized in piXedfit.</span>
+<span class="sd">    output_dir : str, optional</span>
+<span class="sd">        The directory where the filter transmission text files will be saved.</span>
+<span class="sd">        Defaults to &quot;filters&quot;.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">    --------</span>
+<span class="sd">    filter_transmission_path : dict</span>
+<span class="sd">        A dictionary where keys are filter names and values are the paths to</span>
+<span class="sd">        the generated text files containing the transmission function.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">piXedfit.utils.filtering</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_filter_curve</span>
+    <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Error: piXedfit library not found. Please install it to use this function.&quot;</span><span class="p">)</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="c1"># Create the output directory if it doesn&#39;t exist</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">output_dir</span><span class="p">):</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">output_dir</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Created directory: </span><span class="si">{</span><span class="n">output_dir</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Directory &#39;</span><span class="si">{</span><span class="n">output_dir</span><span class="si">}</span><span class="s2">&#39; already exists.&quot;</span><span class="p">)</span>
+
+    <span class="n">filter_transmission_path</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">for</span> <span class="n">ff</span> <span class="ow">in</span> <span class="n">filters</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># Get filter curve from piXedfit</span>
+            <span class="n">w</span><span class="p">,</span> <span class="n">t</span> <span class="o">=</span> <span class="n">get_filter_curve</span><span class="p">(</span><span class="n">ff</span><span class="p">)</span>
+            
+            <span class="c1"># Define the output file path for this filter</span>
+            <span class="n">file_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">ff</span><span class="si">}</span><span class="s2">.txt&quot;</span>
+            <span class="n">file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="n">file_name</span><span class="p">)</span>
+
+            <span class="c1"># Save the wavelength and transmission to a text file</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">savetxt</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">column_stack</span><span class="p">((</span><span class="n">w</span><span class="p">,</span> <span class="n">t</span><span class="p">)),</span> <span class="n">fmt</span><span class="o">=</span><span class="s1">&#39;</span><span class="si">%.6e</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="s1">&#39;Wavelength (Angstrom) Transmission&#39;</span><span class="p">)</span>
+            
+            <span class="n">filter_transmission_path</span><span class="p">[</span><span class="n">ff</span><span class="p">]</span> <span class="o">=</span> <span class="n">file_path</span>
+            <span class="c1">#print(f&quot;Saved filter transmission for &#39;{ff}&#39; to: {file_path}&quot;)</span>
+
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error processing filter &#39;</span><span class="si">{</span><span class="n">ff</span><span class="si">}</span><span class="s2">&#39;: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="c1"># Continue to next filter even if one fails, but log the error</span>
+            <span class="k">continue</span>
+
+    <span class="k">return</span> <span class="n">filter_transmission_path</span></div>
+
+
+
+<div class="viewcode-block" id="get_2d_density_projection_no_los_binning">
+<a class="viewcode-back" href="../../api/utils.html#galsyn.utils.get_2d_density_projection_no_los_binning">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_2d_density_projection_no_los_binning</span><span class="p">(</span><span class="n">star_coords</span><span class="p">,</span> <span class="n">particle_masses</span><span class="p">,</span> <span class="n">pixel_size</span><span class="p">,</span> <span class="n">output_dimension</span><span class="p">,</span>
+                                             <span class="n">polar_angle_deg</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">azimuth_angle_deg</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">gas_coords</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">gas_masses</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                                             <span class="n">star_vels</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">gas_vels</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculates the 2D mass density projection of star particles given 3D coordinates,</span>
+<span class="sd">    their masses, a fixed pixel size, and a desired output dimension (cutout size).</span>
+<span class="sd">    The output grid is geometrically centered around the most massive pixel of the</span>
+<span class="sd">    full projected star data. It also calculates the projected distance along the line of sight</span>
+<span class="sd">    for each star particles within its 2D pixel, and outputs the geometric central pixel coordinate of the cutout.</span>
+
+<span class="sd">    If `gas_coords` and `gas_masses` are provided, it also calculates the membership of gas particles</span>
+<span class="sd">    and their mass density within the *same* projected pixel gridding defined by the star particles.</span>
+
+<span class="sd">    The line-of-sight distance for each particle (star or gas) is normalized such that the closest</span>
+<span class="sd">    particle (considering both stars and gas, if gas is provided) has a line-of-sight</span>
+<span class="sd">    distance of 0, and distances increase farther away from this closest point.</span>
+
+<span class="sd">    The projection is defined by a camera/observer position (viewing angle)</span>
+<span class="sd">    using polar and azimuth angles. The line-of-sight (LOS) direction is from the</span>
+<span class="sd">    observer&#39;s position towards the origin (0,0,0).</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        star_coords (np.ndarray): A NumPy array of shape (N, 3) representing the</span>
+<span class="sd">                                  (x, y, z) coordinates of N star particles.</span>
+<span class="sd">        particle_masses (np.ndarray): A NumPy array of shape (N,) representing the</span>
+<span class="sd">                                      masses of N star particles.</span>
+<span class="sd">        pixel_size (float): The size of each pixel in the 2D grid. Must be positive.</span>
+<span class="sd">        output_dimension (tuple): A tuple (width, height) specifying the desired total</span>
+<span class="sd">                                  physical width and height of the 2D output map.</span>
+<span class="sd">                                  Each dimension must be positive.</span>
+<span class="sd">        polar_angle_deg (float, optional): The polar angle (inclination) in degrees,</span>
+<span class="sd">                                           measured from the positive Z-axis. Defaults to 0.</span>
+<span class="sd">        azimuth_angle_deg (float, optional): The azimuth angle (longitude) in degrees,</span>
+<span class="sd">                                             measured counter-clockwise from the positive X-axis</span>
+<span class="sd">                                             in the XY-plane. Defaults to 0.</span>
+<span class="sd">        gas_coords (np.ndarray, optional): A NumPy array of shape (M, 3) representing the</span>
+<span class="sd">                                           (x, y, z) coordinates of M gas particles.</span>
+<span class="sd">                                           Defaults to None.</span>
+<span class="sd">        gas_masses (np.ndarray, optional): A NumPy array of shape (M,) representing the</span>
+<span class="sd">                                           masses of M gas particles. Must be provided if</span>
+<span class="sd">                                           `gas_coords` is provided. Defaults to None.</span>
+<span class="sd">        star_vels (np.ndarray, optional): A NumPy array of shape (N, 3) representing the</span>
+<span class="sd">                                          (vx, vy, vz) velocities of N star particles.</span>
+<span class="sd">                                          Defaults to None.</span>
+<span class="sd">        gas_vels (np.ndarray, optional): A NumPy array of shape (M, 3) representing the</span>
+<span class="sd">                                         (vx, vy, vz) velocities of M gas particles.</span>
+<span class="sd">                                         Defaults to None.</span>
+
+
+<span class="sd">    Returns:</span>
+<span class="sd">        tuple: A tuple containing:</span>
+<span class="sd">            - star_particle_membership (list of lists of lists): A 2D list (grid) where</span>
+<span class="sd">              each element `star_particle_membership[y_idx][x_idx]` is a list of</span>
+<span class="sd">              tuples `(original_particle_index, line_of_sight_distance)`</span>
+<span class="sd">              for star particles that fall into that pixel. The `line_of_sight_distance`</span>
+<span class="sd">              is now relative to the closest particle (0 being the closest).</span>
+<span class="sd">            - star_mass_density_map (np.ndarray): A 2D NumPy array representing the mass</span>
+<span class="sd">              density map (sum of masses per pixel) for star particles.</span>
+<span class="sd">              Its shape is (num_pixels_y, num_pixels_x).</span>
+<span class="sd">            - central_pixel_coords (tuple): A tuple (x_pixel_coord, y_pixel_coord)</span>
+<span class="sd">              representing the geometric central pixel coordinate *within the cutout*.</span>
+<span class="sd">            - grid_info (dict): A dictionary containing information about the grid:</span>
+<span class="sd">              &#39;min_x_proj&#39;: The minimum x-coordinate of the projected cutout.</span>
+<span class="sd">              &#39;min_y_proj&#39;: The minimum y-coordinate of the projected cutout.</span>
+<span class="sd">              &#39;num_pixels_x&#39;: The number of pixels along the x-dimension.</span>
+<span class="sd">              &#39;num_pixels_y&#39;: The number of pixels along the y-dimension.</span>
+<span class="sd">              &#39;effective_pixel_size_x&#39;: The actual pixel size used for x-dimension (same as pixel_size).</span>
+<span class="sd">              &#39;effective_pixel_size_y&#39;: The actual pixel size used for y-dimension (same as pixel_size).</span>
+<span class="sd">            - gas_particle_membership (list of lists of lists or None): Same structure as</span>
+<span class="sd">              `star_particle_membership` but for gas particles. None if `gas_coords` not provided.</span>
+<span class="sd">            - gas_mass_density_map (np.ndarray or None): A 2D NumPy array representing the mass</span>
+<span class="sd">              density map for gas particles. Its shape is (num_pixels_y, num_pixels_x).</span>
+<span class="sd">              None if `gas_coords` not provided.</span>
+<span class="sd">            - stars_vel_los_proj (np.ndarray): 1D array of projected line-of-sight velocities for stars.</span>
+<span class="sd">            - gas_vel_los_proj (np.ndarray): 1D array of projected line-of-sight velocities for gas.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError: If star_coords/particle_masses are invalid, pixel_size is not positive,</span>
+<span class="sd">                    output_dimension is invalid, or `gas_coords` is provided without `gas_masses` (or vice-versa).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># --- Input Validation ---</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">star_coords</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="ow">or</span> <span class="n">star_coords</span><span class="o">.</span><span class="n">ndim</span> <span class="o">!=</span> <span class="mi">2</span> <span class="ow">or</span> <span class="n">star_coords</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">3</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;star_coords must be a NumPy array of shape (N, 3).&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">particle_masses</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="ow">or</span> <span class="n">particle_masses</span><span class="o">.</span><span class="n">ndim</span> <span class="o">!=</span> <span class="mi">1</span> <span class="ow">or</span> <span class="n">particle_masses</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">star_coords</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;particle_masses must be a 1D NumPy array of shape (N,) matching star_coords.&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">pixel_size</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;pixel_size must be positive.&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">output_dimension</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">output_dimension</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span> <span class="ow">and</span>
+            <span class="n">output_dimension</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">output_dimension</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;&#39;output_dimension&#39; must be a tuple (width, height) of two positive numbers.&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">gas_coords</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">gas_masses</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> \
+       <span class="p">(</span><span class="n">gas_coords</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">gas_masses</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Both &#39;gas_coords&#39; and &#39;gas_masses&#39; must be provided together, or neither.&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">gas_coords</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">gas_coords</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="ow">or</span> <span class="n">gas_coords</span><span class="o">.</span><span class="n">ndim</span> <span class="o">!=</span> <span class="mi">2</span> <span class="ow">or</span> <span class="n">gas_coords</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">3</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;gas_coords must be a NumPy array of shape (M, 3).&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">gas_masses</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="ow">or</span> <span class="n">gas_masses</span><span class="o">.</span><span class="n">ndim</span> <span class="o">!=</span> <span class="mi">1</span> <span class="ow">or</span> <span class="n">gas_masses</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">gas_coords</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;gas_masses must be a 1D NumPy array of shape (M,) matching gas_coords.&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">star_vels</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">star_vels</span><span class="o">.</span><span class="n">shape</span> <span class="o">!=</span> <span class="n">star_coords</span><span class="o">.</span><span class="n">shape</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;star_vels must have the same shape as star_coords if provided.&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">gas_vels</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">gas_vels</span><span class="o">.</span><span class="n">shape</span> <span class="o">!=</span> <span class="n">gas_coords</span><span class="o">.</span><span class="n">shape</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;gas_vels must have the same shape as gas_coords if provided.&quot;</span><span class="p">)</span>
+
+
+    <span class="c1"># --- Handle Empty Particle Set (Stars) ---</span>
+    <span class="k">if</span> <span class="n">star_coords</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Warning: No star particles provided. Returning empty results for no LOS binning.&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">([],</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[]]),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">{</span><span class="s1">&#39;min_x_proj&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;min_y_proj&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;num_pixels_x&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;num_pixels_y&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+                                            <span class="s1">&#39;effective_pixel_size_x&#39;</span><span class="p">:</span> <span class="n">pixel_size</span><span class="p">,</span> <span class="s1">&#39;effective_pixel_size_y&#39;</span><span class="p">:</span> <span class="n">pixel_size</span><span class="p">},</span> 
+                <span class="p">[],</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[]]),</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([]),</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([]))</span>
+
+    <span class="c1"># --- Determine transformation based on polar and azimuth angles ---</span>
+    <span class="n">polar_rad</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="n">polar_angle_deg</span><span class="p">)</span>
+    <span class="n">azimuth_rad</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="n">azimuth_angle_deg</span><span class="p">)</span>
+
+    <span class="c1"># The line of sight (LOS) vector points from the observer&#39;s position towards the origin.</span>
+    <span class="c1"># The observer&#39;s position in spherical coordinates (r, theta, phi) looking at origin (0,0,0)</span>
+    <span class="c1"># is defined by polar_angle_deg (phi) and azimuth_angle_deg (theta).</span>
+    <span class="c1"># The vector from origin to observer is (sin(phi)*cos(theta), sin(phi)*sin(theta), cos(phi)).</span>
+    <span class="c1"># We want this vector to become the new Z-axis in our transformed coordinate system.</span>
+    <span class="c1"># This means the transformation matrix&#39;s third row will be this normalized vector.</span>
+
+    <span class="c1"># Calculate the new Z-axis (LOS direction)</span>
+    <span class="n">z_axis_new</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">polar_rad</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">azimuth_rad</span><span class="p">),</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">polar_rad</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">azimuth_rad</span><span class="p">),</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">polar_rad</span><span class="p">)</span>
+    <span class="p">])</span>
+    <span class="n">z_axis_new</span> <span class="o">=</span> <span class="n">z_axis_new</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">z_axis_new</span><span class="p">)</span> <span class="c1"># Ensure it&#39;s a unit vector</span>
+
+    <span class="c1"># Calculate the new X-axis and Y-axis (forming the projection plane)</span>
+    <span class="c1"># We need a temporary &#39;up&#39; vector to cross with the new Z-axis to define the new X-axis.</span>
+    <span class="c1"># Choose (0,0,1) as a default &#39;up&#39;. If z_axis_new is parallel to (0,0,1), use (0,1,0) instead.</span>
+    <span class="n">temp_up_vector</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">])</span>
+    <span class="c1"># Check if z_axis_new is parallel to temp_up_vector</span>
+    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">z_axis_new</span><span class="p">,</span> <span class="n">temp_up_vector</span><span class="p">)),</span> <span class="mf">1.0</span><span class="p">):</span>
+        <span class="n">temp_up_vector</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">])</span> <span class="c1"># Use original Y-axis if LOS is along original Z</span>
+
+    <span class="n">x_axis_new</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">temp_up_vector</span><span class="p">,</span> <span class="n">z_axis_new</span><span class="p">)</span>
+    <span class="c1"># Handle the case where cross product might be zero if temp_up_vector is still parallel (e.g., if z_axis_new was (0,1,0) and temp_up_vector became (0,1,0))</span>
+    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">x_axis_new</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mf">1e-9</span><span class="p">:</span> <span class="c1"># If x_axis_new is effectively zero</span>
+        <span class="c1"># This can happen if z_axis_new is (0,1,0) or (0,-1,0) and temp_up_vector was forced to (0,1,0)</span>
+        <span class="c1"># In this specific case, use (1,0,0) as x_axis_new</span>
+        <span class="n">x_axis_new</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">])</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">x_axis_new</span> <span class="o">=</span> <span class="n">x_axis_new</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">x_axis_new</span><span class="p">)</span>
+
+    <span class="n">y_axis_new</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">z_axis_new</span><span class="p">,</span> <span class="n">x_axis_new</span><span class="p">)</span> <span class="c1"># Ensure y_axis_new is orthogonal to both</span>
+    <span class="n">y_axis_new</span> <span class="o">=</span> <span class="n">y_axis_new</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">y_axis_new</span><span class="p">)</span>
+
+    <span class="c1"># The rotation matrix has the new basis vectors as its rows</span>
+    <span class="n">rotation_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">x_axis_new</span><span class="p">,</span> <span class="n">y_axis_new</span><span class="p">,</span> <span class="n">z_axis_new</span><span class="p">])</span>
+
+    <span class="c1"># Apply the rotation to star and gas coordinates</span>
+    <span class="n">rotated_star_coords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">star_coords</span><span class="p">,</span> <span class="n">rotation_matrix</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
+    
+    <span class="n">stars_vel_los_proj</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span>
+    <span class="k">if</span> <span class="n">star_vels</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">rotated_star_vels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">star_vels</span><span class="p">,</span> <span class="n">rotation_matrix</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
+        <span class="n">stars_vel_los_proj</span> <span class="o">=</span> <span class="n">rotated_star_vels</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span> <span class="c1"># Z&#39; component of velocity</span>
+
+    <span class="n">gas_vel_los_proj</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span>
+    <span class="k">if</span> <span class="n">gas_coords</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">rotated_gas_coords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">gas_coords</span><span class="p">,</span> <span class="n">rotation_matrix</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">gas_vels</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">rotated_gas_vels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">gas_vels</span><span class="p">,</span> <span class="n">rotation_matrix</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
+            <span class="n">gas_vel_los_proj</span> <span class="o">=</span> <span class="n">rotated_gas_vels</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span> <span class="c1"># Z&#39; component of velocity</span>
+
+
+    <span class="c1"># --- Extract projected 2D coordinates and raw line-of-sight distances for STARS ---</span>
+    <span class="n">projected_star_2d_coords</span> <span class="o">=</span> <span class="n">rotated_star_coords</span><span class="p">[:,</span> <span class="p">:</span><span class="mi">2</span><span class="p">]</span> <span class="c1"># X&#39; and Y&#39;</span>
+    <span class="n">star_line_of_sight_distances_raw</span> <span class="o">=</span> <span class="n">rotated_star_coords</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span> <span class="c1"># Z&#39; (LOS)</span>
+
+    <span class="c1"># --- Determine the global minimum LOS distance for normalization (from all particles) ---</span>
+    <span class="n">all_los_distances</span> <span class="o">=</span> <span class="n">star_line_of_sight_distances_raw</span>
+    <span class="k">if</span> <span class="n">gas_coords</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">gas_line_of_sight_distances_raw</span> <span class="o">=</span> <span class="n">rotated_gas_coords</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span>
+        <span class="n">all_los_distances</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">all_los_distances</span><span class="p">,</span> <span class="n">gas_line_of_sight_distances_raw</span><span class="p">))</span>
+
+    <span class="c1"># Handle case where all_los_distances might be empty (e.g., if both star_coords and gas_coords are empty after initial check)</span>
+    <span class="n">min_global_los</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">all_los_distances</span><span class="p">)</span> <span class="k">if</span> <span class="n">all_los_distances</span><span class="o">.</span><span class="n">size</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="mf">0.0</span>
+
+    <span class="c1"># --- Normalize line-of-sight distances for STARS ---</span>
+    <span class="n">star_line_of_sight_distances_normalized</span> <span class="o">=</span> <span class="n">star_line_of_sight_distances_raw</span> <span class="o">-</span> <span class="n">min_global_los</span>
+
+    <span class="c1"># --- Calculate the extent of the *entire* projected STAR dataset for global map ---</span>
+    <span class="n">min_x_full</span><span class="p">,</span> <span class="n">min_y_full</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">projected_star_2d_coords</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">max_x_full</span><span class="p">,</span> <span class="n">max_y_full</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">projected_star_2d_coords</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="c1"># Use the input pixel_size for consistency, but ensure it covers the full range</span>
+    <span class="n">effective_pixel_size_global</span> <span class="o">=</span> <span class="n">pixel_size</span>
+    <span class="n">epsilon_global</span> <span class="o">=</span> <span class="mf">1e-9</span> <span class="o">*</span> <span class="n">effective_pixel_size_global</span>
+
+    <span class="n">num_pixels_x_global</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">((</span><span class="n">max_x_full</span> <span class="o">-</span> <span class="n">min_x_full</span> <span class="o">+</span> <span class="n">epsilon_global</span><span class="p">)</span> <span class="o">/</span> <span class="n">effective_pixel_size_global</span><span class="p">))</span>
+    <span class="n">num_pixels_y_global</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">((</span><span class="n">max_y_full</span> <span class="o">-</span> <span class="n">min_y_full</span> <span class="o">+</span> <span class="n">epsilon_global</span><span class="p">)</span> <span class="o">/</span> <span class="n">effective_pixel_size_global</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="n">num_pixels_x_global</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span> <span class="n">num_pixels_x_global</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="k">if</span> <span class="n">num_pixels_y_global</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span> <span class="n">num_pixels_y_global</span> <span class="o">=</span> <span class="mi">1</span>
+
+    <span class="c1"># --- Create a global mass density map (STARS) to find the most massive pixel ---</span>
+    <span class="n">global_star_mass_density_map</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">num_pixels_y_global</span><span class="p">,</span> <span class="n">num_pixels_x_global</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">star_coords</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+        <span class="n">x_coord_proj</span> <span class="o">=</span> <span class="n">projected_star_2d_coords</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+        <span class="n">y_coord_proj</span> <span class="o">=</span> <span class="n">projected_star_2d_coords</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+
+        <span class="n">x_idx_global</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">((</span><span class="n">x_coord_proj</span> <span class="o">-</span> <span class="n">min_x_full</span><span class="p">)</span> <span class="o">/</span> <span class="n">effective_pixel_size_global</span><span class="p">))</span>
+        <span class="n">y_idx_global</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">((</span><span class="n">y_coord_proj</span> <span class="o">-</span> <span class="n">min_y_full</span><span class="p">)</span> <span class="o">/</span> <span class="n">effective_pixel_size_global</span><span class="p">))</span>
+
+        <span class="c1"># Clip indices to ensure they are within the valid range for the global map</span>
+        <span class="n">x_idx_global</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">x_idx_global</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">num_pixels_x_global</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">y_idx_global</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">y_idx_global</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">num_pixels_y_global</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+
+        <span class="n">global_star_mass_density_map</span><span class="p">[</span><span class="n">y_idx_global</span><span class="p">][</span><span class="n">x_idx_global</span><span class="p">]</span> <span class="o">+=</span> <span class="n">particle_masses</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+
+    <span class="c1"># --- Find the most massive pixel in the global STAR map ---</span>
+    <span class="n">most_massive_pixel_x_idx_global</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">most_massive_pixel_y_idx_global</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">global_star_mass_density_map</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span> <span class="c1"># Only search if there&#39;s mass</span>
+        <span class="c1"># Find the index of the maximum value in the flattened array</span>
+        <span class="n">flat_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">global_star_mass_density_map</span><span class="p">)</span>
+        <span class="n">most_massive_pixel_y_idx_global</span><span class="p">,</span> <span class="n">most_massive_pixel_x_idx_global</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unravel_index</span><span class="p">(</span><span class="n">flat_idx</span><span class="p">,</span> <span class="n">global_star_mass_density_map</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+
+    <span class="c1"># Convert most massive pixel index to its physical center coordinate in the global space</span>
+    <span class="n">most_massive_pixel_x_coord_global</span> <span class="o">=</span> <span class="n">min_x_full</span> <span class="o">+</span> <span class="p">(</span><span class="n">most_massive_pixel_x_idx_global</span> <span class="o">+</span> <span class="mf">0.5</span><span class="p">)</span> <span class="o">*</span> <span class="n">effective_pixel_size_global</span>
+    <span class="n">most_massive_pixel_y_coord_global</span> <span class="o">=</span> <span class="n">min_y_full</span> <span class="o">+</span> <span class="p">(</span><span class="n">most_massive_pixel_y_idx_global</span> <span class="o">+</span> <span class="mf">0.5</span><span class="p">)</span> <span class="o">*</span> <span class="n">effective_pixel_size_global</span>
+
+
+    <span class="c1"># --- Define the cutout grid&#39;s extent and dimensions based on most massive STAR pixel ---</span>
+    <span class="n">num_pixels_x_cutout</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">output_dimension</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">pixel_size</span><span class="p">))</span>
+    <span class="n">num_pixels_y_cutout</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">output_dimension</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="n">pixel_size</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="n">num_pixels_x_cutout</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span> <span class="n">num_pixels_x_cutout</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="k">if</span> <span class="n">num_pixels_y_cutout</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span> <span class="n">num_pixels_y_cutout</span> <span class="o">=</span> <span class="mi">1</span>
+
+    <span class="c1"># Calculate the minimum projected coordinates for the cutout,</span>
+    <span class="c1"># ensuring its geometric center aligns with the most massive pixel&#39;s center.</span>
+    <span class="n">min_x_cutout</span> <span class="o">=</span> <span class="n">most_massive_pixel_x_coord_global</span> <span class="o">-</span> <span class="p">(</span><span class="n">num_pixels_x_cutout</span> <span class="o">*</span> <span class="n">pixel_size</span> <span class="o">/</span> <span class="mf">2.0</span><span class="p">)</span>
+    <span class="n">min_y_cutout</span> <span class="o">=</span> <span class="n">most_massive_pixel_y_coord_global</span> <span class="o">-</span> <span class="p">(</span><span class="n">num_pixels_y_cutout</span> <span class="o">*</span> <span class="n">pixel_size</span> <span class="o">/</span> <span class="mf">2.0</span><span class="p">)</span>
+
+    <span class="c1"># --- Initialize output arrays for the cutout region (STARS) ---</span>
+    <span class="n">star_particle_membership</span> <span class="o">=</span> <span class="p">[[[]</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_pixels_x_cutout</span><span class="p">)]</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_pixels_y_cutout</span><span class="p">)]</span>
+    <span class="n">star_mass_density_map</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">num_pixels_y_cutout</span><span class="p">,</span> <span class="n">num_pixels_x_cutout</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+
+    <span class="c1"># --- Assign STAR particles to the cutout grid ---</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">star_coords</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+        <span class="n">x_coord_proj</span> <span class="o">=</span> <span class="n">projected_star_2d_coords</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+        <span class="n">y_coord_proj</span> <span class="o">=</span> <span class="n">projected_star_2d_coords</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+
+        <span class="n">x_idx_cutout</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">((</span><span class="n">x_coord_proj</span> <span class="o">-</span> <span class="n">min_x_cutout</span><span class="p">)</span> <span class="o">/</span> <span class="n">pixel_size</span><span class="p">))</span>
+        <span class="n">y_idx_cutout</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">((</span><span class="n">y_coord_proj</span> <span class="o">-</span> <span class="n">min_y_cutout</span><span class="p">)</span> <span class="o">/</span> <span class="n">pixel_size</span><span class="p">))</span>
+
+        <span class="c1"># Only include particles that fall within the cutout dimensions</span>
+        <span class="k">if</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">x_idx_cutout</span> <span class="o">&lt;</span> <span class="n">num_pixels_x_cutout</span> <span class="ow">and</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">y_idx_cutout</span> <span class="o">&lt;</span> <span class="n">num_pixels_y_cutout</span><span class="p">:</span>
+            <span class="n">star_particle_membership</span><span class="p">[</span><span class="n">y_idx_cutout</span><span class="p">][</span><span class="n">x_idx_cutout</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">i</span><span class="p">,</span> <span class="n">star_line_of_sight_distances_normalized</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span> <span class="c1"># Use normalized distance</span>
+            <span class="n">star_mass_density_map</span><span class="p">[</span><span class="n">y_idx_cutout</span><span class="p">][</span><span class="n">x_idx_cutout</span><span class="p">]</span> <span class="o">+=</span> <span class="n">particle_masses</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+
+    <span class="c1"># --- Set central pixel coordinate to the geometric center of the cutout ---</span>
+    <span class="n">central_pixel_x</span> <span class="o">=</span> <span class="n">num_pixels_x_cutout</span> <span class="o">//</span> <span class="mi">2</span>
+    <span class="n">central_pixel_y</span> <span class="o">=</span> <span class="n">num_pixels_y_cutout</span> <span class="o">//</span> <span class="mi">2</span>
+    <span class="n">central_pixel_coords</span> <span class="o">=</span> <span class="p">(</span><span class="n">central_pixel_x</span><span class="p">,</span> <span class="n">central_pixel_y</span><span class="p">)</span>
+
+    <span class="c1"># --- Process GAS particles if provided ---</span>
+    <span class="n">gas_particle_membership</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">gas_mass_density_map</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="n">gas_coords</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">gas_particle_membership</span> <span class="o">=</span> <span class="p">[[[]</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_pixels_x_cutout</span><span class="p">)]</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_pixels_y_cutout</span><span class="p">)]</span>
+        <span class="n">gas_mass_density_map</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">num_pixels_y_cutout</span><span class="p">,</span> <span class="n">num_pixels_x_cutout</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+        <span class="n">projected_gas_2d_coords</span> <span class="o">=</span> <span class="n">rotated_gas_coords</span><span class="p">[:,</span> <span class="p">:</span><span class="mi">2</span><span class="p">]</span>
+        <span class="c1"># gas_line_of_sight_distances_raw was already extracted and used for min_global_los</span>
+        <span class="n">gas_line_of_sight_distances_normalized</span> <span class="o">=</span> <span class="n">gas_line_of_sight_distances_raw</span> <span class="o">-</span> <span class="n">min_global_los</span> <span class="c1"># Normalize gas LOS</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">gas_coords</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+            <span class="n">x_coord_proj</span> <span class="o">=</span> <span class="n">projected_gas_2d_coords</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+            <span class="n">y_coord_proj</span> <span class="o">=</span> <span class="n">projected_gas_2d_coords</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+
+            <span class="n">x_idx_cutout</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">((</span><span class="n">x_coord_proj</span> <span class="o">-</span> <span class="n">min_x_cutout</span><span class="p">)</span> <span class="o">/</span> <span class="n">pixel_size</span><span class="p">))</span>
+            <span class="n">y_idx_cutout</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">((</span><span class="n">y_coord_proj</span> <span class="o">-</span> <span class="n">min_y_cutout</span><span class="p">)</span> <span class="o">/</span> <span class="n">pixel_size</span><span class="p">))</span>
+
+            <span class="k">if</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">x_idx_cutout</span> <span class="o">&lt;</span> <span class="n">num_pixels_x_cutout</span> <span class="ow">and</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">y_idx_cutout</span> <span class="o">&lt;</span> <span class="n">num_pixels_y_cutout</span><span class="p">:</span>
+                <span class="n">gas_particle_membership</span><span class="p">[</span><span class="n">y_idx_cutout</span><span class="p">][</span><span class="n">x_idx_cutout</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">i</span><span class="p">,</span> <span class="n">gas_line_of_sight_distances_normalized</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span> <span class="c1"># Use normalized distance</span>
+                <span class="n">gas_mass_density_map</span><span class="p">[</span><span class="n">y_idx_cutout</span><span class="p">][</span><span class="n">x_idx_cutout</span><span class="p">]</span> <span class="o">+=</span> <span class="n">gas_masses</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+
+    <span class="c1"># --- Prepare grid information for output ---</span>
+    <span class="n">grid_info</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;min_x_proj&#39;</span><span class="p">:</span> <span class="n">min_x_cutout</span><span class="p">,</span>
+        <span class="s1">&#39;min_y_proj&#39;</span><span class="p">:</span> <span class="n">min_y_cutout</span><span class="p">,</span>
+        <span class="s1">&#39;num_pixels_x&#39;</span><span class="p">:</span> <span class="n">num_pixels_x_cutout</span><span class="p">,</span>
+        <span class="s1">&#39;num_pixels_y&#39;</span><span class="p">:</span> <span class="n">num_pixels_y_cutout</span><span class="p">,</span>
+        <span class="s1">&#39;effective_pixel_size_x&#39;</span><span class="p">:</span> <span class="n">pixel_size</span><span class="p">,</span>
+        <span class="s1">&#39;effective_pixel_size_y&#39;</span><span class="p">:</span> <span class="n">pixel_size</span>
+    <span class="p">}</span>
+
+    <span class="k">return</span> <span class="n">star_particle_membership</span><span class="p">,</span> <span class="n">star_mass_density_map</span><span class="p">,</span> <span class="n">central_pixel_coords</span><span class="p">,</span> <span class="n">grid_info</span><span class="p">,</span> <span class="n">gas_particle_membership</span><span class="p">,</span> <span class="n">gas_mass_density_map</span><span class="p">,</span> <span class="n">stars_vel_los_proj</span><span class="p">,</span> <span class="n">gas_vel_los_proj</span></div>
+
+
+<div class="viewcode-block" id="doppler_shift_spectrum">
+<a class="viewcode-back" href="../../api/utils.html#galsyn.utils.doppler_shift_spectrum">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">doppler_shift_spectrum</span><span class="p">(</span><span class="n">wave_rest</span><span class="p">,</span> <span class="n">flux_rest</span><span class="p">,</span> <span class="n">vel_los_km_s</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Applies a Doppler shift to a spectrum.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    wave_rest : np.ndarray</span>
+<span class="sd">        Rest-frame wavelength array in Angstroms.</span>
+<span class="sd">    flux_rest : np.ndarray</span>
+<span class="sd">        Rest-frame flux array.</span>
+<span class="sd">    vel_los_km_s : float</span>
+<span class="sd">        Line-of-sight velocity in km/s. Positive for redshift (recession),</span>
+<span class="sd">        negative for blueshift (approach).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    tuple:</span>
+<span class="sd">        - wave_shifted (np.ndarray): Doppler-shifted wavelength array.</span>
+<span class="sd">        - flux_shifted (np.ndarray): Corresponding flux array (intensity is conserved).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">c</span> <span class="o">=</span> <span class="mf">299792.458</span> <span class="c1"># Speed of light in km/s</span>
+
+    <span class="c1"># Calculate the Doppler factor (1 + z_doppler)</span>
+    <span class="n">doppler_factor</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">+</span> <span class="p">(</span><span class="n">vel_los_km_s</span> <span class="o">/</span> <span class="n">c</span><span class="p">)</span>
+
+    <span class="n">wave_shifted</span> <span class="o">=</span> <span class="n">wave_rest</span> <span class="o">*</span> <span class="n">doppler_factor</span>
+    <span class="c1"># Flux is conserved per unit frequency, F_nu, and not F_lambda.</span>
+    <span class="c1"># F_lambda d_lambda = F_nu d_nu</span>
+    <span class="c1"># Since lambda = c/nu, d_lambda = -c/nu^2 d_nu = -lambda/nu d_nu</span>
+    <span class="c1"># d_lambda / d_nu = -lambda/nu</span>
+    <span class="c1"># F_lambda = F_nu * |d_nu/d_lambda| = F_nu * nu/lambda</span>
+    <span class="c1"># F_lambda_shifted / F_lambda_rest = (nu_shifted/lambda_shifted) / (nu_rest/lambda_rest)</span>
+    <span class="c1"># nu_shifted/nu_rest = 1/doppler_factor</span>
+    <span class="c1"># lambda_shifted/lambda_rest = doppler_factor</span>
+    <span class="c1"># F_lambda_shifted / F_lambda_rest = (1/doppler_factor) / doppler_factor = 1 / doppler_factor^2</span>
+    <span class="c1"># For a simple Doppler shift where the total energy is conserved, the flux per unit wavelength</span>
+    <span class="c1"># should be divided by the doppler factor because d(lambda_shifted) = doppler_factor * d(lambda_rest)</span>
+    <span class="c1"># The total energy in a band is integral(F_lambda d_lambda). If F_nu is conserved, then F_lambda scales inversely with doppler factor.</span>
+    <span class="c1"># However, for just applying the shift to the spectrum for a single particle, the intensity</span>
+    <span class="c1"># is generally assumed to be conserved, and the spectral features just shift.</span>
+    <span class="c1"># If a redshift is applied, the observed flux is lower by (1+z) factor.</span>
+    <span class="c1"># Here, we are only shifting the *wavelengths* of the emitted spectrum for a single particle *before* cosmological redshift.</span>
+    <span class="c1"># The flux values themselves (per unit Angstrom) are effectively conserved in this transformation,</span>
+    <span class="c1"># as we are just moving the spectral features. The overall observed flux will then be handled by the cosmological redshift.</span>
+    <span class="n">flux_shifted</span> <span class="o">=</span> <span class="n">flux_rest</span> <span class="c1"># Intensity is conserved when just shifting wavelength.</span>
+
+    <span class="k">return</span> <span class="n">wave_shifted</span><span class="p">,</span> <span class="n">flux_shifted</span></div>
+
+
+<div class="viewcode-block" id="create_hdf5_file">
+<a class="viewcode-back" href="../../api/utils.html#galsyn.utils.create_hdf5_file">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">create_hdf5_file</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">stars_init_mass</span><span class="p">,</span> <span class="n">stars_form_z</span><span class="p">,</span> <span class="n">stars_mass</span><span class="p">,</span> <span class="n">stars_zmet</span><span class="p">,</span> <span class="n">stars_coords</span><span class="p">,</span>
+    <span class="n">stars_vel</span><span class="p">,</span> <span class="n">gas_mass</span><span class="p">,</span> <span class="n">gas_zmet</span><span class="p">,</span> <span class="n">gas_sfr_inst</span><span class="p">,</span> <span class="n">gas_temp</span><span class="p">,</span> <span class="n">gas_coords</span><span class="p">,</span> <span class="n">gas_vel</span><span class="p">,</span> <span class="n">gas_mass_H</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Creates an HDF5 file with stellar and gas particle properties.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        filename (str): The name of the HDF5 file to create.</span>
+<span class="sd">        stars_init_mass (np.ndarray): 1D array of initial stellar masses.</span>
+<span class="sd">        stars_form_z (np.ndarray): 1D array of stellar formation redshifts.</span>
+<span class="sd">        stars_mass (np.ndarray): 1D array of current stellar masses.</span>
+<span class="sd">        stars_zmet (np.ndarray): 1D array of stellar metallicities.</span>
+<span class="sd">        stars_coords (np.ndarray): (N,3) array of stellar coordinates in units of kpc.</span>
+<span class="sd">        stars_vel (np.ndarray): (N,3) array of stellar peculiar velocities in units of km/s.</span>
+<span class="sd">        gas_mass (np.ndarray): 1D array of gas masses.</span>
+<span class="sd">        gas_zmet (np.ndarray): 1D array of gas metallicities.</span>
+<span class="sd">        gas_sfr_inst (np.ndarray): 1D array of instantaneous SFR for gas.</span>
+<span class="sd">        gas_temp (np.ndarray): 1D array of gas temperatures.</span>
+<span class="sd">        gas_coords (np.ndarray): (N,3) array of gas coordinates in units of kpc.</span>
+<span class="sd">        gas_vel (np.ndarray): (N,3) array of gas peculiar velocities in units of km/s.</span>
+<span class="sd">        gas_mass_H (np.ndarray): hyrogen mass in unit of solar mass.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="kn">import</span><span class="w"> </span><span class="nn">h5py</span>
+
+    <span class="c1"># Open the HDF5 file in write mode (&#39;w&#39;).</span>
+    <span class="c1"># The &#39;with&#39; statement ensures the file is automatically closed.</span>
+    <span class="k">with</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+
+        <span class="c1"># Create the &#39;star&#39; group</span>
+        <span class="n">star_group</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">create_group</span><span class="p">(</span><span class="s1">&#39;star&#39;</span><span class="p">)</span>
+        <span class="n">star_group</span><span class="o">.</span><span class="n">create_dataset</span><span class="p">(</span><span class="s1">&#39;init_mass&#39;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">stars_init_mass</span><span class="p">,</span> <span class="n">compression</span><span class="o">=</span><span class="s2">&quot;gzip&quot;</span><span class="p">)</span>
+        <span class="n">star_group</span><span class="o">.</span><span class="n">create_dataset</span><span class="p">(</span><span class="s1">&#39;form_z&#39;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">stars_form_z</span><span class="p">,</span> <span class="n">compression</span><span class="o">=</span><span class="s2">&quot;gzip&quot;</span><span class="p">)</span>
+        <span class="n">star_group</span><span class="o">.</span><span class="n">create_dataset</span><span class="p">(</span><span class="s1">&#39;mass&#39;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">stars_mass</span><span class="p">,</span> <span class="n">compression</span><span class="o">=</span><span class="s2">&quot;gzip&quot;</span><span class="p">)</span>
+        <span class="n">star_group</span><span class="o">.</span><span class="n">create_dataset</span><span class="p">(</span><span class="s1">&#39;zmet&#39;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">stars_zmet</span><span class="p">,</span> <span class="n">compression</span><span class="o">=</span><span class="s2">&quot;gzip&quot;</span><span class="p">)</span>
+        <span class="n">star_group</span><span class="o">.</span><span class="n">create_dataset</span><span class="p">(</span><span class="s1">&#39;coords&#39;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">stars_coords</span><span class="p">,</span> <span class="n">compression</span><span class="o">=</span><span class="s2">&quot;gzip&quot;</span><span class="p">)</span>
+        <span class="n">star_group</span><span class="o">.</span><span class="n">create_dataset</span><span class="p">(</span><span class="s1">&#39;vel&#39;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">stars_vel</span><span class="p">,</span> <span class="n">compression</span><span class="o">=</span><span class="s2">&quot;gzip&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Create the &#39;gas&#39; group</span>
+        <span class="n">gas_group</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">create_group</span><span class="p">(</span><span class="s1">&#39;gas&#39;</span><span class="p">)</span>
+        <span class="n">gas_group</span><span class="o">.</span><span class="n">create_dataset</span><span class="p">(</span><span class="s1">&#39;mass&#39;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">gas_mass</span><span class="p">,</span> <span class="n">compression</span><span class="o">=</span><span class="s2">&quot;gzip&quot;</span><span class="p">)</span>
+        <span class="n">gas_group</span><span class="o">.</span><span class="n">create_dataset</span><span class="p">(</span><span class="s1">&#39;zmet&#39;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">gas_zmet</span><span class="p">,</span> <span class="n">compression</span><span class="o">=</span><span class="s2">&quot;gzip&quot;</span><span class="p">)</span>
+        <span class="n">gas_group</span><span class="o">.</span><span class="n">create_dataset</span><span class="p">(</span><span class="s1">&#39;sfr_inst&#39;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">gas_sfr_inst</span><span class="p">,</span> <span class="n">compression</span><span class="o">=</span><span class="s2">&quot;gzip&quot;</span><span class="p">)</span>
+        <span class="n">gas_group</span><span class="o">.</span><span class="n">create_dataset</span><span class="p">(</span><span class="s1">&#39;temp&#39;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">gas_temp</span><span class="p">,</span> <span class="n">compression</span><span class="o">=</span><span class="s2">&quot;gzip&quot;</span><span class="p">)</span>
+        <span class="n">gas_group</span><span class="o">.</span><span class="n">create_dataset</span><span class="p">(</span><span class="s1">&#39;coords&#39;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">gas_coords</span><span class="p">,</span> <span class="n">compression</span><span class="o">=</span><span class="s2">&quot;gzip&quot;</span><span class="p">)</span>
+        <span class="n">gas_group</span><span class="o">.</span><span class="n">create_dataset</span><span class="p">(</span><span class="s1">&#39;vel&#39;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">gas_vel</span><span class="p">,</span> <span class="n">compression</span><span class="o">=</span><span class="s2">&quot;gzip&quot;</span><span class="p">)</span>
+        <span class="n">gas_group</span><span class="o">.</span><span class="n">create_dataset</span><span class="p">(</span><span class="s1">&#39;mass_H&#39;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">gas_mass_H</span><span class="p">,</span> <span class="n">compression</span><span class="o">=</span><span class="s2">&quot;gzip&quot;</span><span class="p">)</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;HDF5 file &#39;</span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2">&#39; created successfully.&quot;</span><span class="p">)</span></div>
+
+</pre></div>
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Abdurrouf
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2025, Abdurrouf.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>
