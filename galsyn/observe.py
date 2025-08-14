@@ -342,14 +342,16 @@ class GalSynMockObservation_imaging:
                     (final_noisy_surface_brightness, wcs_in),
                     wcs_out,
                     shape_out=new_shape,
-                    conserve_flux=True
+                    conserve_flux=True,
+                    boundary_mode='nearest'
                 )
 
                 resampled_rms_image_sb, _ = reproject_adaptive(
                     (final_rms_surface_brightness, wcs_in),
                     wcs_out,
                     shape_out=new_shape,
-                    conserve_flux=True
+                    conserve_flux=True,
+                    boundary_mode='nearest'
                 )
                 # --- Fix End ---
 
@@ -706,13 +708,15 @@ class GalSynMockObservation_ifu:
                     (noisy_cube_sb[i_wave, :, :], wcs_in),
                     wcs_out,
                     shape_out=new_spatial_shape,
-                    conserve_flux=True
+                    conserve_flux=True,
+                    boundary_mode='nearest'
                 )
                 resampled_rms_cube_sb[i_wave, :, :], _ = reproject_adaptive(
                     (rms_cube_sb[i_wave, :, :], wcs_in),
                     wcs_out,
                     shape_out=new_spatial_shape,
-                    conserve_flux=True
+                    conserve_flux=True,
+                    boundary_mode='nearest'
                 )
             # --- Fix End ---
         print("  Spatial resampling complete.")
