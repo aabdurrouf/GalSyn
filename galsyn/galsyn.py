@@ -494,17 +494,26 @@ class GalaxySynthesizer:
         Options:
             0: Modified Calzetti+00 with Bump strength tied to `dust_index`,
                where `dust_index` itself depends on the line-of-sight A_V.
+               
             1: Modified Calzetti+00 with a free Bump strength (`bump_amp`),
                where `dust_index` depends on the line-of-sight A_V.
+
             2: Modified Calzetti+00 with Bump strength tied to `dust_index`,
                where `dust_index` is a single free parameter for all stars.
+
             3: Modified Calzetti+00 with both `bump_amp` and `dust_index` as
                free parameters, applied uniformly to all stars.
+
             4: Salim+18 attenuation law.
+
             5: The original Calzetti+00 starburst attenuation law.
+
             6: Small Magellanic Cloud (SMC) extinction law from Gordon+03.
+
             7: Large Magellanic Cloud (LMC) extinction law from Gordon+03.
+
             8: Milky Way (MW) extinction law from Cardelli, Clayton, & Mathis (1989).
+
             9: Milky Way (MW) extinction law from Fitzpatrick (1999).
         """
         return self._dust_law
