@@ -107,7 +107,36 @@ def generate_ssp_grid_bagpipes(output_filename="ssp_spectra_bagpipes.hdf5",
                                gas_logu=-2.0,
                                overwrite=False,
                                n_jobs=-1):
+    """
+    Generates a grid of Simple Stellar Population (SSP) models using Bagpipes.
 
+    This function calculates SSPs for a grid of ages and metallicities, saving
+    the results to a single HDF5 file. It separates the output spectra into two
+    components: the stellar continuum and the nebular emission lines. It also
+    calculates the surviving stellar mass fraction for each SSP. The process is
+    parallelized across multiple CPU cores for efficiency.
+
+    Args:
+        output_filename (str, optional): The path and name for the output HDF5 file.
+                                         Defaults to "ssp_spectra_bagpipes.hdf5".
+        ages_gyr (array-like, optional): A 1D array of stellar population ages in Gyr.
+                                         If None, a default log-spaced grid is used.
+                                         Defaults to None.
+        logzsol_grid (array-like, optional): A 1D array of metallicities in
+                                             log(Z/Z_sun) units. If None, a default
+                                             linear grid is used. Defaults to None.
+        gas_logu (float, optional): The ionization parameter for nebular emission.
+                                    Defaults to -2.0.
+        overwrite (bool, optional): If True, an existing file at `output_filename`
+                                    will be overwritten. If False, the function
+                                    will exit if the file already exists.
+                                    Defaults to False.
+        n_jobs (int, optional): The number of CPU cores to use for parallel
+                                processing. Defaults to -1 (use all available cores).
+
+    Returns:
+        str: The path to the generated HDF5 file.
+    """
     if os.path.exists(output_filename) and not overwrite:
         print(f"SSP grid file '{output_filename}' already exists. "
               "Set overwrite=True to regenerate.")

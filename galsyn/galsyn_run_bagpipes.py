@@ -740,7 +740,76 @@ def generate_images(sim_file, z, filters, filter_transmission_path, dim_kpc=None
                     ssp_filepath=None, ssp_interpolation_method='nearest', 
                     output_pixel_spectra=False, rest_wave_min=1000.0, rest_wave_max=30000.0, 
                     rest_delta_wave=5.0): 
+    """
+    Generates astrophysical images from HDF5 simulation data using Bagpipes.
 
+    This function orchestrates the image synthesis pipeline with parallelized pixel
+    calculations. It allows the choice between using pre-computed SSP spectra
+    from an HDF5 file or generating them on-the-fly using Bagpipes. It can
+    optionally output observed-frame spectra for each pixel.
+
+    Parameters:
+        sim_file (str): Path to the HDF5 simulation file.
+        z (float): Redshift of the galaxy.
+        filters (list): List of photometric filters.
+        filter_transmission_path (dict): Dictionary of paths to text files containing
+                                         the transmission function. Keys are filter names,
+                                         values are file paths.
+        dim_kpc (float, optional): Dimension of the image in kpc. If None, it is
+                                   assigned automatically. Defaults to None.
+        pix_arcsec (float, optional): Pixel size in arcseconds. Defaults to 0.02.
+        flux_unit (str, optional): Desired flux unit for the generated images.
+                                   Options: 'MJy/sr', 'nJy', 'AB magnitude',
+                                   or 'erg/s/cm2/A'. Defaults to 'MJy/sr'.
+        polar_angle_deg (float, optional): Polar angle for projection. Defaults to 0.
+        azimuth_angle_deg (float, optional): Azimuth angle for projection. Defaults to 0.
+        name_out_img (str, optional): Output file name for images. Defaults to None.
+        n_jobs (int, optional): Number of CPU cores for parallel processing.
+                                Defaults to -1 (all available).
+        ssp_code (str, optional): The SSP code to use. Defaults to 'Bagpipes'.
+        gas_logu (float, optional): Log ionization parameter for nebular emission.
+                                    Defaults to -2.0.
+        igm_type (int, optional): IGM absorption model type (0: Madau+95, 1: Inoue+14).
+                                  Defaults to 0.
+        dust_index_bc (float, optional): Dust index for birth clouds. Defaults to -0.7.
+        dust_index (float, optional): Dust index for the diffuse ISM. Defaults to 0.0.
+        t_esc (float, optional): Escape time for young stars from birth clouds in Gyr.
+                                 Defaults to 0.01.
+        dust_eta (float, optional): Ratio of A_V in birth clouds to the diffuse ISM.
+                                    Defaults to 1.0.
+        scale_dust_redshift (str or dict, optional): Defines the dust_tau normalization
+                                                     vs. redshift relation. Can be a string
+                                                     ("Vogelsberger20") or a dictionary.
+                                                     Defaults to "Vogelsberger20".
+        cosmo_str (str, optional): Cosmology string. Defaults to 'Planck18'.
+        dust_law (int, optional): Dust attenuation law type. Defaults to 0.
+        bump_amp (float, optional): UV bump amplitude for the dust curve. Defaults to 0.85.
+        relation_AVslope (str or dict, optional): Defines the A_V vs. dust_index relation.
+                                                  Can be a string ("Salim18", etc.) or a
+                                                  dictionary. Defaults to "Salim18".
+        salim_a0, salim_a1, salim_a2, salim_a3, salim_RV, salim_B (float, optional):
+                                                  Parameters for the Salim+18 dust law.
+        initdim_kpc (float, optional): Initial guess for image dimension in kpc for
+                                       auto-sizing. Defaults to 200.
+        initdim_mass_fraction (float, optional): Mass fraction to enclose when determining
+                                                 image dimension. Defaults to 0.99.
+        use_precomputed_ssp (bool, optional): If True, use pre-computed SSP spectra.
+                                              If False, generate on-the-fly.
+                                              Defaults to True.
+        ssp_filepath (str, optional): Path to the pre-computed SSP spectra HDF5 file.
+                                      Used if `use_precomputed_ssp` is True.
+                                      Defaults to None.
+        ssp_interpolation_method (str, optional): Method for interpolating SSPs ('nearest',
+                                                  'linear', 'cubic'). Defaults to 'nearest'.
+        output_pixel_spectra (bool, optional): If True, output observed-frame spectra
+                                               for each pixel. Defaults to False.
+        rest_wave_min (float, optional): Minimum rest-frame wavelength for output
+                                         spectra (Angstroms). Defaults to 1000.0.
+        rest_wave_max (float, optional): Maximum rest-frame wavelength for output
+                                         spectra (Angstroms). Defaults to 30000.0.
+        rest_delta_wave (float, optional): Wavelength step in rest-frame for output
+                                           spectra (Angstroms). Defaults to 5.0.
+    """
     cosmo = define_cosmo(cosmo_str)
 
     print ('Processing '+sim_file)
