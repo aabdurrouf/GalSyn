@@ -28,6 +28,16 @@ def get(path, params=None):
     return r
 
 def get_tng_snaps_info(sim='TNG50-1', api_key="api-key"):
+    """
+    Retrieves metadata for all snapshots of a given TNG simulation.
+
+    Args:
+        sim (str): The name of the TNG simulation (e.g., 'TNG50-1').
+        api_key (str): Your personal TNG API key.
+
+    Returns:
+        list: A list of dictionaries, each containing information for a snapshot.
+    """
     global headers
     headers = {"api-key":api_key}
     r = get(baseUrl_tng)
@@ -37,11 +47,35 @@ def get_tng_snaps_info(sim='TNG50-1', api_key="api-key"):
     return snaps
 
 def get_snap_z(snap_number, sim='TNG50-1', snaps_info=None, api_key="api-key"):
+    """
+    Gets the redshift for a single snapshot number.
+
+    Args:
+        snap_number (int): The snapshot number.
+        sim (str): The name of the TNG simulation.
+        snaps_info (list, optional): Pre-fetched snapshot info to avoid a new API call.
+        api_key (str): Your TNG API key, used if snaps_info is not provided.
+
+    Returns:
+        float: The redshift of the specified snapshot.
+    """
     if snaps_info is None:
         snaps_info = get_tng_snaps_info(sim, api_key=api_key)
     return snaps_info[int(snap_number)]['redshift']
 
 def get_snap_z_batch(snap_numbers, sim='TNG50-1', snaps_info=None, api_key="api-key"):
+    """
+    Gets the redshifts for a list of snapshot numbers.
+
+    Args:
+        snap_numbers (list of int): A list of snapshot numbers.
+        sim (str): The name of the TNG simulation.
+        snaps_info (list, optional): Pre-fetched snapshot info to avoid new API calls.
+        api_key (str): Your TNG API key, used if snaps_info is not provided.
+
+    Returns:
+        np.ndarray: An array of redshifts corresponding to the input snapshots.
+    """
     if snaps_info is None:
         snaps_info = get_tng_snaps_info(sim, api_key=api_key)
 
@@ -52,12 +86,35 @@ def get_snap_z_batch(snap_numbers, sim='TNG50-1', snaps_info=None, api_key="api-
     return np.asarray(snap_z)
 
 def get_num_subhalos(snap_number, sim='TNG50-1', snaps_info=None, api_key="api-key"):
+    """
+    Gets the total number of subhalos in a specific snapshot.
+
+    Args:
+        snap_number (int): The snapshot number.
+        sim (str): The name of the TNG simulation.
+        snaps_info (list, optional): Pre-fetched snapshot info to avoid a new API call.
+        api_key (str): Your TNG API key, used if snaps_info is not provided.
+
+    Returns:
+        int: The number of subhalos.
+    """
     if snaps_info is None:
         snaps_info = get_tng_snaps_info(sim, api_key=api_key)
     return snaps_info[int(snap_number)]['num_groups_subfind']
 
 def cosmic_times_snapshots(sim='TNG50-1',snaps_info=None, cosmo='Planck18', api_key="api-key"):
+    """
+    Calculates the age of the universe (cosmic time) for all 100 snapshots.
 
+    Args:
+        sim (str): The name of the TNG simulation.
+        snaps_info (list, optional): Pre-fetched snapshot info.
+        cosmo (str): The cosmological model for age calculation.
+        api_key (str): Your TNG API key.
+
+    Returns:
+        np.ndarray: An array of cosmic times in Gyr for each snapshot from 0 to 99.
+    """
     if snaps_info is None:
         snaps_info = get_tng_snaps_info(sim, api_key=api_key)
 
@@ -70,7 +127,19 @@ def cosmic_times_snapshots(sim='TNG50-1',snaps_info=None, cosmo='Planck18', api_
     return cosmic_times
 
 def cosmic_times_of_snapshots(snaps, sim='TNG50-1', snaps_info=None, cosmo='Planck18', api_key="api-key"):
+    """
+    Calculates the age of the universe (cosmic time) for a specific list of snapshots.
 
+    Args:
+        snaps (list of int): A list of snapshot numbers.
+        sim (str): The name of the TNG simulation.
+        snaps_info (list, optional): Pre-fetched snapshot info.
+        cosmo (str): The cosmological model for age calculation.
+        api_key (str): Your TNG API key.
+
+    Returns:
+        np.ndarray: An array of cosmic times in Gyr for the specified snapshots.
+    """
     if snaps_info is None:
         snaps_info = get_tng_snaps_info(sim, api_key=api_key)
 
@@ -82,6 +151,20 @@ def cosmic_times_of_snapshots(snaps, sim='TNG50-1', snaps_info=None, cosmo='Plan
     return np.asarray(cosmic_times)
 
 def download_cutout_subhalo_hdf5(snap_number, subhalo_id, api_key="api-key", sim='TNG50-1', params=None):
+    """
+    Downloads the HDF5 data cutout for a specific subhalo.
+
+    Args:
+        snap_number (int): The snapshot number.
+        subhalo_id (int): The ID of the target subhalo.
+        api_key (str): Your TNG API key.
+        sim (str): The name of the TNG simulation.
+        params (dict, optional): Additional parameters for the API request,
+                                 e.g., {'gas':'all', 'stars':'all'}.
+
+    Returns:
+        str: The filename of the downloaded and renamed HDF5 file.
+    """
     global headers
     headers = {"api-key":api_key}
     url = "http://www.tng-project.org/api/" + sim + "/snapshots/" + str(int(snap_number)) + "/subhalos/" + str(int(subhalo_id))
@@ -92,6 +175,19 @@ def download_cutout_subhalo_hdf5(snap_number, subhalo_id, api_key="api-key", sim
     return name 
 
 def download_cutout_parent_halo_hdf5(snap_number, subhalo_id, api_key="api-key", sim='TNG50-1', params=None):
+    """
+    Downloads the HDF5 data cutout for the parent halo of a specified subhalo.
+
+    Args:
+        snap_number (int): The snapshot number of the subhalo.
+        subhalo_id (int): The ID of the target subhalo.
+        api_key (str): Your TNG API key.
+        sim (str): The name of the TNG simulation.
+        params (dict, optional): Additional parameters for the API request.
+
+    Returns:
+        str: The filename of the downloaded and renamed HDF5 file.
+    """
     global headers
     headers = {"api-key":api_key}
     url = "http://www.tng-project.org/api/" + sim + "/snapshots/" + str(int(snap_number)) + "/subhalos/" + str(int(subhalo_id))
@@ -102,6 +198,21 @@ def download_cutout_parent_halo_hdf5(snap_number, subhalo_id, api_key="api-key",
     return name
 
 def get_basic_subhalo_properties(snap_number, subhalo_id, api_key="api-key", sim='TNG50-1', params=None):
+    """
+    Fetches basic properties (metadata) for a specific subhalo.
+
+    This returns a JSON object with information like mass, position, etc.,
+    without downloading the full particle data cutout.
+
+    Args:
+        snap_number (int): The snapshot number.
+        subhalo_id (int): The ID of the target subhalo.
+        api_key (str): Your TNG API key.
+        sim (str): The name of the TNG simulation.
+
+    Returns:
+        dict: A dictionary containing the subhalo's properties.
+    """
     global headers
     headers = {"api-key":api_key}
     url = "http://www.tng-project.org/api/" + sim + "/snapshots/" + str(int(snap_number)) + "/subhalos/" + str(int(subhalo_id))
@@ -109,6 +220,25 @@ def get_basic_subhalo_properties(snap_number, subhalo_id, api_key="api-key", sim
     return sub
 
 def make_sim_file_from_tng_data(input_hdf5, z, cosmo_h=0.6774, XH=0.76, output_hdf5='sim_file_tng.hdf5'):
+    """
+    Converts a raw TNG cutout into a standardized HDF5 file for analysis.
+
+    This function extracts star and gas particle data, converts units from
+    TNG-specific conventions to physical units (e.g., kpc, Msun), calculates
+    additional properties like gas temperature, and saves the result to a
+    new HDF5 file.
+
+    Args:
+        input_hdf5 (str): Path to the raw TNG cutout HDF5 file to process.
+        z (float): The redshift of the snapshot.
+        cosmo_h (float): The dimensionless Hubble parameter 'h'.
+        XH (float): The primordial mass fraction of hydrogen.
+        output_hdf5 (str): The path for the new, processed HDF5 file.
+
+    Returns:
+        None
+    """
+    
     import h5py
 
     f = h5py.File(input_hdf5,'r')

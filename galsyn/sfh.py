@@ -27,6 +27,12 @@ class SFHReconstructor:
     from HDF5 simulation data. It projects star particles onto a 2D grid and
     calculates SFH-related quantities for each pixel, outputting the results
     as a 3D FITS file (spatial x spatial x lookback_time).
+
+    Parameters:
+        sim_file (str): Path to the HDF5 simulation file.
+        z (float): Redshift of the galaxy. Defaults to 0.01.
+        Z_sun (float, optional): The value of solar metallicity used for normalizing particle metallicities. Defaults to 0.019.
+
     """
 
     def __init__(self, sim_file, z, Z_sun=0.019):
@@ -34,8 +40,10 @@ class SFHReconstructor:
         Initializes the SFHReconstructor with basic simulation parameters.
 
         Parameters:
-            sim_file (str, optional): Path to the HDF5 simulation file.
-            z (float, optional): Redshift of the galaxy. Defaults to 0.01.
+            sim_file (str): Path to the HDF5 simulation file.
+            z (float): Redshift of the galaxy. Defaults to 0.01.
+            Z_sun (float, optional): The value of solar metallicity used for
+                normalizing particle metallicities. Defaults to 0.019.
         """
         self._sim_file = sim_file
         self._z = z
@@ -64,6 +72,7 @@ class SFHReconstructor:
 
     @property
     def sim_file(self):
+        """str: The path to the input HDF5 simulation file."""
         return self._sim_file
 
     @sim_file.setter
@@ -76,6 +85,7 @@ class SFHReconstructor:
 
     @property
     def z(self):
+        """float: The redshift of the galaxy snapshot."""
         return self._z
 
     @z.setter
@@ -86,6 +96,7 @@ class SFHReconstructor:
 
     @property
     def Z_sun(self):
+        """float: The value of solar metallicity for normalization."""
         return self._Z_sun
 
     @Z_sun.setter
@@ -96,6 +107,9 @@ class SFHReconstructor:
 
     @property
     def dim_kpc(self):
+        """float or None: The physical side length of the output image in kpc.
+        If set to None, it will be automatically determined during reconstruction.
+        """
         return self._dim_kpc
 
     @dim_kpc.setter
@@ -107,6 +121,7 @@ class SFHReconstructor:
 
     @property
     def pix_arcsec(self):
+        """float: The side length of each square pixel in arcseconds."""
         return self._pix_arcsec
 
     @pix_arcsec.setter
@@ -117,6 +132,7 @@ class SFHReconstructor:
 
     @property
     def polar_angle_deg(self):
+        """float: The polar (inclination) angle for 2D projection in degrees."""
         return self._polar_angle_deg
 
     @polar_angle_deg.setter
@@ -127,6 +143,7 @@ class SFHReconstructor:
 
     @property
     def azimuth_angle_deg(self):
+        """float: The azimuthal (rotation) angle for 2D projection in degrees."""
         return self._azimuth_angle_deg
 
     @azimuth_angle_deg.setter
@@ -137,6 +154,7 @@ class SFHReconstructor:
 
     @property
     def ncpu(self):
+        """int: The number of CPU cores to use for parallel processing."""
         return self._ncpu
 
     @ncpu.setter
@@ -147,6 +165,7 @@ class SFHReconstructor:
 
     @property
     def initdim_kpc(self):
+        """float: The initial search dimension (in kpc) for automatic image sizing."""
         return self._initdim_kpc
 
     @initdim_kpc.setter
@@ -157,6 +176,7 @@ class SFHReconstructor:
 
     @property
     def initdim_mass_fraction(self):
+        """float: The stellar mass fraction to enclose for automatic image sizing."""
         return self._initdim_mass_fraction
 
     @initdim_mass_fraction.setter
@@ -167,6 +187,7 @@ class SFHReconstructor:
 
     @property
     def name_out_sfh(self):
+        """str or None: The path and filename for the output FITS file."""
         return self._name_out_sfh
 
     @name_out_sfh.setter
@@ -177,6 +198,7 @@ class SFHReconstructor:
 
     @property
     def sfh_del_t(self):
+        """float: The width of each lookback time bin in Gyr for the SFH."""
         return self._sfh_del_t
 
     @sfh_del_t.setter
@@ -187,6 +209,7 @@ class SFHReconstructor:
 
     @property
     def sfh_max_lbt(self):
+        """float: The maximum lookback time in Gyr for the SFH."""
         return self._sfh_max_lbt
 
     @sfh_max_lbt.setter
@@ -197,6 +220,7 @@ class SFHReconstructor:
 
     @property
     def cosmo_str(self):
+        """str: The name of the cosmological model to use (e.g., 'Planck18')."""
         return self._cosmo_str
 
     @cosmo_str.setter
@@ -209,7 +233,16 @@ class SFHReconstructor:
     def set_params(self, **kwargs):
         """
         Sets multiple parameters at once using keyword arguments.
-        Example: reconstructor.set_params(dim_kpc=50, sfh_del_t=0.1)
+
+        This provides a convenient way to update the reconstructor's configuration.
+        Any invalid parameter names will be ignored with a warning.
+
+        Args:
+            **kwargs: Keyword arguments where keys match attribute names
+                      (e.g., dim_kpc=50, sfh_del_t=0.1).
+
+        Returns:
+            None
         """
         for key, value in kwargs.items():
             if hasattr(self, key):

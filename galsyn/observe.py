@@ -14,6 +14,33 @@ class GalSynMockObservation_imaging:
     A class to simulate observational effects on synthetic galaxy images,
     including PSF convolution, noise injection, RMS image generation,
     and resampling to a desired pixel scale.
+
+    Parameters:
+    -----------
+    fits_file_path : str
+        Path to the input FITS file.
+    filters : list
+        List of filter names (e.g., ['jwst_nircam_f115w', 'jwst_nircam_f200w']) for which images will be processed.
+    psf_paths : dict
+        Dictionary where keys are filter names and values are paths to PSF FITS images.
+    psf_pixel_scales : dict
+        Dictionary where keys are filter names and values are pixel scales of PSF images in arcsec.
+    mag_zp : dict
+        Dictionary of magnitude zero-points for each filter.
+    limiting_magnitude : dict
+        Dictionary of limiting magnitudes for each filter.
+    snr_limit : dict
+        Dictionary of signal-to-noise ratios at the limiting magnitude for each filter.
+    aperture_radius_arcsec : dict
+        Dictionary of radii for the circular aperture (in arcsec) used in measuring the magnitude limit for each filter.
+    exposure_time : dict
+        Dictionary of exposure times in seconds for each filter.
+    filter_transmission_path : dict
+        Dictionary of paths to text files containing the transmission function for filters.
+    desired_pixel_scales : dict
+        Dictionary where keys are filter names and values are the desired final pixel
+        scales in arcsec for the resampled images.
+
     """
 
     def __init__(self, fits_file_path, filters, psf_paths, psf_pixel_scales, mag_zp, limiting_magnitude, snr_limit,
@@ -379,6 +406,33 @@ class GalSynMockObservation_ifu:
     A class to simulate observational effects on synthetic IFU data cubes,
     including wavelength cutting, spectral smoothing, spatial PSF convolution,
     noise injection, and RMS data cube generation.
+
+    Parameters:
+    -----------
+    fits_file_path : str
+        Path to the FITS file output from galsyn_run_fsps (containing OBS_SPEC_NODUST/DUST and WAVELENGTH_GRID).
+    desired_wave_grid : np.ndarray
+        1D numpy array of the desired final wavelength grid (in Angstrom) for the data cube.
+    psf_cube_path : str
+        Path to the FITS file containing the 3D PSF data cube (wavelength, y, x).
+        The wavelength axis of the PSF cube must match `desired_wave_grid`.
+    psf_pixel_scale : float
+        Pixel scale of the PSF cube in arcsec.
+    spectral_resolution_R : float
+        Desired constant spectral resolution (R = lambda / d_lambda) for the output cube.
+    mag_zp : float or callable
+        Magnitude zero-point. Can be a constant float or a function of wavelength (in Angstrom).
+    limiting_magnitude_wave_func : callable
+        A function that takes wavelength (in Angstrom) as input and returns
+        the limiting magnitude at that wavelength. This magnitude is assumed
+        to be per area of the `final_pixel_scale_arcsec`.
+    snr_limit : float or callable
+        Signal-to-noise ratio corresponding to the limiting magnitude. Can be a constant float or a function of wavelength.
+    final_pixel_scale_arcsec : float
+        Desired final spatial pixel size in arcsec for the output data cube.
+    exposure_time : float or callable
+        Exposure time in seconds. Can be a constant float or a function of wavelength.
+
     """
 
     def __init__(self, fits_file_path, desired_wave_grid, psf_cube_path, psf_pixel_scale,

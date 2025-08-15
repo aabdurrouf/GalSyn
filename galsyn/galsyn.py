@@ -6,8 +6,36 @@ from . import galsyn_run_bagpipes
 import importlib.resources
 
 class GalaxySynthesizer:
+    """
+    A class to synthesize multi-wavelength galaxy images from simulation data.
+
+    This class orchestrates the process of taking particle data from a
+    cosmological simulation, applying a stellar population synthesis (SSP) model
+    (like FSPS or Bagpipes), accounting for dust attenuation and cosmological
+    effects, and projecting the resulting light onto a 2D grid to create a
+    synthetic astronomical image in specified filters.
+
+    Args:
+        sim_file (str, optional): Path to the HDF5 simulation file. Defaults to None.
+        z (float, optional): Redshift of the galaxy. Defaults to 0.01.
+        filters (list, optional): List of filter names for which to generate images. e.g., ['FUV', 'NUV']. Defaults to [].
+        filter_transmission_path (dict, optional): Dictionary mapping custom filter names to their transmission curve file paths. Defaults to {}.
+
+    """
 
     def __init__(self, sim_file=None, z=0.01, filters=[], filter_transmission_path={}):
+        """
+        Initializes the GalaxySynthesizer with core settings.
+
+        Args:
+            sim_file (str, optional): Path to the HDF5 simulation file. Defaults to None.
+            z (float, optional): Redshift of the galaxy. Defaults to 0.01.
+            filters (list, optional): List of filter names for which to generate images.
+                                      e.g., ['FUV', 'NUV']. Defaults to [].
+            filter_transmission_path (dict, optional): Dictionary mapping custom filter
+                                                       names to their transmission curve
+                                                       file paths. Defaults to {}.
+        """
         self._sim_file = sim_file
         self._z = z
         self._filters = filters
@@ -82,6 +110,7 @@ class GalaxySynthesizer:
 
     @property
     def sim_file(self):
+        """str: Path to the input HDF5 simulation data file."""
         return self._sim_file
 
     @sim_file.setter
@@ -92,6 +121,7 @@ class GalaxySynthesizer:
 
     @property
     def z(self):
+        """float: The redshift of the galaxy being synthesized."""
         return self._z
 
     @z.setter
@@ -102,6 +132,7 @@ class GalaxySynthesizer:
 
     @property
     def filters(self):
+        """list: A list of filter names for which to generate photometric images."""
         return self._filters
 
     @filters.setter
@@ -115,6 +146,7 @@ class GalaxySynthesizer:
 
     @property
     def filter_transmission_path(self):
+        """dict: Maps custom filter names to their transmission file paths."""
         return self._filter_transmission_path
 
     @filter_transmission_path.setter
@@ -130,6 +162,7 @@ class GalaxySynthesizer:
 
     @property
     def dim_kpc(self):
+        """float or None: The physical side length of the output image in kiloparsecs."""
         return self._dim_kpc
 
     @dim_kpc.setter
@@ -141,6 +174,7 @@ class GalaxySynthesizer:
 
     @property
     def pix_arcsec(self):
+        """float: The side length of each square pixel in arcseconds."""
         return self._pix_arcsec
 
     @pix_arcsec.setter
@@ -151,6 +185,7 @@ class GalaxySynthesizer:
 
     @property
     def flux_unit(self):
+        """str: The unit for the output flux in the FITS image."""
         return self._flux_unit
 
     @flux_unit.setter
@@ -162,6 +197,7 @@ class GalaxySynthesizer:
 
     @property
     def polar_angle_deg(self):
+        """float: The polar (inclination) angle for 2D projection in degrees."""
         return self._polar_angle_deg
 
     @polar_angle_deg.setter
@@ -172,6 +208,7 @@ class GalaxySynthesizer:
 
     @property
     def azimuth_angle_deg(self):
+        """float: The azimuthal (rotation) angle for 2D projection in degrees."""
         return self._azimuth_angle_deg
 
     @azimuth_angle_deg.setter
@@ -182,6 +219,7 @@ class GalaxySynthesizer:
 
     @property
     def ncpu(self):
+        """int: The number of CPU cores to use for parallel processing."""
         return self._ncpu
 
     @ncpu.setter
@@ -192,6 +230,7 @@ class GalaxySynthesizer:
 
     @property
     def initdim_kpc(self):
+        """float: Initial search dimension (kpc) for automatic image sizing."""
         return self._initdim_kpc
 
     @initdim_kpc.setter
@@ -202,6 +241,7 @@ class GalaxySynthesizer:
 
     @property
     def initdim_mass_fraction(self):
+        """float: Mass fraction to enclose for automatic image sizing."""
         return self._initdim_mass_fraction
 
     @initdim_mass_fraction.setter
@@ -212,6 +252,7 @@ class GalaxySynthesizer:
 
     @property
     def name_out_img(self):
+        """str or None: The path and filename for the output FITS image."""
         return self._name_out_img
 
     @name_out_img.setter
@@ -222,6 +263,7 @@ class GalaxySynthesizer:
 
     @property
     def ssp_code(self):
+        """str: The stellar population synthesis code to use ('FSPS' or 'BAGPIPES')."""
         return self._ssp_code
 
     @ssp_code.setter
@@ -232,6 +274,7 @@ class GalaxySynthesizer:
 
     @property
     def imf_type(self):
+        """int: FSPS initial mass function (IMF) type (e.g., 1 for Chabrier)."""
         return self._imf_type
 
     @imf_type.setter
@@ -242,6 +285,7 @@ class GalaxySynthesizer:
 
     @property
     def imf_upper_limit(self):
+        """The upper limit of the IMF for FSPS, in solar masses. Defaults to 120"""
         return self._imf_upper_limit
 
     @imf_upper_limit.setter
@@ -252,6 +296,7 @@ class GalaxySynthesizer:
 
     @property
     def imf_lower_limit(self):
+        """The lower limit of the IMF for FSPS, in solar masse. Defaults to 0.08"""
         return self._imf_lower_limit
 
     @imf_lower_limit.setter
@@ -262,6 +307,10 @@ class GalaxySynthesizer:
 
     @property
     def imf1(self):
+        """float: Logarithmic slope of the IMF over the range 0.08 < M < 0.5 Msun.
+
+        Only used if `ssp_code=FSPS` and `imf_type=2` (a Kroupa-like broken power-law). Default: 1.3.
+        """
         return self._imf1
 
     @imf1.setter
@@ -272,6 +321,10 @@ class GalaxySynthesizer:
 
     @property
     def imf2(self):
+        """float: Logarithmic slope of the IMF over the range 0.5 < M < 1.0 Msun.
+
+        Only used if `ssp_code=FSPS` and `imf_type=2` (a Kroupa-like broken power-law). Default: 2.3.
+        """
         return self._imf2
 
     @imf2.setter
@@ -282,6 +335,10 @@ class GalaxySynthesizer:
 
     @property
     def imf3(self):
+        """float: Logarithmic slope of the IMF over the range 1.0 < M < 120 Msun.
+
+        Only used if `ssp_code=FSPS` and `imf_type=2` (a Kroupa-like broken power-law). Default: 2.3.
+        """
         return self._imf3
 
     @imf3.setter
@@ -292,6 +349,10 @@ class GalaxySynthesizer:
 
     @property
     def vdmc(self):
+        """float: IMF parameter defined in van Dokkum (2008).
+
+        Only used if `ssp_code=FSPS` and `imf_type=3`. Default: 0.08.
+        """
         return self._vdmc
 
     @vdmc.setter
@@ -302,6 +363,10 @@ class GalaxySynthesizer:
 
     @property
     def mdave(self):
+        """float: IMF parameter defined in Dave (2008).
+
+        Only used if `ssp_code=FSPS` and `imf_type=4`. Default: 0.5.
+        """
         return self._mdave
 
     @mdave.setter
@@ -312,6 +377,7 @@ class GalaxySynthesizer:
 
     @property
     def gas_logu(self):
+        """float: The gas ionization parameter for nebular emission modeling."""
         return self._gas_logu
 
     @gas_logu.setter
@@ -322,6 +388,7 @@ class GalaxySynthesizer:
 
     @property
     def igm_type(self):
+        """IGM absorption model type. Options are: 0 for Madau et al. 1995 and 1 for Inoue et al. 2014. Defaults to 0. """
         return self._igm_type
 
     @igm_type.setter
@@ -332,6 +399,7 @@ class GalaxySynthesizer:
 
     @property
     def dust_index_bc(self):
+        """Dust index for birth clouds. Defaults to -0.7."""
         return self._dust_index_bc
 
     @dust_index_bc.setter
@@ -342,6 +410,7 @@ class GalaxySynthesizer:
 
     @property
     def dust_index(self):
+        """Dust index for diffuse ISM. Defaults to 0.0."""
         return self._dust_index
 
     @dust_index.setter
@@ -352,6 +421,7 @@ class GalaxySynthesizer:
 
     @property
     def t_esc(self):
+        """Escape time for young stars in Gyr. Defaults to 0.01."""
         return self._t_esc
 
     @t_esc.setter
@@ -362,6 +432,7 @@ class GalaxySynthesizer:
 
     @property
     def dust_eta(self):
+        """Ratio of the dust attenuation A_V in the birth clouds and the diffuse ISM. Defaults to 1.0."""
         return self._dust_eta
 
     @dust_eta.setter
@@ -372,6 +443,10 @@ class GalaxySynthesizer:
 
     @property
     def scale_dust_redshift(self):
+        """
+        str or dict: Redshift scaling/normalization for dust optical depth.
+        Defaults to "Vogelsberger20". Otherwise, provide a dictionary type input with keys of 'z' and 'tau_dust'.
+        """
         return self._scale_dust_redshift
 
     @scale_dust_redshift.setter
@@ -397,6 +472,11 @@ class GalaxySynthesizer:
 
     @property
     def cosmo_str(self):
+        """
+        str: The name of the cosmology model to be used. Valid options are: "planck18", "planck15", "planck13",
+        "wmap5", "wmap7", or "wmap9". The check is case-insensitive.
+        """
+
         return self._cosmo_str
 
     @cosmo_str.setter
@@ -408,6 +488,25 @@ class GalaxySynthesizer:
 
     @property
     def dust_law(self):
+        """
+        int: The dust attenuation law to apply.
+
+        Options:
+            0: Modified Calzetti+00 with Bump strength tied to `dust_index`,
+               where `dust_index` itself depends on the line-of-sight A_V.
+            1: Modified Calzetti+00 with a free Bump strength (`bump_amp`),
+               where `dust_index` depends on the line-of-sight A_V.
+            2: Modified Calzetti+00 with Bump strength tied to `dust_index`,
+               where `dust_index` is a single free parameter for all stars.
+            3: Modified Calzetti+00 with both `bump_amp` and `dust_index` as
+               free parameters, applied uniformly to all stars.
+            4: Salim+18 attenuation law.
+            5: The original Calzetti+00 starburst attenuation law.
+            6: Small Magellanic Cloud (SMC) extinction law from Gordon+03.
+            7: Large Magellanic Cloud (LMC) extinction law from Gordon+03.
+            8: Milky Way (MW) extinction law from Cardelli, Clayton, & Mathis (1989).
+            9: Milky Way (MW) extinction law from Fitzpatrick (1999).
+        """
         return self._dust_law
 
     @dust_law.setter
@@ -418,6 +517,7 @@ class GalaxySynthesizer:
 
     @property
     def bump_amp(self):
+        """UV bump amplitude. Defaults to 0.85."""
         return self._bump_amp
 
     @bump_amp.setter
@@ -428,6 +528,11 @@ class GalaxySynthesizer:
 
     @property
     def relation_AVslope(self):
+        """Defines the A_V vs dust_index relation.
+            Can be a string with options of "Salim18", "Nagaraj22", and "Battisti19",
+            or a dictionary with "AV" and "dust_index" keys (1D arrays).
+            Defaults to "Salim18".
+        """
         return self._relation_AVslope
 
     @relation_AVslope.setter
@@ -454,6 +559,7 @@ class GalaxySynthesizer:
 
     @property
     def salim_a0(self):
+        """Parameters for Salim et al. (2018) dust law."""
         return self._salim_a0
 
     @salim_a0.setter
@@ -464,6 +570,7 @@ class GalaxySynthesizer:
 
     @property
     def salim_a1(self):
+        """Parameters for Salim et al. (2018) dust law."""
         return self._salim_a1
 
     @salim_a1.setter
@@ -474,6 +581,7 @@ class GalaxySynthesizer:
 
     @property
     def salim_a2(self):
+        """Parameters for Salim et al. (2018) dust law."""
         return self._salim_a2
 
     @salim_a2.setter
@@ -484,6 +592,7 @@ class GalaxySynthesizer:
 
     @property
     def salim_a3(self):
+        """Parameters for Salim et al. (2018) dust law."""
         return self._salim_a3
 
     @salim_a3.setter
@@ -494,6 +603,7 @@ class GalaxySynthesizer:
 
     @property
     def salim_RV(self):
+        """Parameters for Salim et al. (2018) dust law."""
         return self._salim_RV
 
     @salim_RV.setter
@@ -504,6 +614,7 @@ class GalaxySynthesizer:
 
     @property
     def salim_B(self):
+        """Parameters for Salim et al. (2018) dust law."""
         return self._salim_B
 
     @salim_B.setter
@@ -514,6 +625,11 @@ class GalaxySynthesizer:
     
     @property
     def ssp_filepath(self):
+        """str or None: Path to a pre-computed SSP grid HDF5 file.
+
+        If None, the default SSP grid packaged with galsyn will be used,
+        selected based on the `ssp_code` ('FSPS' or 'BAGPIPES').
+        """
         return self._ssp_filepath
 
     @ssp_filepath.setter
@@ -524,6 +640,7 @@ class GalaxySynthesizer:
 
     @property
     def use_precomputed_ssp(self):
+        """bool: If True, use a pre-computed SSP grid file for synthesis."""
         return self._use_precomputed_ssp
 
     @use_precomputed_ssp.setter
@@ -534,6 +651,7 @@ class GalaxySynthesizer:
 
     @property
     def ssp_interpolation_method(self):
+        """str: Interpolation method for the SSP grid ('nearest', 'linear', 'cubic')."""
         return self._ssp_interpolation_method
 
     @ssp_interpolation_method.setter
@@ -544,6 +662,7 @@ class GalaxySynthesizer:
 
     @property
     def output_pixel_spectra(self):
+        """bool: If True, output a 3D spectral cube in addition to filter images."""
         return self._output_pixel_spectra
 
     @output_pixel_spectra.setter
@@ -554,6 +673,7 @@ class GalaxySynthesizer:
 
     @property
     def rest_wave_min(self):
+        """float: Minimum rest-frame wavelength (Angstroms) for the spectral cube."""
         return self._rest_wave_min
 
     @rest_wave_min.setter
@@ -564,6 +684,7 @@ class GalaxySynthesizer:
 
     @property
     def rest_wave_max(self):
+        """float: Maximum rest-frame wavelength (Angstroms) for the spectral cube."""
         return self._rest_wave_max
 
     @rest_wave_max.setter
@@ -576,6 +697,7 @@ class GalaxySynthesizer:
         
     @property
     def rest_delta_wave(self):
+        """float: Wavelength step (Angstroms) for the spectral cube."""
         return self._rest_delta_wave
     
     @rest_delta_wave.setter
@@ -591,7 +713,13 @@ class GalaxySynthesizer:
     def set_params(self, **kwargs):
         """
         Sets multiple parameters at once using keyword arguments.
-        Example: synthesizer.set_params(imf_type=1, filters=['FUV', 'NUV'])
+
+        This provides a convenient way to update the synthesizer's configuration.
+        Any invalid parameter names will be ignored with a warning.
+
+        Args:
+            **kwargs: Keyword arguments where keys match attribute names
+                      (e.g., dim_kpc=50, ssp_code='BAGPIPES').
         """
         for key, value in kwargs.items():
             # Check if the attribute exists as a property setter (e.g., _imf_type has imf_type.setter)
@@ -625,9 +753,14 @@ class GalaxySynthesizer:
 
     def generate_ssp_data(self):
         """
-        Determines the SSP spectra grid filepath and ensures it exists.
-        If _ssp_filepath is None, it defaults to the packaged data file based on ssp_code.
-        If the determined SSP file does not exist, it raises a FileNotFoundError.
+        Checks for and resolves the path to the required SSP grid file.
+
+        If `use_precomputed_ssp` is True, this method verifies that the SSP data
+        file exists. If `ssp_filepath` is not specified, it defaults to the
+        packaged data file corresponding to the selected `ssp_code`.
+
+        Raises:
+            FileNotFoundError: If the required SSP file cannot be found.
         """
         if not self.use_precomputed_ssp:
             print("SSP grid generation will be done on-the-fly. Skipping pre-computed SSP grid check.")
@@ -675,8 +808,12 @@ class GalaxySynthesizer:
     # --- Method to run the synthesis process ---
     def run_synthesis(self):
         """
-        Executes the galaxy image synthesis process using the current parameters
-        set in this GalaxySynthesizer instance.
+        Executes the full galaxy image synthesis process.
+
+        This is the main method to run the pipeline. It gathers all configured
+        parameters, selects the appropriate backend (FSPS or Bagpipes), calls the
+        corresponding engine to perform the synthesis, and saves the resulting
+        FITS file.
         """
         # Ensure SSP data is ready (checks file existence if pre-computed)
         self.generate_ssp_data()
