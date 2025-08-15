@@ -370,6 +370,16 @@ document.write(`
 <div class="viewcode-block" id="get_tng_snaps_info">
 <a class="viewcode-back" href="../../api/simutils_tng.html#galsyn.simutils_tng.get_tng_snaps_info">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_tng_snaps_info</span><span class="p">(</span><span class="n">sim</span><span class="o">=</span><span class="s1">&#39;TNG50-1&#39;</span><span class="p">,</span> <span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;api-key&quot;</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Retrieves metadata for all snapshots of a given TNG simulation.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        sim (str): The name of the TNG simulation (e.g., &#39;TNG50-1&#39;).</span>
+<span class="sd">        api_key (str): Your personal TNG API key.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        list: A list of dictionaries, each containing information for a snapshot.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">global</span> <span class="n">headers</span>
     <span class="n">headers</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;api-key&quot;</span><span class="p">:</span><span class="n">api_key</span><span class="p">}</span>
     <span class="n">r</span> <span class="o">=</span> <span class="n">get</span><span class="p">(</span><span class="n">baseUrl_tng</span><span class="p">)</span>
@@ -382,6 +392,18 @@ document.write(`
 <div class="viewcode-block" id="get_snap_z">
 <a class="viewcode-back" href="../../api/simutils_tng.html#galsyn.simutils_tng.get_snap_z">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_snap_z</span><span class="p">(</span><span class="n">snap_number</span><span class="p">,</span> <span class="n">sim</span><span class="o">=</span><span class="s1">&#39;TNG50-1&#39;</span><span class="p">,</span> <span class="n">snaps_info</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;api-key&quot;</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Gets the redshift for a single snapshot number.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        snap_number (int): The snapshot number.</span>
+<span class="sd">        sim (str): The name of the TNG simulation.</span>
+<span class="sd">        snaps_info (list, optional): Pre-fetched snapshot info to avoid a new API call.</span>
+<span class="sd">        api_key (str): Your TNG API key, used if snaps_info is not provided.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        float: The redshift of the specified snapshot.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">snaps_info</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">snaps_info</span> <span class="o">=</span> <span class="n">get_tng_snaps_info</span><span class="p">(</span><span class="n">sim</span><span class="p">,</span> <span class="n">api_key</span><span class="o">=</span><span class="n">api_key</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">snaps_info</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">snap_number</span><span class="p">)][</span><span class="s1">&#39;redshift&#39;</span><span class="p">]</span></div>
@@ -390,6 +412,18 @@ document.write(`
 <div class="viewcode-block" id="get_snap_z_batch">
 <a class="viewcode-back" href="../../api/simutils_tng.html#galsyn.simutils_tng.get_snap_z_batch">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_snap_z_batch</span><span class="p">(</span><span class="n">snap_numbers</span><span class="p">,</span> <span class="n">sim</span><span class="o">=</span><span class="s1">&#39;TNG50-1&#39;</span><span class="p">,</span> <span class="n">snaps_info</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;api-key&quot;</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Gets the redshifts for a list of snapshot numbers.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        snap_numbers (list of int): A list of snapshot numbers.</span>
+<span class="sd">        sim (str): The name of the TNG simulation.</span>
+<span class="sd">        snaps_info (list, optional): Pre-fetched snapshot info to avoid new API calls.</span>
+<span class="sd">        api_key (str): Your TNG API key, used if snaps_info is not provided.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        np.ndarray: An array of redshifts corresponding to the input snapshots.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">snaps_info</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">snaps_info</span> <span class="o">=</span> <span class="n">get_tng_snaps_info</span><span class="p">(</span><span class="n">sim</span><span class="p">,</span> <span class="n">api_key</span><span class="o">=</span><span class="n">api_key</span><span class="p">)</span>
 
@@ -403,6 +437,18 @@ document.write(`
 <div class="viewcode-block" id="get_num_subhalos">
 <a class="viewcode-back" href="../../api/simutils_tng.html#galsyn.simutils_tng.get_num_subhalos">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_num_subhalos</span><span class="p">(</span><span class="n">snap_number</span><span class="p">,</span> <span class="n">sim</span><span class="o">=</span><span class="s1">&#39;TNG50-1&#39;</span><span class="p">,</span> <span class="n">snaps_info</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;api-key&quot;</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Gets the total number of subhalos in a specific snapshot.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        snap_number (int): The snapshot number.</span>
+<span class="sd">        sim (str): The name of the TNG simulation.</span>
+<span class="sd">        snaps_info (list, optional): Pre-fetched snapshot info to avoid a new API call.</span>
+<span class="sd">        api_key (str): Your TNG API key, used if snaps_info is not provided.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        int: The number of subhalos.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">snaps_info</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">snaps_info</span> <span class="o">=</span> <span class="n">get_tng_snaps_info</span><span class="p">(</span><span class="n">sim</span><span class="p">,</span> <span class="n">api_key</span><span class="o">=</span><span class="n">api_key</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">snaps_info</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">snap_number</span><span class="p">)][</span><span class="s1">&#39;num_groups_subfind&#39;</span><span class="p">]</span></div>
@@ -411,7 +457,18 @@ document.write(`
 <div class="viewcode-block" id="cosmic_times_snapshots">
 <a class="viewcode-back" href="../../api/simutils_tng.html#galsyn.simutils_tng.cosmic_times_snapshots">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">cosmic_times_snapshots</span><span class="p">(</span><span class="n">sim</span><span class="o">=</span><span class="s1">&#39;TNG50-1&#39;</span><span class="p">,</span><span class="n">snaps_info</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cosmo</span><span class="o">=</span><span class="s1">&#39;Planck18&#39;</span><span class="p">,</span> <span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;api-key&quot;</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculates the age of the universe (cosmic time) for all 100 snapshots.</span>
 
+<span class="sd">    Args:</span>
+<span class="sd">        sim (str): The name of the TNG simulation.</span>
+<span class="sd">        snaps_info (list, optional): Pre-fetched snapshot info.</span>
+<span class="sd">        cosmo (str): The cosmological model for age calculation.</span>
+<span class="sd">        api_key (str): Your TNG API key.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        np.ndarray: An array of cosmic times in Gyr for each snapshot from 0 to 99.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">snaps_info</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">snaps_info</span> <span class="o">=</span> <span class="n">get_tng_snaps_info</span><span class="p">(</span><span class="n">sim</span><span class="p">,</span> <span class="n">api_key</span><span class="o">=</span><span class="n">api_key</span><span class="p">)</span>
 
@@ -427,7 +484,19 @@ document.write(`
 <div class="viewcode-block" id="cosmic_times_of_snapshots">
 <a class="viewcode-back" href="../../api/simutils_tng.html#galsyn.simutils_tng.cosmic_times_of_snapshots">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">cosmic_times_of_snapshots</span><span class="p">(</span><span class="n">snaps</span><span class="p">,</span> <span class="n">sim</span><span class="o">=</span><span class="s1">&#39;TNG50-1&#39;</span><span class="p">,</span> <span class="n">snaps_info</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cosmo</span><span class="o">=</span><span class="s1">&#39;Planck18&#39;</span><span class="p">,</span> <span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;api-key&quot;</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculates the age of the universe (cosmic time) for a specific list of snapshots.</span>
 
+<span class="sd">    Args:</span>
+<span class="sd">        snaps (list of int): A list of snapshot numbers.</span>
+<span class="sd">        sim (str): The name of the TNG simulation.</span>
+<span class="sd">        snaps_info (list, optional): Pre-fetched snapshot info.</span>
+<span class="sd">        cosmo (str): The cosmological model for age calculation.</span>
+<span class="sd">        api_key (str): Your TNG API key.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        np.ndarray: An array of cosmic times in Gyr for the specified snapshots.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">snaps_info</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">snaps_info</span> <span class="o">=</span> <span class="n">get_tng_snaps_info</span><span class="p">(</span><span class="n">sim</span><span class="p">,</span> <span class="n">api_key</span><span class="o">=</span><span class="n">api_key</span><span class="p">)</span>
 
@@ -442,6 +511,20 @@ document.write(`
 <div class="viewcode-block" id="download_cutout_subhalo_hdf5">
 <a class="viewcode-back" href="../../api/simutils_tng.html#galsyn.simutils_tng.download_cutout_subhalo_hdf5">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">download_cutout_subhalo_hdf5</span><span class="p">(</span><span class="n">snap_number</span><span class="p">,</span> <span class="n">subhalo_id</span><span class="p">,</span> <span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;api-key&quot;</span><span class="p">,</span> <span class="n">sim</span><span class="o">=</span><span class="s1">&#39;TNG50-1&#39;</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Downloads the HDF5 data cutout for a specific subhalo.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        snap_number (int): The snapshot number.</span>
+<span class="sd">        subhalo_id (int): The ID of the target subhalo.</span>
+<span class="sd">        api_key (str): Your TNG API key.</span>
+<span class="sd">        sim (str): The name of the TNG simulation.</span>
+<span class="sd">        params (dict, optional): Additional parameters for the API request,</span>
+<span class="sd">                                 e.g., {&#39;gas&#39;:&#39;all&#39;, &#39;stars&#39;:&#39;all&#39;}.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        str: The filename of the downloaded and renamed HDF5 file.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">global</span> <span class="n">headers</span>
     <span class="n">headers</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;api-key&quot;</span><span class="p">:</span><span class="n">api_key</span><span class="p">}</span>
     <span class="n">url</span> <span class="o">=</span> <span class="s2">&quot;http://www.tng-project.org/api/&quot;</span> <span class="o">+</span> <span class="n">sim</span> <span class="o">+</span> <span class="s2">&quot;/snapshots/&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">snap_number</span><span class="p">))</span> <span class="o">+</span> <span class="s2">&quot;/subhalos/&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">subhalo_id</span><span class="p">))</span>
@@ -455,6 +538,19 @@ document.write(`
 <div class="viewcode-block" id="download_cutout_parent_halo_hdf5">
 <a class="viewcode-back" href="../../api/simutils_tng.html#galsyn.simutils_tng.download_cutout_parent_halo_hdf5">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">download_cutout_parent_halo_hdf5</span><span class="p">(</span><span class="n">snap_number</span><span class="p">,</span> <span class="n">subhalo_id</span><span class="p">,</span> <span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;api-key&quot;</span><span class="p">,</span> <span class="n">sim</span><span class="o">=</span><span class="s1">&#39;TNG50-1&#39;</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Downloads the HDF5 data cutout for the parent halo of a specified subhalo.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        snap_number (int): The snapshot number of the subhalo.</span>
+<span class="sd">        subhalo_id (int): The ID of the target subhalo.</span>
+<span class="sd">        api_key (str): Your TNG API key.</span>
+<span class="sd">        sim (str): The name of the TNG simulation.</span>
+<span class="sd">        params (dict, optional): Additional parameters for the API request.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        str: The filename of the downloaded and renamed HDF5 file.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">global</span> <span class="n">headers</span>
     <span class="n">headers</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;api-key&quot;</span><span class="p">:</span><span class="n">api_key</span><span class="p">}</span>
     <span class="n">url</span> <span class="o">=</span> <span class="s2">&quot;http://www.tng-project.org/api/&quot;</span> <span class="o">+</span> <span class="n">sim</span> <span class="o">+</span> <span class="s2">&quot;/snapshots/&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">snap_number</span><span class="p">))</span> <span class="o">+</span> <span class="s2">&quot;/subhalos/&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">subhalo_id</span><span class="p">))</span>
@@ -468,6 +564,21 @@ document.write(`
 <div class="viewcode-block" id="get_basic_subhalo_properties">
 <a class="viewcode-back" href="../../api/simutils_tng.html#galsyn.simutils_tng.get_basic_subhalo_properties">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_basic_subhalo_properties</span><span class="p">(</span><span class="n">snap_number</span><span class="p">,</span> <span class="n">subhalo_id</span><span class="p">,</span> <span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;api-key&quot;</span><span class="p">,</span> <span class="n">sim</span><span class="o">=</span><span class="s1">&#39;TNG50-1&#39;</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Fetches basic properties (metadata) for a specific subhalo.</span>
+
+<span class="sd">    This returns a JSON object with information like mass, position, etc.,</span>
+<span class="sd">    without downloading the full particle data cutout.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        snap_number (int): The snapshot number.</span>
+<span class="sd">        subhalo_id (int): The ID of the target subhalo.</span>
+<span class="sd">        api_key (str): Your TNG API key.</span>
+<span class="sd">        sim (str): The name of the TNG simulation.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        dict: A dictionary containing the subhalo&#39;s properties.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">global</span> <span class="n">headers</span>
     <span class="n">headers</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;api-key&quot;</span><span class="p">:</span><span class="n">api_key</span><span class="p">}</span>
     <span class="n">url</span> <span class="o">=</span> <span class="s2">&quot;http://www.tng-project.org/api/&quot;</span> <span class="o">+</span> <span class="n">sim</span> <span class="o">+</span> <span class="s2">&quot;/snapshots/&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">snap_number</span><span class="p">))</span> <span class="o">+</span> <span class="s2">&quot;/subhalos/&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">subhalo_id</span><span class="p">))</span>
@@ -478,6 +589,25 @@ document.write(`
 <div class="viewcode-block" id="make_sim_file_from_tng_data">
 <a class="viewcode-back" href="../../api/simutils_tng.html#galsyn.simutils_tng.make_sim_file_from_tng_data">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">make_sim_file_from_tng_data</span><span class="p">(</span><span class="n">input_hdf5</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">cosmo_h</span><span class="o">=</span><span class="mf">0.6774</span><span class="p">,</span> <span class="n">XH</span><span class="o">=</span><span class="mf">0.76</span><span class="p">,</span> <span class="n">output_hdf5</span><span class="o">=</span><span class="s1">&#39;sim_file_tng.hdf5&#39;</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Converts a raw TNG cutout into a standardized HDF5 file for analysis.</span>
+
+<span class="sd">    This function extracts star and gas particle data, converts units from</span>
+<span class="sd">    TNG-specific conventions to physical units (e.g., kpc, Msun), calculates</span>
+<span class="sd">    additional properties like gas temperature, and saves the result to a</span>
+<span class="sd">    new HDF5 file.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        input_hdf5 (str): Path to the raw TNG cutout HDF5 file to process.</span>
+<span class="sd">        z (float): The redshift of the snapshot.</span>
+<span class="sd">        cosmo_h (float): The dimensionless Hubble parameter &#39;h&#39;.</span>
+<span class="sd">        XH (float): The primordial mass fraction of hydrogen.</span>
+<span class="sd">        output_hdf5 (str): The path for the new, processed HDF5 file.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        None</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
     <span class="kn">import</span><span class="w"> </span><span class="nn">h5py</span>
 
     <span class="n">f</span> <span class="o">=</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">input_hdf5</span><span class="p">,</span><span class="s1">&#39;r&#39;</span><span class="p">)</span>

@@ -411,18 +411,49 @@ document.write(`
 <p>A class to simulate observational effects on synthetic IFU data cubes,
 including wavelength cutting, spectral smoothing, spatial PSF convolution,
 noise injection, and RMS data cube generation.</p>
+<section id="parameters">
+<h2>Parameters:<a class="headerlink" href="#parameters" title="Link to this heading">#</a></h2>
+<dl class="simple">
+<dt>fits_file_path<span class="classifier">str</span></dt><dd><p>Path to the FITS file output from galsyn_run_fsps (containing OBS_SPEC_NODUST/DUST and WAVELENGTH_GRID).</p>
+</dd>
+<dt>desired_wave_grid<span class="classifier">np.ndarray</span></dt><dd><p>1D numpy array of the desired final wavelength grid (in Angstrom) for the data cube.</p>
+</dd>
+<dt>psf_cube_path<span class="classifier">str</span></dt><dd><p>Path to the FITS file containing the 3D PSF data cube (wavelength, y, x).
+The wavelength axis of the PSF cube must match <cite>desired_wave_grid</cite>.</p>
+</dd>
+<dt>psf_pixel_scale<span class="classifier">float</span></dt><dd><p>Pixel scale of the PSF cube in arcsec.</p>
+</dd>
+<dt>spectral_resolution_R<span class="classifier">float</span></dt><dd><p>Desired constant spectral resolution (R = lambda / d_lambda) for the output cube.</p>
+</dd>
+<dt>mag_zp<span class="classifier">float or callable</span></dt><dd><p>Magnitude zero-point. Can be a constant float or a function of wavelength (in Angstrom).</p>
+</dd>
+<dt>limiting_magnitude_wave_func<span class="classifier">callable</span></dt><dd><p>A function that takes wavelength (in Angstrom) as input and returns
+the limiting magnitude at that wavelength. This magnitude is assumed
+to be per area of the <cite>final_pixel_scale_arcsec</cite>.</p>
+</dd>
+<dt>snr_limit<span class="classifier">float or callable</span></dt><dd><p>Signal-to-noise ratio corresponding to the limiting magnitude. Can be a constant float or a function of wavelength.</p>
+</dd>
+<dt>final_pixel_scale_arcsec<span class="classifier">float</span></dt><dd><p>Desired final spatial pixel size in arcsec for the output data cube.</p>
+</dd>
+<dt>exposure_time<span class="classifier">float or callable</span></dt><dd><p>Exposure time in seconds. Can be a constant float or a function of wavelength.</p>
+</dd>
+</dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="galsyn.observe.GalSynMockObservation_ifu.process_datacube">
-<span class="sig-name descname"><span class="pre">process_datacube</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dust_attenuation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">apply_noise_to_cube</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/galsyn/observe.html#GalSynMockObservation_ifu.process_datacube"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#galsyn.observe.GalSynMockObservation_ifu.process_datacube" title="Link to this definition">#</a></dt>
-<dd><p>Executes the full pipeline of observational effects for the IFU data cube.</p>
+<span class="sig-name descname"><span class="pre">process_datacube</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dust_attenuation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">apply_noise_to_cube</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/galsyn/observe.html#GalSynMockObservation_ifu.process_datacube"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#galsyn.observe.GalSynMockObservation_ifu.process_datacube" title="Link to this definition">#</a></dt>
+<dd><p>Executes the full pipeline of observational effects for the IFU data cube,
+using bicubic interpolation for spatial resampling.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="galsyn.observe.GalSynMockObservation_ifu.save_results_to_fits">
-<span class="sig-name descname"><span class="pre">save_results_to_fits</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">output_fits_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flux_unit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'erg/s/cm2/A'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/galsyn/observe.html#GalSynMockObservation_ifu.save_results_to_fits"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#galsyn.observe.GalSynMockObservation_ifu.save_results_to_fits" title="Link to this definition">#</a></dt>
-<dd><p>Saves the processed data cube and the RMS data cube to a new FITS file.</p>
+<span class="sig-name descname"><span class="pre">save_results_to_fits</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">output_fits_path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/galsyn/observe.html#GalSynMockObservation_ifu.save_results_to_fits"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#galsyn.observe.GalSynMockObservation_ifu.save_results_to_fits" title="Link to this definition">#</a></dt>
+<dd><p>Saves all processed data cubes and the RMS data cubes
+from <cite>self.sci_datacubes</cite> and <cite>self.rms_datacubes</cite> to a new FITS file.
+The data is saved in flux per pixel units (erg/s/cm2/A/pixel).</p>
 </dd></dl>
 
+</section>
 </dd></dl>
 
 <dl class="py class">
@@ -432,34 +463,48 @@ noise injection, and RMS data cube generation.</p>
 <p>A class to simulate observational effects on synthetic galaxy images,
 including PSF convolution, noise injection, RMS image generation,
 and resampling to a desired pixel scale.</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="galsyn.observe.GalSynMockObservation_imaging.process_images">
-<span class="sig-name descname"><span class="pre">process_images</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dust_attenuation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">apply_noise_to_image</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/galsyn/observe.html#GalSynMockObservation_imaging.process_images"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#galsyn.observe.GalSynMockObservation_imaging.process_images" title="Link to this definition">#</a></dt>
-<dd><p>Executes the full pipeline of observational effects:
-1. Convolves images with PSF.
-2. Simulates and injects noise, and generates RMS images.
-3. Resamples the processed (noisy) images and RMS images to the desired pixel scale.</p>
-<p>Crucially, this pipeline ensures that data passed to <cite>reproject_adaptive</cite>
-is in surface brightness units (flux per unit solid angle) for proper flux conservation.</p>
-<section id="parameters">
-<h2>Parameters:<a class="headerlink" href="#parameters" title="Link to this heading">#</a></h2>
+<section id="id1">
+<h2>Parameters:<a class="headerlink" href="#id1" title="Link to this heading">#</a></h2>
 <dl class="simple">
-<dt>dust_attenuation<span class="classifier">bool</span></dt><dd><p>Whether to process images with dust attenuation (True) or without (False).</p>
+<dt>fits_file_path<span class="classifier">str</span></dt><dd><p>Path to the input FITS file.</p>
 </dd>
-<dt>apply_noise_to_image<span class="classifier">bool</span></dt><dd><p>If True, noise is added to the convolved image. Otherwise, only RMS is calculated.</p>
+<dt>filters<span class="classifier">list</span></dt><dd><p>List of filter names (e.g., [‘jwst_nircam_f115w’, ‘jwst_nircam_f200w’]) for which images will be processed.</p>
+</dd>
+<dt>psf_paths<span class="classifier">dict</span></dt><dd><p>Dictionary where keys are filter names and values are paths to PSF FITS images.</p>
+</dd>
+<dt>psf_pixel_scales<span class="classifier">dict</span></dt><dd><p>Dictionary where keys are filter names and values are pixel scales of PSF images in arcsec.</p>
+</dd>
+<dt>mag_zp<span class="classifier">dict</span></dt><dd><p>Dictionary of magnitude zero-points for each filter.</p>
+</dd>
+<dt>limiting_magnitude<span class="classifier">dict</span></dt><dd><p>Dictionary of limiting magnitudes for each filter.</p>
+</dd>
+<dt>snr_limit<span class="classifier">dict</span></dt><dd><p>Dictionary of signal-to-noise ratios at the limiting magnitude for each filter.</p>
+</dd>
+<dt>aperture_radius_arcsec<span class="classifier">dict</span></dt><dd><p>Dictionary of radii for the circular aperture (in arcsec) used in measuring the magnitude limit for each filter.</p>
+</dd>
+<dt>exposure_time<span class="classifier">dict</span></dt><dd><p>Dictionary of exposure times in seconds for each filter.</p>
+</dd>
+<dt>filter_transmission_path<span class="classifier">dict</span></dt><dd><p>Dictionary of paths to text files containing the transmission function for filters.</p>
+</dd>
+<dt>desired_pixel_scales<span class="classifier">dict</span></dt><dd><p>Dictionary where keys are filter names and values are the desired final pixel
+scales in arcsec for the resampled images.</p>
 </dd>
 </dl>
-</section>
+<dl class="py method">
+<dt class="sig sig-object py" id="galsyn.observe.GalSynMockObservation_imaging.process_images">
+<span class="sig-name descname"><span class="pre">process_images</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dust_attenuation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">apply_noise_to_image</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/galsyn/observe.html#GalSynMockObservation_imaging.process_images"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#galsyn.observe.GalSynMockObservation_imaging.process_images" title="Link to this definition">#</a></dt>
+<dd><p>Executes the full pipeline of observational effects for images,
+including PSF convolution, noise injection, and resampling using bicubic interpolation.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="galsyn.observe.GalSynMockObservation_imaging.save_results_to_fits">
-<span class="sig-name descname"><span class="pre">save_results_to_fits</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">output_fits_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dust_attenuation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/galsyn/observe.html#GalSynMockObservation_imaging.save_results_to_fits"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#galsyn.observe.GalSynMockObservation_imaging.save_results_to_fits" title="Link to this definition">#</a></dt>
-<dd><p>Saves the processed (noise-injected and resampled) images and RMS images to a new FITS file.
-The data stored will be converted to the <cite>self.flux_unit</cite> specified during initialization,
-using the <cite>desired_pixel_scales</cite> for the conversion of surface brightness units.</p>
+<span class="sig-name descname"><span class="pre">save_results_to_fits</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">output_fits_path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/galsyn/observe.html#GalSynMockObservation_imaging.save_results_to_fits"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#galsyn.observe.GalSynMockObservation_imaging.save_results_to_fits" title="Link to this definition">#</a></dt>
+<dd><p>Saves all processed (noise-injected and resampled) images and RMS images
+to a new FITS file, maintaining the original flux units.</p>
 </dd></dl>
 
+</section>
 </dd></dl>
 
 </section>

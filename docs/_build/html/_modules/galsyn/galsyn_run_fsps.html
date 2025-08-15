@@ -1396,14 +1396,6 @@ document.write(`
         <span class="n">map_flux</span><span class="p">[:,:,</span><span class="n">i_band</span><span class="p">]</span> <span class="o">=</span> <span class="n">convert_flux_map</span><span class="p">(</span><span class="n">map_flux</span><span class="p">[:,:,</span><span class="n">i_band</span><span class="p">],</span> <span class="n">filter_wave_pivot_data_global</span><span class="p">[</span><span class="n">filters</span><span class="p">[</span><span class="n">i_band</span><span class="p">]],</span> <span class="n">to_unit</span><span class="o">=</span><span class="n">flux_unit</span><span class="p">,</span> <span class="n">pixel_scale_arcsec</span><span class="o">=</span><span class="n">pix_arcsec</span><span class="p">)</span>
         <span class="n">map_flux_dust</span><span class="p">[:,:,</span><span class="n">i_band</span><span class="p">]</span> <span class="o">=</span> <span class="n">convert_flux_map</span><span class="p">(</span><span class="n">map_flux_dust</span><span class="p">[:,:,</span><span class="n">i_band</span><span class="p">],</span> <span class="n">filter_wave_pivot_data_global</span><span class="p">[</span><span class="n">filters</span><span class="p">[</span><span class="n">i_band</span><span class="p">]],</span> <span class="n">to_unit</span><span class="o">=</span><span class="n">flux_unit</span><span class="p">,</span> <span class="n">pixel_scale_arcsec</span><span class="o">=</span><span class="n">pix_arcsec</span><span class="p">)</span>
 
-    <span class="k">if</span> <span class="n">flux_unit</span> <span class="o">==</span> <span class="s1">&#39;erg/s/cm2/A&#39;</span><span class="p">:</span>
-        <span class="n">flux_scale</span> <span class="o">=</span> <span class="mf">1e-20</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">flux_scale</span> <span class="o">=</span> <span class="mf">1.0</span>
-    
-    <span class="n">map_flux</span> <span class="o">=</span> <span class="n">map_flux</span><span class="o">/</span><span class="n">flux_scale</span>
-    <span class="n">map_flux_dust</span> <span class="o">=</span> <span class="n">map_flux_dust</span><span class="o">/</span><span class="n">flux_scale</span>
-
     <span class="k">if</span> <span class="n">name_out_img</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">hdul</span> <span class="o">=</span> <span class="n">fits</span><span class="o">.</span><span class="n">HDUList</span><span class="p">()</span>
@@ -1425,7 +1417,6 @@ document.write(`
                 <span class="n">prihdr</span><span class="p">[</span><span class="s1">&#39;PIX_KPC&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pix_kpc</span>
                 <span class="n">prihdr</span><span class="p">[</span><span class="s1">&#39;PIXSIZE&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pix_arcsec</span>
                 <span class="n">prihdr</span><span class="p">[</span><span class="s1">&#39;BUNIT&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">flux_unit</span>
-                <span class="n">prihdr</span><span class="p">[</span><span class="s1">&#39;SCALE&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">flux_scale</span>
                 <span class="n">prihdr</span><span class="p">[</span><span class="s1">&#39;SSP_CODE&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ssp_code</span>
 
                 <span class="n">primary_hdu</span> <span class="o">=</span> <span class="n">fits</span><span class="o">.</span><span class="n">PrimaryHDU</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">primary_data</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="n">prihdr</span><span class="p">)</span>

@@ -409,62 +409,235 @@ document.write(`
 <dl class="py function">
 <dt class="sig sig-object py" id="galsyn.dust.bump_amp_from_dust_index">
 <span class="sig-prename descclassname"><span class="pre">galsyn.dust.</span></span><span class="sig-name descname"><span class="pre">bump_amp_from_dust_index</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dust_index</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/galsyn/dust.html#bump_amp_from_dust_index"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#galsyn.dust.bump_amp_from_dust_index" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Derives the UV bump amplitude from the dust index.</p>
+<p>This relationship is based on the findings of Kriek &amp; Conroy (2013).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>dust_index</strong> (<em>float</em>) – The power-law slope modifier for the dust curve.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The calculated UV bump amplitude.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="galsyn.dust.calzetti_dust_Alambda_per_AV">
 <span class="sig-prename descclassname"><span class="pre">galsyn.dust.</span></span><span class="sig-name descname"><span class="pre">calzetti_dust_Alambda_per_AV</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">wave_ang</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/galsyn/dust.html#calzetti_dust_Alambda_per_AV"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#galsyn.dust.calzetti_dust_Alambda_per_AV" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Calculates the normalized Calzetti+00 starburst attenuation law.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>wave_ang</strong> (<em>array-like</em>) – Wavelength in Angstroms.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The normalized attenuation curve A(lambda)/A(V).</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="galsyn.dust.calzetti_dust_klambda">
 <span class="sig-prename descclassname"><span class="pre">galsyn.dust.</span></span><span class="sig-name descname"><span class="pre">calzetti_dust_klambda</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">wave_ang</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/galsyn/dust.html#calzetti_dust_klambda"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#galsyn.dust.calzetti_dust_klambda" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Calculates the k(lambda) reddening curve for the Calzetti+00 law.</p>
+<p>This is a helper function that implements the piecewise function for the
+Calzetti starburst attenuation law.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>wave_ang</strong> (<em>array-like</em>) – Wavelength in Angstroms.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The reddening curve k(lambda).</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="galsyn.dust.ccm89_dust_Alambda_per_AV">
 <span class="sig-prename descclassname"><span class="pre">galsyn.dust.</span></span><span class="sig-name descname"><span class="pre">ccm89_dust_Alambda_per_AV</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">wave_ang</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/galsyn/dust.html#ccm89_dust_Alambda_per_AV"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#galsyn.dust.ccm89_dust_Alambda_per_AV" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Loads and interpolates the Cardelli, Clayton, &amp; Mathis (1989) MW extinction law.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>wave_ang</strong> (<em>array-like</em>) – Wavelength in Angstroms.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The interpolated, normalized extinction curve A(lambda)/A(V).</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="galsyn.dust.drude_profile">
 <span class="sig-prename descclassname"><span class="pre">galsyn.dust.</span></span><span class="sig-name descname"><span class="pre">drude_profile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Bump_strength</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wave_um</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/galsyn/dust.html#drude_profile"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#galsyn.dust.drude_profile" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Calculates the Drude profile for the 2175 Angstrom UV bump.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>Bump_strength</strong> (<em>float</em>) – The amplitude or strength of the UV bump feature.</p></li>
+<li><p><strong>wave_um</strong> (<em>array-like</em>) – Wavelength in units of microns.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The Drude profile D(lambda) corresponding to the input wavelengths.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="galsyn.dust.fitzpatrick99_dust_Alambda_per_AV">
 <span class="sig-prename descclassname"><span class="pre">galsyn.dust.</span></span><span class="sig-name descname"><span class="pre">fitzpatrick99_dust_Alambda_per_AV</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">wave_ang</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/galsyn/dust.html#fitzpatrick99_dust_Alambda_per_AV"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#galsyn.dust.fitzpatrick99_dust_Alambda_per_AV" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Loads and interpolates the Fitzpatrick (1999) Milky Way extinction law.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>wave_ang</strong> (<em>array-like</em>) – Wavelength in Angstroms.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The interpolated, normalized extinction curve A(lambda)/A(V).</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="galsyn.dust.lmc_gordon2003_dust_Alambda_per_AV">
 <span class="sig-prename descclassname"><span class="pre">galsyn.dust.</span></span><span class="sig-name descname"><span class="pre">lmc_gordon2003_dust_Alambda_per_AV</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">wave_ang</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/galsyn/dust.html#lmc_gordon2003_dust_Alambda_per_AV"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#galsyn.dust.lmc_gordon2003_dust_Alambda_per_AV" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Loads and interpolates the Gordon+03 extinction law for the LMC.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>wave_ang</strong> (<em>array-like</em>) – Wavelength in Angstroms.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The interpolated, normalized extinction curve A(lambda)/A(V).</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="galsyn.dust.modified_calzetti_dust_Alambda_per_AV">
 <span class="sig-prename descclassname"><span class="pre">galsyn.dust.</span></span><span class="sig-name descname"><span class="pre">modified_calzetti_dust_Alambda_per_AV</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">wave_ang</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dust_index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bump_amp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/galsyn/dust.html#modified_calzetti_dust_Alambda_per_AV"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#galsyn.dust.modified_calzetti_dust_Alambda_per_AV" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Calculates a modified Calzetti law with a UV bump and power-law tilt.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>wave_ang</strong> (<em>array-like</em>) – Wavelength in Angstroms.</p></li>
+<li><p><strong>dust_index</strong> (<em>float</em><em>, </em><em>optional</em>) – The power-law slope modifier. Defaults to 0.0.</p></li>
+<li><p><strong>bump_amp</strong> (<em>float</em><em>, </em><em>optional</em>) – The UV bump amplitude. If None, it is derived
+from <cite>dust_index</cite>. Defaults to None.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The normalized modified Calzetti attenuation curve.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="galsyn.dust.salim18_dust_Alambda_per_AV">
 <span class="sig-prename descclassname"><span class="pre">galsyn.dust.</span></span><span class="sig-name descname"><span class="pre">salim18_dust_Alambda_per_AV</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">wave_ang</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">salim_a0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">salim_a1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">salim_a2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">salim_a3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">salim_B</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">salim_RV</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/galsyn/dust.html#salim18_dust_Alambda_per_AV"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#galsyn.dust.salim18_dust_Alambda_per_AV" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Calculates the Salim+18 dust attenuation law.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>wave_ang</strong> (<em>array-like</em>) – Wavelength in Angstroms.</p></li>
+<li><p><strong>salim_a0</strong> (<em>float</em>) – Polynomial coefficients for the curve.</p></li>
+<li><p><strong>a1</strong> (<em>float</em>) – Polynomial coefficients for the curve.</p></li>
+<li><p><strong>a2</strong> (<em>float</em>) – Polynomial coefficients for the curve.</p></li>
+<li><p><strong>a3</strong> (<em>float</em>) – Polynomial coefficients for the curve.</p></li>
+<li><p><strong>salim_B</strong> (<em>float</em>) – The strength of the UV bump.</p></li>
+<li><p><strong>salim_RV</strong> (<em>float</em>) – The ratio of total to selective extinction, R(V).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The normalized Salim+18 attenuation curve A(lambda)/A(V).</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="galsyn.dust.smc_gordon2003_dust_Alambda_per_AV">
 <span class="sig-prename descclassname"><span class="pre">galsyn.dust.</span></span><span class="sig-name descname"><span class="pre">smc_gordon2003_dust_Alambda_per_AV</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">wave_ang</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/galsyn/dust.html#smc_gordon2003_dust_Alambda_per_AV"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#galsyn.dust.smc_gordon2003_dust_Alambda_per_AV" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Loads and interpolates the Gordon+03 extinction law for the SMC.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>wave_ang</strong> (<em>array-like</em>) – Wavelength in Angstroms.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The interpolated, normalized extinction curve A(lambda)/A(V).</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="galsyn.dust.tau_dust_given_z">
 <span class="sig-prename descclassname"><span class="pre">galsyn.dust.</span></span><span class="sig-name descname"><span class="pre">tau_dust_given_z</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">z</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norm_dust_z</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norm_dust_tau</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/galsyn/dust.html#tau_dust_given_z"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#galsyn.dust.tau_dust_given_z" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Calculates the dust optical depth normalization at a given redshift.</p>
+<p>This function interpolates a given relation between redshift and dust tau,
+often based on simulation results like Vogelsberger+2020.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>z</strong> (<em>float</em>) – The target redshift.</p></li>
+<li><p><strong>norm_dust_z</strong> (<em>array-like</em>) – The array of redshifts for the normalization relation.</p></li>
+<li><p><strong>norm_dust_tau</strong> (<em>array-like</em>) – The array of corresponding tau values.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The interpolated dust optical depth normalization at the given redshift.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="galsyn.dust.unresolved_dust_birth_cloud_Alambda_per_AV">
 <span class="sig-prename descclassname"><span class="pre">galsyn.dust.</span></span><span class="sig-name descname"><span class="pre">unresolved_dust_birth_cloud_Alambda_per_AV</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">wave_ang</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dust_index_bc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-0.7</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/galsyn/dust.html#unresolved_dust_birth_cloud_Alambda_per_AV"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#galsyn.dust.unresolved_dust_birth_cloud_Alambda_per_AV" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Calculates a simple power-law attenuation for stellar birth clouds.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>wave_ang</strong> (<em>array-like</em>) – Wavelength in Angstroms.</p></li>
+<li><p><strong>dust_index_bc</strong> (<em>float</em><em>, </em><em>optional</em>) – The power-law slope for the birth cloud
+component. Defaults to -0.7.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The normalized attenuation curve A(lambda)/A(V).</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
 
 </section>
 
