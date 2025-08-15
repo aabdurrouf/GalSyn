@@ -405,7 +405,82 @@ document.write(`
 <dl class="py function">
 <dt class="sig sig-object py" id="galsyn.galsyn_run_bagpipes.generate_images">
 <span class="sig-prename descclassname"><span class="pre">galsyn.galsyn_run_bagpipes.</span></span><span class="sig-name descname"><span class="pre">generate_images</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sim_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filters</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filter_transmission_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dim_kpc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pix_arcsec</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.02</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flux_unit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'MJy/sr'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">polar_angle_deg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">azimuth_angle_deg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name_out_img</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_jobs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ssp_code</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Bagpipes'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gas_logu</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-2.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">igm_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dust_index_bc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-0.7</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dust_index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t_esc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dust_eta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale_dust_redshift</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Vogelsberger20'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cosmo_str</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Planck18'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dust_law</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bump_amp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.85</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">relation_AVslope</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Salim18'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">salim_a0</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-4.3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">salim_a1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2.71</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">salim_a2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-0.191</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">salim_a3</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0121</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">salim_RV</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3.15</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">salim_B</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.57</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initdim_kpc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">200</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initdim_mass_fraction</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.99</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_precomputed_ssp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ssp_filepath</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ssp_interpolation_method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'nearest'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_pixel_spectra</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rest_wave_min</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rest_wave_max</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">30000.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rest_delta_wave</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/galsyn/galsyn_run_bagpipes.html#generate_images"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#galsyn.galsyn_run_bagpipes.generate_images" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Generates astrophysical images from HDF5 simulation data using Bagpipes.</p>
+<p>This function orchestrates the image synthesis pipeline with parallelized pixel
+calculations. It allows the choice between using pre-computed SSP spectra
+from an HDF5 file or generating them on-the-fly using Bagpipes. It can
+optionally output observed-frame spectra for each pixel.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>sim_file</strong> (<em>str</em>) – Path to the HDF5 simulation file.</p></li>
+<li><p><strong>z</strong> (<em>float</em>) – Redshift of the galaxy.</p></li>
+<li><p><strong>filters</strong> (<em>list</em>) – List of photometric filters.</p></li>
+<li><p><strong>filter_transmission_path</strong> (<em>dict</em>) – Dictionary of paths to text files containing
+the transmission function. Keys are filter names,
+values are file paths.</p></li>
+<li><p><strong>dim_kpc</strong> (<em>float</em><em>, </em><em>optional</em>) – Dimension of the image in kpc. If None, it is
+assigned automatically. Defaults to None.</p></li>
+<li><p><strong>pix_arcsec</strong> (<em>float</em><em>, </em><em>optional</em>) – Pixel size in arcseconds. Defaults to 0.02.</p></li>
+<li><p><strong>flux_unit</strong> (<em>str</em><em>, </em><em>optional</em>) – Desired flux unit for the generated images.
+Options: ‘MJy/sr’, ‘nJy’, ‘AB magnitude’,
+or ‘erg/s/cm2/A’. Defaults to ‘MJy/sr’.</p></li>
+<li><p><strong>polar_angle_deg</strong> (<em>float</em><em>, </em><em>optional</em>) – Polar angle for projection. Defaults to 0.</p></li>
+<li><p><strong>azimuth_angle_deg</strong> (<em>float</em><em>, </em><em>optional</em>) – Azimuth angle for projection. Defaults to 0.</p></li>
+<li><p><strong>name_out_img</strong> (<em>str</em><em>, </em><em>optional</em>) – Output file name for images. Defaults to None.</p></li>
+<li><p><strong>n_jobs</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of CPU cores for parallel processing.
+Defaults to -1 (all available).</p></li>
+<li><p><strong>ssp_code</strong> (<em>str</em><em>, </em><em>optional</em>) – The SSP code to use. Defaults to ‘Bagpipes’.</p></li>
+<li><p><strong>gas_logu</strong> (<em>float</em><em>, </em><em>optional</em>) – Log ionization parameter for nebular emission.
+Defaults to -2.0.</p></li>
+<li><p><strong>igm_type</strong> (<em>int</em><em>, </em><em>optional</em>) – IGM absorption model type (0: Madau+95, 1: Inoue+14).
+Defaults to 0.</p></li>
+<li><p><strong>dust_index_bc</strong> (<em>float</em><em>, </em><em>optional</em>) – Dust index for birth clouds. Defaults to -0.7.</p></li>
+<li><p><strong>dust_index</strong> (<em>float</em><em>, </em><em>optional</em>) – Dust index for the diffuse ISM. Defaults to 0.0.</p></li>
+<li><p><strong>t_esc</strong> (<em>float</em><em>, </em><em>optional</em>) – Escape time for young stars from birth clouds in Gyr.
+Defaults to 0.01.</p></li>
+<li><p><strong>dust_eta</strong> (<em>float</em><em>, </em><em>optional</em>) – Ratio of A_V in birth clouds to the diffuse ISM.
+Defaults to 1.0.</p></li>
+<li><p><strong>scale_dust_redshift</strong> (<em>str</em><em> or </em><em>dict</em><em>, </em><em>optional</em>) – Defines the dust_tau normalization
+vs. redshift relation. Can be a string
+(“Vogelsberger20”) or a dictionary.
+Defaults to “Vogelsberger20”.</p></li>
+<li><p><strong>cosmo_str</strong> (<em>str</em><em>, </em><em>optional</em>) – Cosmology string. Defaults to ‘Planck18’.</p></li>
+<li><p><strong>dust_law</strong> (<em>int</em><em>, </em><em>optional</em>) – Dust attenuation law type. Defaults to 0.</p></li>
+<li><p><strong>bump_amp</strong> (<em>float</em><em>, </em><em>optional</em>) – UV bump amplitude for the dust curve. Defaults to 0.85.</p></li>
+<li><p><strong>relation_AVslope</strong> (<em>str</em><em> or </em><em>dict</em><em>, </em><em>optional</em>) – Defines the A_V vs. dust_index relation.
+Can be a string (“Salim18”, etc.) or a
+dictionary. Defaults to “Salim18”.</p></li>
+<li><p><strong>salim_a0</strong> (<em>float</em><em>, </em><em>optional</em>) – Parameters for the Salim+18 dust law.</p></li>
+<li><p><strong>salim_a1</strong> (<em>float</em><em>, </em><em>optional</em>) – Parameters for the Salim+18 dust law.</p></li>
+<li><p><strong>salim_a2</strong> (<em>float</em><em>, </em><em>optional</em>) – Parameters for the Salim+18 dust law.</p></li>
+<li><p><strong>salim_a3</strong> (<em>float</em><em>, </em><em>optional</em>) – Parameters for the Salim+18 dust law.</p></li>
+<li><p><strong>salim_RV</strong> (<em>float</em><em>, </em><em>optional</em>) – Parameters for the Salim+18 dust law.</p></li>
+<li><p><strong>salim_B</strong> (<em>float</em><em>, </em><em>optional</em>) – Parameters for the Salim+18 dust law.</p></li>
+<li><p><strong>initdim_kpc</strong> (<em>float</em><em>, </em><em>optional</em>) – Initial guess for image dimension in kpc for
+auto-sizing. Defaults to 200.</p></li>
+<li><p><strong>initdim_mass_fraction</strong> (<em>float</em><em>, </em><em>optional</em>) – Mass fraction to enclose when determining
+image dimension. Defaults to 0.99.</p></li>
+<li><p><strong>use_precomputed_ssp</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, use pre-computed SSP spectra.
+If False, generate on-the-fly.
+Defaults to True.</p></li>
+<li><p><strong>ssp_filepath</strong> (<em>str</em><em>, </em><em>optional</em>) – Path to the pre-computed SSP spectra HDF5 file.
+Used if <cite>use_precomputed_ssp</cite> is True.
+Defaults to None.</p></li>
+<li><p><strong>ssp_interpolation_method</strong> (<em>str</em><em>, </em><em>optional</em>) – Method for interpolating SSPs (‘nearest’,
+‘linear’, ‘cubic’). Defaults to ‘nearest’.</p></li>
+<li><p><strong>output_pixel_spectra</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, output observed-frame spectra
+for each pixel. Defaults to False.</p></li>
+<li><p><strong>rest_wave_min</strong> (<em>float</em><em>, </em><em>optional</em>) – Minimum rest-frame wavelength for output
+spectra (Angstroms). Defaults to 1000.0.</p></li>
+<li><p><strong>rest_wave_max</strong> (<em>float</em><em>, </em><em>optional</em>) – Maximum rest-frame wavelength for output
+spectra (Angstroms). Defaults to 30000.0.</p></li>
+<li><p><strong>rest_delta_wave</strong> (<em>float</em><em>, </em><em>optional</em>) – Wavelength step in rest-frame for output
+spectra (Angstroms). Defaults to 5.0.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="galsyn.galsyn_run_bagpipes.init_worker">

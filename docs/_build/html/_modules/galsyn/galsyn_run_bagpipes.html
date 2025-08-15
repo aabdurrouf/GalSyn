@@ -1085,7 +1085,76 @@ document.write(`
                     <span class="n">ssp_filepath</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ssp_interpolation_method</span><span class="o">=</span><span class="s1">&#39;nearest&#39;</span><span class="p">,</span> 
                     <span class="n">output_pixel_spectra</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">rest_wave_min</span><span class="o">=</span><span class="mf">1000.0</span><span class="p">,</span> <span class="n">rest_wave_max</span><span class="o">=</span><span class="mf">30000.0</span><span class="p">,</span> 
                     <span class="n">rest_delta_wave</span><span class="o">=</span><span class="mf">5.0</span><span class="p">):</span> 
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generates astrophysical images from HDF5 simulation data using Bagpipes.</span>
 
+<span class="sd">    This function orchestrates the image synthesis pipeline with parallelized pixel</span>
+<span class="sd">    calculations. It allows the choice between using pre-computed SSP spectra</span>
+<span class="sd">    from an HDF5 file or generating them on-the-fly using Bagpipes. It can</span>
+<span class="sd">    optionally output observed-frame spectra for each pixel.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">        sim_file (str): Path to the HDF5 simulation file.</span>
+<span class="sd">        z (float): Redshift of the galaxy.</span>
+<span class="sd">        filters (list): List of photometric filters.</span>
+<span class="sd">        filter_transmission_path (dict): Dictionary of paths to text files containing</span>
+<span class="sd">                                         the transmission function. Keys are filter names,</span>
+<span class="sd">                                         values are file paths.</span>
+<span class="sd">        dim_kpc (float, optional): Dimension of the image in kpc. If None, it is</span>
+<span class="sd">                                   assigned automatically. Defaults to None.</span>
+<span class="sd">        pix_arcsec (float, optional): Pixel size in arcseconds. Defaults to 0.02.</span>
+<span class="sd">        flux_unit (str, optional): Desired flux unit for the generated images.</span>
+<span class="sd">                                   Options: &#39;MJy/sr&#39;, &#39;nJy&#39;, &#39;AB magnitude&#39;,</span>
+<span class="sd">                                   or &#39;erg/s/cm2/A&#39;. Defaults to &#39;MJy/sr&#39;.</span>
+<span class="sd">        polar_angle_deg (float, optional): Polar angle for projection. Defaults to 0.</span>
+<span class="sd">        azimuth_angle_deg (float, optional): Azimuth angle for projection. Defaults to 0.</span>
+<span class="sd">        name_out_img (str, optional): Output file name for images. Defaults to None.</span>
+<span class="sd">        n_jobs (int, optional): Number of CPU cores for parallel processing.</span>
+<span class="sd">                                Defaults to -1 (all available).</span>
+<span class="sd">        ssp_code (str, optional): The SSP code to use. Defaults to &#39;Bagpipes&#39;.</span>
+<span class="sd">        gas_logu (float, optional): Log ionization parameter for nebular emission.</span>
+<span class="sd">                                    Defaults to -2.0.</span>
+<span class="sd">        igm_type (int, optional): IGM absorption model type (0: Madau+95, 1: Inoue+14).</span>
+<span class="sd">                                  Defaults to 0.</span>
+<span class="sd">        dust_index_bc (float, optional): Dust index for birth clouds. Defaults to -0.7.</span>
+<span class="sd">        dust_index (float, optional): Dust index for the diffuse ISM. Defaults to 0.0.</span>
+<span class="sd">        t_esc (float, optional): Escape time for young stars from birth clouds in Gyr.</span>
+<span class="sd">                                 Defaults to 0.01.</span>
+<span class="sd">        dust_eta (float, optional): Ratio of A_V in birth clouds to the diffuse ISM.</span>
+<span class="sd">                                    Defaults to 1.0.</span>
+<span class="sd">        scale_dust_redshift (str or dict, optional): Defines the dust_tau normalization</span>
+<span class="sd">                                                     vs. redshift relation. Can be a string</span>
+<span class="sd">                                                     (&quot;Vogelsberger20&quot;) or a dictionary.</span>
+<span class="sd">                                                     Defaults to &quot;Vogelsberger20&quot;.</span>
+<span class="sd">        cosmo_str (str, optional): Cosmology string. Defaults to &#39;Planck18&#39;.</span>
+<span class="sd">        dust_law (int, optional): Dust attenuation law type. Defaults to 0.</span>
+<span class="sd">        bump_amp (float, optional): UV bump amplitude for the dust curve. Defaults to 0.85.</span>
+<span class="sd">        relation_AVslope (str or dict, optional): Defines the A_V vs. dust_index relation.</span>
+<span class="sd">                                                  Can be a string (&quot;Salim18&quot;, etc.) or a</span>
+<span class="sd">                                                  dictionary. Defaults to &quot;Salim18&quot;.</span>
+<span class="sd">        salim_a0, salim_a1, salim_a2, salim_a3, salim_RV, salim_B (float, optional):</span>
+<span class="sd">                                                  Parameters for the Salim+18 dust law.</span>
+<span class="sd">        initdim_kpc (float, optional): Initial guess for image dimension in kpc for</span>
+<span class="sd">                                       auto-sizing. Defaults to 200.</span>
+<span class="sd">        initdim_mass_fraction (float, optional): Mass fraction to enclose when determining</span>
+<span class="sd">                                                 image dimension. Defaults to 0.99.</span>
+<span class="sd">        use_precomputed_ssp (bool, optional): If True, use pre-computed SSP spectra.</span>
+<span class="sd">                                              If False, generate on-the-fly.</span>
+<span class="sd">                                              Defaults to True.</span>
+<span class="sd">        ssp_filepath (str, optional): Path to the pre-computed SSP spectra HDF5 file.</span>
+<span class="sd">                                      Used if `use_precomputed_ssp` is True.</span>
+<span class="sd">                                      Defaults to None.</span>
+<span class="sd">        ssp_interpolation_method (str, optional): Method for interpolating SSPs (&#39;nearest&#39;,</span>
+<span class="sd">                                                  &#39;linear&#39;, &#39;cubic&#39;). Defaults to &#39;nearest&#39;.</span>
+<span class="sd">        output_pixel_spectra (bool, optional): If True, output observed-frame spectra</span>
+<span class="sd">                                               for each pixel. Defaults to False.</span>
+<span class="sd">        rest_wave_min (float, optional): Minimum rest-frame wavelength for output</span>
+<span class="sd">                                         spectra (Angstroms). Defaults to 1000.0.</span>
+<span class="sd">        rest_wave_max (float, optional): Maximum rest-frame wavelength for output</span>
+<span class="sd">                                         spectra (Angstroms). Defaults to 30000.0.</span>
+<span class="sd">        rest_delta_wave (float, optional): Wavelength step in rest-frame for output</span>
+<span class="sd">                                           spectra (Angstroms). Defaults to 5.0.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">cosmo</span> <span class="o">=</span> <span class="n">define_cosmo</span><span class="p">(</span><span class="n">cosmo_str</span><span class="p">)</span>
 
     <span class="nb">print</span> <span class="p">(</span><span class="s1">&#39;Processing &#39;</span><span class="o">+</span><span class="n">sim_file</span><span class="p">)</span>
@@ -1324,14 +1393,6 @@ document.write(`
         <span class="n">map_flux</span><span class="p">[:,:,</span><span class="n">i_band</span><span class="p">]</span> <span class="o">=</span> <span class="n">convert_flux_map</span><span class="p">(</span><span class="n">map_flux</span><span class="p">[:,:,</span><span class="n">i_band</span><span class="p">],</span> <span class="n">filter_wave_pivot_data_global</span><span class="p">[</span><span class="n">filters</span><span class="p">[</span><span class="n">i_band</span><span class="p">]],</span> <span class="n">to_unit</span><span class="o">=</span><span class="n">flux_unit</span><span class="p">,</span> <span class="n">pixel_scale_arcsec</span><span class="o">=</span><span class="n">pix_arcsec</span><span class="p">)</span>
         <span class="n">map_flux_dust</span><span class="p">[:,:,</span><span class="n">i_band</span><span class="p">]</span> <span class="o">=</span> <span class="n">convert_flux_map</span><span class="p">(</span><span class="n">map_flux_dust</span><span class="p">[:,:,</span><span class="n">i_band</span><span class="p">],</span> <span class="n">filter_wave_pivot_data_global</span><span class="p">[</span><span class="n">filters</span><span class="p">[</span><span class="n">i_band</span><span class="p">]],</span> <span class="n">to_unit</span><span class="o">=</span><span class="n">flux_unit</span><span class="p">,</span> <span class="n">pixel_scale_arcsec</span><span class="o">=</span><span class="n">pix_arcsec</span><span class="p">)</span>
 
-    <span class="k">if</span> <span class="n">flux_unit</span> <span class="o">==</span> <span class="s1">&#39;erg/s/cm2/A&#39;</span><span class="p">:</span>
-        <span class="n">flux_scale</span> <span class="o">=</span> <span class="mf">1e-20</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">flux_scale</span> <span class="o">=</span> <span class="mf">1.0</span>
-    
-    <span class="n">map_flux</span> <span class="o">=</span> <span class="n">map_flux</span><span class="o">/</span><span class="n">flux_scale</span>
-    <span class="n">map_flux_dust</span> <span class="o">=</span> <span class="n">map_flux_dust</span><span class="o">/</span><span class="n">flux_scale</span>
-
     <span class="k">if</span> <span class="n">name_out_img</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">hdul</span> <span class="o">=</span> <span class="n">fits</span><span class="o">.</span><span class="n">HDUList</span><span class="p">()</span>
@@ -1353,7 +1414,6 @@ document.write(`
                 <span class="n">prihdr</span><span class="p">[</span><span class="s1">&#39;PIX_KPC&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pix_kpc</span>
                 <span class="n">prihdr</span><span class="p">[</span><span class="s1">&#39;PIXSIZE&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pix_arcsec</span>
                 <span class="n">prihdr</span><span class="p">[</span><span class="s1">&#39;BUNIT&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">flux_unit</span>
-                <span class="n">prihdr</span><span class="p">[</span><span class="s1">&#39;SCALE&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">flux_scale</span>
                 <span class="n">prihdr</span><span class="p">[</span><span class="s1">&#39;SSP_CODE&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ssp_code</span>
 
                 <span class="n">primary_hdu</span> <span class="o">=</span> <span class="n">fits</span><span class="o">.</span><span class="n">PrimaryHDU</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">primary_data</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="n">prihdr</span><span class="p">)</span>

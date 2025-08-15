@@ -449,7 +449,36 @@ document.write(`
                                <span class="n">gas_logu</span><span class="o">=-</span><span class="mf">2.0</span><span class="p">,</span>
                                <span class="n">overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                                <span class="n">n_jobs</span><span class="o">=-</span><span class="mi">1</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generates a grid of Simple Stellar Population (SSP) models using Bagpipes.</span>
 
+<span class="sd">    This function calculates SSPs for a grid of ages and metallicities, saving</span>
+<span class="sd">    the results to a single HDF5 file. It separates the output spectra into two</span>
+<span class="sd">    components: the stellar continuum and the nebular emission lines. It also</span>
+<span class="sd">    calculates the surviving stellar mass fraction for each SSP. The process is</span>
+<span class="sd">    parallelized across multiple CPU cores for efficiency.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        output_filename (str, optional): The path and name for the output HDF5 file.</span>
+<span class="sd">                                         Defaults to &quot;ssp_spectra_bagpipes.hdf5&quot;.</span>
+<span class="sd">        ages_gyr (array-like, optional): A 1D array of stellar population ages in Gyr.</span>
+<span class="sd">                                         If None, a default log-spaced grid is used.</span>
+<span class="sd">                                         Defaults to None.</span>
+<span class="sd">        logzsol_grid (array-like, optional): A 1D array of metallicities in</span>
+<span class="sd">                                             log(Z/Z_sun) units. If None, a default</span>
+<span class="sd">                                             linear grid is used. Defaults to None.</span>
+<span class="sd">        gas_logu (float, optional): The ionization parameter for nebular emission.</span>
+<span class="sd">                                    Defaults to -2.0.</span>
+<span class="sd">        overwrite (bool, optional): If True, an existing file at `output_filename`</span>
+<span class="sd">                                    will be overwritten. If False, the function</span>
+<span class="sd">                                    will exit if the file already exists.</span>
+<span class="sd">                                    Defaults to False.</span>
+<span class="sd">        n_jobs (int, optional): The number of CPU cores to use for parallel</span>
+<span class="sd">                                processing. Defaults to -1 (use all available cores).</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        str: The path to the generated HDF5 file.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">output_filename</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">overwrite</span><span class="p">:</span>
         <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;SSP grid file &#39;</span><span class="si">{</span><span class="n">output_filename</span><span class="si">}</span><span class="s2">&#39; already exists. &quot;</span>
               <span class="s2">&quot;Set overwrite=True to regenerate.&quot;</span><span class="p">)</span>

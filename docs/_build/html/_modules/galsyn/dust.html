@@ -345,7 +345,20 @@ document.write(`
 <div class="viewcode-block" id="tau_dust_given_z">
 <a class="viewcode-back" href="../../api/dust.html#galsyn.dust.tau_dust_given_z">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">tau_dust_given_z</span><span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="n">norm_dust_z</span><span class="p">,</span> <span class="n">norm_dust_tau</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculates the dust optical depth normalization at a given redshift.</span>
 
+<span class="sd">    This function interpolates a given relation between redshift and dust tau,</span>
+<span class="sd">    often based on simulation results like Vogelsberger+2020.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        z (float): The target redshift.</span>
+<span class="sd">        norm_dust_z (array-like): The array of redshifts for the normalization relation.</span>
+<span class="sd">        norm_dust_tau (array-like): The array of corresponding tau values.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        float: The interpolated dust optical depth normalization at the given redshift.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">norm_dust_z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">norm_dust_z</span><span class="p">)</span>
     <span class="n">norm_dust_tau</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">norm_dust_tau</span><span class="p">)</span>
     
@@ -359,6 +372,16 @@ document.write(`
 <div class="viewcode-block" id="drude_profile">
 <a class="viewcode-back" href="../../api/dust.html#galsyn.dust.drude_profile">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">drude_profile</span><span class="p">(</span><span class="n">Bump_strength</span><span class="p">,</span> <span class="n">wave_um</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculates the Drude profile for the 2175 Angstrom UV bump.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        Bump_strength (float): The amplitude or strength of the UV bump feature.</span>
+<span class="sd">        wave_um (array-like): Wavelength in units of microns.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        np.ndarray: The Drude profile D(lambda) corresponding to the input wavelengths.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">wave0</span> <span class="o">=</span> <span class="mf">0.2175</span>
     <span class="n">dwave</span> <span class="o">=</span> <span class="mf">0.035</span>
     <span class="n">part1</span> <span class="o">=</span> <span class="n">wave_um</span> <span class="o">*</span> <span class="n">wave_um</span> <span class="o">*</span> <span class="n">dwave</span> <span class="o">*</span> <span class="n">dwave</span>
@@ -371,6 +394,17 @@ document.write(`
 <div class="viewcode-block" id="bump_amp_from_dust_index">
 <a class="viewcode-back" href="../../api/dust.html#galsyn.dust.bump_amp_from_dust_index">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">bump_amp_from_dust_index</span><span class="p">(</span><span class="n">dust_index</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Derives the UV bump amplitude from the dust index.</span>
+
+<span class="sd">    This relationship is based on the findings of Kriek &amp; Conroy (2013).</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        dust_index (float): The power-law slope modifier for the dust curve.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        float: The calculated UV bump amplitude.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># Based on Kriek &amp; Conroy (2013)</span>
     <span class="k">return</span> <span class="mf">0.85</span> <span class="o">-</span> <span class="mf">1.9</span><span class="o">*</span><span class="n">dust_index</span></div>
 
@@ -378,6 +412,17 @@ document.write(`
 <div class="viewcode-block" id="unresolved_dust_birth_cloud_Alambda_per_AV">
 <a class="viewcode-back" href="../../api/dust.html#galsyn.dust.unresolved_dust_birth_cloud_Alambda_per_AV">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">unresolved_dust_birth_cloud_Alambda_per_AV</span><span class="p">(</span><span class="n">wave_ang</span><span class="p">,</span> <span class="n">dust_index_bc</span><span class="o">=-</span><span class="mf">0.7</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculates a simple power-law attenuation for stellar birth clouds.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        wave_ang (array-like): Wavelength in Angstroms.</span>
+<span class="sd">        dust_index_bc (float, optional): The power-law slope for the birth cloud</span>
+<span class="sd">                                         component. Defaults to -0.7.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        np.ndarray: The normalized attenuation curve A(lambda)/A(V).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">Alambda_per_AV</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">wave_ang</span><span class="o">/</span><span class="n">wave_V</span><span class="p">,</span> <span class="n">dust_index_bc</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">Alambda_per_AV</span></div>
 
@@ -385,6 +430,18 @@ document.write(`
 <div class="viewcode-block" id="calzetti_dust_klambda">
 <a class="viewcode-back" href="../../api/dust.html#galsyn.dust.calzetti_dust_klambda">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">calzetti_dust_klambda</span><span class="p">(</span><span class="n">wave_ang</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculates the k(lambda) reddening curve for the Calzetti+00 law.</span>
+
+<span class="sd">    This is a helper function that implements the piecewise function for the</span>
+<span class="sd">    Calzetti starburst attenuation law.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        wave_ang (array-like): Wavelength in Angstroms.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        np.ndarray: The reddening curve k(lambda).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">wave_um</span> <span class="o">=</span> <span class="n">wave_ang</span><span class="o">/</span><span class="mf">1e+4</span>     <span class="c1"># in micron</span>
     <span class="n">idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">wave_um</span> <span class="o">&lt;=</span> <span class="mf">0.63</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
     <span class="n">k_lambda1</span> <span class="o">=</span> <span class="mf">4.05</span> <span class="o">+</span> <span class="p">(</span><span class="mf">2.659</span><span class="o">*</span><span class="p">(</span><span class="o">-</span><span class="mf">2.156</span> <span class="o">+</span> <span class="p">(</span><span class="mf">1.509</span><span class="o">/</span><span class="n">wave_um</span><span class="p">[</span><span class="n">idx</span><span class="p">])</span> <span class="o">-</span> <span class="p">(</span><span class="mf">0.198</span><span class="o">/</span><span class="n">wave_um</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span><span class="o">/</span><span class="n">wave_um</span><span class="p">[</span><span class="n">idx</span><span class="p">])</span> <span class="o">+</span> <span class="p">(</span><span class="mf">0.011</span><span class="o">/</span><span class="n">wave_um</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span><span class="o">/</span><span class="n">wave_um</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span><span class="o">/</span><span class="n">wave_um</span><span class="p">[</span><span class="n">idx</span><span class="p">])))</span>
@@ -400,6 +457,15 @@ document.write(`
 <div class="viewcode-block" id="calzetti_dust_Alambda_per_AV">
 <a class="viewcode-back" href="../../api/dust.html#galsyn.dust.calzetti_dust_Alambda_per_AV">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">calzetti_dust_Alambda_per_AV</span><span class="p">(</span><span class="n">wave_ang</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculates the normalized Calzetti+00 starburst attenuation law.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        wave_ang (array-like): Wavelength in Angstroms.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        np.ndarray: The normalized attenuation curve A(lambda)/A(V).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">k_lambda</span> <span class="o">=</span> <span class="n">calzetti_dust_klambda</span><span class="p">(</span><span class="n">wave_ang</span><span class="p">)</span>
     <span class="n">Alambda_per_AV</span> <span class="o">=</span> <span class="n">k_lambda</span><span class="o">/</span><span class="mf">4.05</span>
     <span class="k">return</span> <span class="n">Alambda_per_AV</span></div>
@@ -408,6 +474,18 @@ document.write(`
 <div class="viewcode-block" id="modified_calzetti_dust_Alambda_per_AV">
 <a class="viewcode-back" href="../../api/dust.html#galsyn.dust.modified_calzetti_dust_Alambda_per_AV">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">modified_calzetti_dust_Alambda_per_AV</span><span class="p">(</span><span class="n">wave_ang</span><span class="p">,</span> <span class="n">dust_index</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">bump_amp</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculates a modified Calzetti law with a UV bump and power-law tilt.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        wave_ang (array-like): Wavelength in Angstroms.</span>
+<span class="sd">        dust_index (float, optional): The power-law slope modifier. Defaults to 0.0.</span>
+<span class="sd">        bump_amp (float, optional): The UV bump amplitude. If None, it is derived</span>
+<span class="sd">                                    from `dust_index`. Defaults to None.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        np.ndarray: The normalized modified Calzetti attenuation curve.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">k_lambda</span> <span class="o">=</span> <span class="n">calzetti_dust_klambda</span><span class="p">(</span><span class="n">wave_ang</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">bump_amp</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -422,6 +500,18 @@ document.write(`
 <div class="viewcode-block" id="salim18_dust_Alambda_per_AV">
 <a class="viewcode-back" href="../../api/dust.html#galsyn.dust.salim18_dust_Alambda_per_AV">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">salim18_dust_Alambda_per_AV</span><span class="p">(</span><span class="n">wave_ang</span><span class="p">,</span> <span class="n">salim_a0</span><span class="p">,</span> <span class="n">salim_a1</span><span class="p">,</span> <span class="n">salim_a2</span><span class="p">,</span> <span class="n">salim_a3</span><span class="p">,</span> <span class="n">salim_B</span><span class="p">,</span> <span class="n">salim_RV</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculates the Salim+18 dust attenuation law.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        wave_ang (array-like): Wavelength in Angstroms.</span>
+<span class="sd">        salim_a0, a1, a2, a3 (float): Polynomial coefficients for the curve.</span>
+<span class="sd">        salim_B (float): The strength of the UV bump.</span>
+<span class="sd">        salim_RV (float): The ratio of total to selective extinction, R(V).</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        np.ndarray: The normalized Salim+18 attenuation curve A(lambda)/A(V).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">wave_um</span> <span class="o">=</span> <span class="n">wave_ang</span><span class="o">/</span><span class="mf">1e+4</span>      <span class="c1"># in micron</span>
 
     <span class="n">D_lambda</span> <span class="o">=</span> <span class="n">drude_profile</span><span class="p">(</span><span class="n">salim_B</span><span class="p">,</span> <span class="n">wave_um</span><span class="p">)</span>
@@ -431,68 +521,75 @@ document.write(`
     <span class="k">return</span> <span class="n">Alambda_per_AV</span></div>
 
 
+<span class="k">def</span><span class="w"> </span><span class="nf">_load_and_interpolate_dust_law</span><span class="p">(</span><span class="n">wave_ang</span><span class="p">,</span> <span class="n">data_file_name</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Internal helper to load and interpolate a tabulated dust law.&quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">data_path</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">importlib</span><span class="o">.</span><span class="n">resources</span><span class="o">.</span><span class="n">files</span><span class="p">(</span><span class="s1">&#39;galsyn.data&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="n">data_file_name</span><span class="p">))</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span><span class="n">data_path</span><span class="p">)</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="n">interp1d</span><span class="p">(</span><span class="n">data</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">data</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">fill_value</span><span class="o">=</span><span class="s2">&quot;extrapolate&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">f</span><span class="p">(</span><span class="n">wave_ang</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error loading dust data from </span><span class="si">{</span><span class="n">data_file_name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
 <div class="viewcode-block" id="fitzpatrick99_dust_Alambda_per_AV">
 <a class="viewcode-back" href="../../api/dust.html#galsyn.dust.fitzpatrick99_dust_Alambda_per_AV">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">fitzpatrick99_dust_Alambda_per_AV</span><span class="p">(</span><span class="n">wave_ang</span><span class="p">):</span>
-    <span class="n">data_file_name</span> <span class="o">=</span> <span class="s2">&quot;fitzpatrick99.txt&quot;</span>
-    <span class="k">try</span><span class="p">:</span>
-        <span class="kn">from</span><span class="w"> </span><span class="nn">scipy.interpolate</span><span class="w"> </span><span class="kn">import</span> <span class="n">interp1d</span>
-        <span class="n">data_path</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">importlib</span><span class="o">.</span><span class="n">resources</span><span class="o">.</span><span class="n">files</span><span class="p">(</span><span class="s1">&#39;galsyn.data&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="n">data_file_name</span><span class="p">))</span>
-        <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span><span class="n">data_path</span><span class="p">)</span>
-        <span class="n">f</span> <span class="o">=</span> <span class="n">interp1d</span><span class="p">(</span><span class="n">data</span><span class="p">[:,</span><span class="mi">0</span><span class="p">],</span> <span class="n">data</span><span class="p">[:,</span><span class="mi">1</span><span class="p">],</span> <span class="n">fill_value</span><span class="o">=</span><span class="s2">&quot;extrapolate&quot;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">f</span><span class="p">(</span><span class="n">wave_ang</span><span class="p">)</span>
-    
-    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error loading dust normalization data from </span><span class="si">{</span><span class="n">data_file_name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span></div>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Loads and interpolates the Fitzpatrick (1999) Milky Way extinction law.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        wave_ang (array-like): Wavelength in Angstroms.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        np.ndarray: The interpolated, normalized extinction curve A(lambda)/A(V).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_load_and_interpolate_dust_law</span><span class="p">(</span><span class="n">wave_ang</span><span class="p">,</span> <span class="s2">&quot;fitzpatrick99.txt&quot;</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="ccm89_dust_Alambda_per_AV">
 <a class="viewcode-back" href="../../api/dust.html#galsyn.dust.ccm89_dust_Alambda_per_AV">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">ccm89_dust_Alambda_per_AV</span><span class="p">(</span><span class="n">wave_ang</span><span class="p">):</span>
-    <span class="n">data_file_name</span> <span class="o">=</span> <span class="s2">&quot;ccm89.txt&quot;</span>
-    <span class="k">try</span><span class="p">:</span>
-        <span class="kn">from</span><span class="w"> </span><span class="nn">scipy.interpolate</span><span class="w"> </span><span class="kn">import</span> <span class="n">interp1d</span>
-        <span class="n">data_path</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">importlib</span><span class="o">.</span><span class="n">resources</span><span class="o">.</span><span class="n">files</span><span class="p">(</span><span class="s1">&#39;galsyn.data&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="n">data_file_name</span><span class="p">))</span>
-        <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span><span class="n">data_path</span><span class="p">)</span>
-        <span class="n">f</span> <span class="o">=</span> <span class="n">interp1d</span><span class="p">(</span><span class="n">data</span><span class="p">[:,</span><span class="mi">0</span><span class="p">],</span> <span class="n">data</span><span class="p">[:,</span><span class="mi">1</span><span class="p">],</span> <span class="n">fill_value</span><span class="o">=</span><span class="s2">&quot;extrapolate&quot;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">f</span><span class="p">(</span><span class="n">wave_ang</span><span class="p">)</span>
-    
-    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error loading dust normalization data from </span><span class="si">{</span><span class="n">data_file_name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span></div>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Loads and interpolates the Cardelli, Clayton, &amp; Mathis (1989) MW extinction law.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        wave_ang (array-like): Wavelength in Angstroms.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        np.ndarray: The interpolated, normalized extinction curve A(lambda)/A(V).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_load_and_interpolate_dust_law</span><span class="p">(</span><span class="n">wave_ang</span><span class="p">,</span> <span class="s2">&quot;ccm89.txt&quot;</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="lmc_gordon2003_dust_Alambda_per_AV">
 <a class="viewcode-back" href="../../api/dust.html#galsyn.dust.lmc_gordon2003_dust_Alambda_per_AV">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">lmc_gordon2003_dust_Alambda_per_AV</span><span class="p">(</span><span class="n">wave_ang</span><span class="p">):</span>
-    <span class="n">data_file_name</span> <span class="o">=</span> <span class="s2">&quot;lmc_gordon2003.txt&quot;</span>
-    <span class="k">try</span><span class="p">:</span>
-        <span class="kn">from</span><span class="w"> </span><span class="nn">scipy.interpolate</span><span class="w"> </span><span class="kn">import</span> <span class="n">interp1d</span>
-        <span class="n">data_path</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">importlib</span><span class="o">.</span><span class="n">resources</span><span class="o">.</span><span class="n">files</span><span class="p">(</span><span class="s1">&#39;galsyn.data&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="n">data_file_name</span><span class="p">))</span>
-        <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span><span class="n">data_path</span><span class="p">)</span>
-        <span class="n">f</span> <span class="o">=</span> <span class="n">interp1d</span><span class="p">(</span><span class="n">data</span><span class="p">[:,</span><span class="mi">0</span><span class="p">],</span> <span class="n">data</span><span class="p">[:,</span><span class="mi">1</span><span class="p">],</span> <span class="n">fill_value</span><span class="o">=</span><span class="s2">&quot;extrapolate&quot;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">f</span><span class="p">(</span><span class="n">wave_ang</span><span class="p">)</span>
-    
-    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error loading dust normalization data from </span><span class="si">{</span><span class="n">data_file_name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span></div>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Loads and interpolates the Gordon+03 extinction law for the LMC.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        wave_ang (array-like): Wavelength in Angstroms.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        np.ndarray: The interpolated, normalized extinction curve A(lambda)/A(V).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_load_and_interpolate_dust_law</span><span class="p">(</span><span class="n">wave_ang</span><span class="p">,</span> <span class="s2">&quot;lmc_gordon2003.txt&quot;</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="smc_gordon2003_dust_Alambda_per_AV">
 <a class="viewcode-back" href="../../api/dust.html#galsyn.dust.smc_gordon2003_dust_Alambda_per_AV">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">smc_gordon2003_dust_Alambda_per_AV</span><span class="p">(</span><span class="n">wave_ang</span><span class="p">):</span>
-    <span class="n">data_file_name</span> <span class="o">=</span> <span class="s2">&quot;smc_gordon2003.txt&quot;</span>
-    <span class="k">try</span><span class="p">:</span>
-        <span class="kn">from</span><span class="w"> </span><span class="nn">scipy.interpolate</span><span class="w"> </span><span class="kn">import</span> <span class="n">interp1d</span>
-        <span class="n">data_path</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">importlib</span><span class="o">.</span><span class="n">resources</span><span class="o">.</span><span class="n">files</span><span class="p">(</span><span class="s1">&#39;galsyn.data&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="n">data_file_name</span><span class="p">))</span>
-        <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span><span class="n">data_path</span><span class="p">)</span>
-        <span class="n">f</span> <span class="o">=</span> <span class="n">interp1d</span><span class="p">(</span><span class="n">data</span><span class="p">[:,</span><span class="mi">0</span><span class="p">],</span> <span class="n">data</span><span class="p">[:,</span><span class="mi">1</span><span class="p">],</span> <span class="n">fill_value</span><span class="o">=</span><span class="s2">&quot;extrapolate&quot;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">f</span><span class="p">(</span><span class="n">wave_ang</span><span class="p">)</span>
-    
-    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error loading dust normalization data from </span><span class="si">{</span><span class="n">data_file_name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span></div>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Loads and interpolates the Gordon+03 extinction law for the SMC.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        wave_ang (array-like): Wavelength in Angstroms.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        np.ndarray: The interpolated, normalized extinction curve A(lambda)/A(V).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_load_and_interpolate_dust_law</span><span class="p">(</span><span class="n">wave_ang</span><span class="p">,</span> <span class="s2">&quot;smc_gordon2003.txt&quot;</span><span class="p">)</span></div>
 
 
 

@@ -366,6 +366,12 @@ document.write(`
 <span class="sd">    from HDF5 simulation data. It projects star particles onto a 2D grid and</span>
 <span class="sd">    calculates SFH-related quantities for each pixel, outputting the results</span>
 <span class="sd">    as a 3D FITS file (spatial x spatial x lookback_time).</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">        sim_file (str): Path to the HDF5 simulation file.</span>
+<span class="sd">        z (float): Redshift of the galaxy. Defaults to 0.01.</span>
+<span class="sd">        Z_sun (float, optional): The value of solar metallicity used for normalizing particle metallicities. Defaults to 0.019.</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sim_file</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">Z_sun</span><span class="o">=</span><span class="mf">0.019</span><span class="p">):</span>
@@ -373,8 +379,10 @@ document.write(`
 <span class="sd">        Initializes the SFHReconstructor with basic simulation parameters.</span>
 
 <span class="sd">        Parameters:</span>
-<span class="sd">            sim_file (str, optional): Path to the HDF5 simulation file.</span>
-<span class="sd">            z (float, optional): Redshift of the galaxy. Defaults to 0.01.</span>
+<span class="sd">            sim_file (str): Path to the HDF5 simulation file.</span>
+<span class="sd">            z (float): Redshift of the galaxy. Defaults to 0.01.</span>
+<span class="sd">            Z_sun (float, optional): The value of solar metallicity used for</span>
+<span class="sd">                normalizing particle metallicities. Defaults to 0.019.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_sim_file</span> <span class="o">=</span> <span class="n">sim_file</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_z</span> <span class="o">=</span> <span class="n">z</span>
@@ -403,6 +411,7 @@ document.write(`
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">sim_file</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;str: The path to the input HDF5 simulation file.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sim_file</span>
 
     <span class="nd">@sim_file</span><span class="o">.</span><span class="n">setter</span>
@@ -415,6 +424,7 @@ document.write(`
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">z</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;float: The redshift of the galaxy snapshot.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_z</span>
 
     <span class="nd">@z</span><span class="o">.</span><span class="n">setter</span>
@@ -425,6 +435,7 @@ document.write(`
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">Z_sun</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;float: The value of solar metallicity for normalization.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_Z_sun</span>
 
     <span class="nd">@Z_sun</span><span class="o">.</span><span class="n">setter</span>
@@ -435,6 +446,9 @@ document.write(`
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">dim_kpc</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;float or None: The physical side length of the output image in kpc.</span>
+<span class="sd">        If set to None, it will be automatically determined during reconstruction.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dim_kpc</span>
 
     <span class="nd">@dim_kpc</span><span class="o">.</span><span class="n">setter</span>
@@ -446,6 +460,7 @@ document.write(`
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">pix_arcsec</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;float: The side length of each square pixel in arcseconds.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pix_arcsec</span>
 
     <span class="nd">@pix_arcsec</span><span class="o">.</span><span class="n">setter</span>
@@ -456,6 +471,7 @@ document.write(`
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">polar_angle_deg</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;float: The polar (inclination) angle for 2D projection in degrees.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_polar_angle_deg</span>
 
     <span class="nd">@polar_angle_deg</span><span class="o">.</span><span class="n">setter</span>
@@ -466,6 +482,7 @@ document.write(`
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">azimuth_angle_deg</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;float: The azimuthal (rotation) angle for 2D projection in degrees.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_azimuth_angle_deg</span>
 
     <span class="nd">@azimuth_angle_deg</span><span class="o">.</span><span class="n">setter</span>
@@ -476,6 +493,7 @@ document.write(`
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">ncpu</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;int: The number of CPU cores to use for parallel processing.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ncpu</span>
 
     <span class="nd">@ncpu</span><span class="o">.</span><span class="n">setter</span>
@@ -486,6 +504,7 @@ document.write(`
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">initdim_kpc</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;float: The initial search dimension (in kpc) for automatic image sizing.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_initdim_kpc</span>
 
     <span class="nd">@initdim_kpc</span><span class="o">.</span><span class="n">setter</span>
@@ -496,6 +515,7 @@ document.write(`
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">initdim_mass_fraction</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;float: The stellar mass fraction to enclose for automatic image sizing.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_initdim_mass_fraction</span>
 
     <span class="nd">@initdim_mass_fraction</span><span class="o">.</span><span class="n">setter</span>
@@ -506,6 +526,7 @@ document.write(`
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">name_out_sfh</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;str or None: The path and filename for the output FITS file.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name_out_sfh</span>
 
     <span class="nd">@name_out_sfh</span><span class="o">.</span><span class="n">setter</span>
@@ -516,6 +537,7 @@ document.write(`
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">sfh_del_t</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;float: The width of each lookback time bin in Gyr for the SFH.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sfh_del_t</span>
 
     <span class="nd">@sfh_del_t</span><span class="o">.</span><span class="n">setter</span>
@@ -526,6 +548,7 @@ document.write(`
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">sfh_max_lbt</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;float: The maximum lookback time in Gyr for the SFH.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sfh_max_lbt</span>
 
     <span class="nd">@sfh_max_lbt</span><span class="o">.</span><span class="n">setter</span>
@@ -536,6 +559,7 @@ document.write(`
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">cosmo_str</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;str: The name of the cosmological model to use (e.g., &#39;Planck18&#39;).&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cosmo_str</span>
 
     <span class="nd">@cosmo_str</span><span class="o">.</span><span class="n">setter</span>
@@ -550,7 +574,16 @@ document.write(`
     <span class="k">def</span><span class="w"> </span><span class="nf">set_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Sets multiple parameters at once using keyword arguments.</span>
-<span class="sd">        Example: reconstructor.set_params(dim_kpc=50, sfh_del_t=0.1)</span>
+
+<span class="sd">        This provides a convenient way to update the reconstructor&#39;s configuration.</span>
+<span class="sd">        Any invalid parameter names will be ignored with a warning.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            **kwargs: Keyword arguments where keys match attribute names</span>
+<span class="sd">                      (e.g., dim_kpc=50, sfh_del_t=0.1).</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            None</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>

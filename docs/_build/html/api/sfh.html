@@ -421,55 +421,125 @@ document.write(`
 from HDF5 simulation data. It projects star particles onto a 2D grid and
 calculates SFH-related quantities for each pixel, outputting the results
 as a 3D FITS file (spatial x spatial x lookback_time).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>sim_file</strong> (<em>str</em>) – Path to the HDF5 simulation file.</p></li>
+<li><p><strong>z</strong> (<em>float</em>) – Redshift of the galaxy. Defaults to 0.01.</p></li>
+<li><p><strong>Z_sun</strong> (<em>float</em><em>, </em><em>optional</em>) – The value of solar metallicity used for normalizing particle metallicities. Defaults to 0.019.</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="galsyn.sfh.SFHReconstructor.Z_sun">
 <em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Z_sun</span></span><a class="headerlink" href="#galsyn.sfh.SFHReconstructor.Z_sun" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>The value of solar metallicity for normalization.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="galsyn.sfh.SFHReconstructor.azimuth_angle_deg">
 <em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">azimuth_angle_deg</span></span><a class="headerlink" href="#galsyn.sfh.SFHReconstructor.azimuth_angle_deg" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>The azimuthal (rotation) angle for 2D projection in degrees.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="galsyn.sfh.SFHReconstructor.cosmo_str">
 <em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">cosmo_str</span></span><a class="headerlink" href="#galsyn.sfh.SFHReconstructor.cosmo_str" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>The name of the cosmological model to use (e.g., ‘Planck18’).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="galsyn.sfh.SFHReconstructor.dim_kpc">
 <em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">dim_kpc</span></span><a class="headerlink" href="#galsyn.sfh.SFHReconstructor.dim_kpc" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>The physical side length of the output image in kpc.
+If set to None, it will be automatically determined during reconstruction.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float or None</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="galsyn.sfh.SFHReconstructor.initdim_kpc">
 <em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">initdim_kpc</span></span><a class="headerlink" href="#galsyn.sfh.SFHReconstructor.initdim_kpc" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>The initial search dimension (in kpc) for automatic image sizing.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="galsyn.sfh.SFHReconstructor.initdim_mass_fraction">
 <em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">initdim_mass_fraction</span></span><a class="headerlink" href="#galsyn.sfh.SFHReconstructor.initdim_mass_fraction" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>The stellar mass fraction to enclose for automatic image sizing.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="galsyn.sfh.SFHReconstructor.name_out_sfh">
 <em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">name_out_sfh</span></span><a class="headerlink" href="#galsyn.sfh.SFHReconstructor.name_out_sfh" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>The path and filename for the output FITS file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str or None</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="galsyn.sfh.SFHReconstructor.ncpu">
 <em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ncpu</span></span><a class="headerlink" href="#galsyn.sfh.SFHReconstructor.ncpu" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>The number of CPU cores to use for parallel processing.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="galsyn.sfh.SFHReconstructor.pix_arcsec">
 <em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">pix_arcsec</span></span><a class="headerlink" href="#galsyn.sfh.SFHReconstructor.pix_arcsec" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>The side length of each square pixel in arcseconds.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="galsyn.sfh.SFHReconstructor.polar_angle_deg">
 <em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">polar_angle_deg</span></span><a class="headerlink" href="#galsyn.sfh.SFHReconstructor.polar_angle_deg" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>The polar (inclination) angle for 2D projection in degrees.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="galsyn.sfh.SFHReconstructor.reconstruct_sfh">
@@ -480,29 +550,63 @@ as a 3D FITS file (spatial x spatial x lookback_time).</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="galsyn.sfh.SFHReconstructor.set_params">
 <span class="sig-name descname"><span class="pre">set_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/galsyn/sfh.html#SFHReconstructor.set_params"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#galsyn.sfh.SFHReconstructor.set_params" title="Link to this definition">#</a></dt>
-<dd><p>Sets multiple parameters at once using keyword arguments.
-Example: reconstructor.set_params(dim_kpc=50, sfh_del_t=0.1)</p>
+<dd><p>Sets multiple parameters at once using keyword arguments.</p>
+<p>This provides a convenient way to update the reconstructor’s configuration.
+Any invalid parameter names will be ignored with a warning.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>**kwargs</strong> – Keyword arguments where keys match attribute names
+(e.g., dim_kpc=50, sfh_del_t=0.1).</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="galsyn.sfh.SFHReconstructor.sfh_del_t">
 <em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">sfh_del_t</span></span><a class="headerlink" href="#galsyn.sfh.SFHReconstructor.sfh_del_t" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>The width of each lookback time bin in Gyr for the SFH.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="galsyn.sfh.SFHReconstructor.sfh_max_lbt">
 <em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">sfh_max_lbt</span></span><a class="headerlink" href="#galsyn.sfh.SFHReconstructor.sfh_max_lbt" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>The maximum lookback time in Gyr for the SFH.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="galsyn.sfh.SFHReconstructor.sim_file">
 <em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">sim_file</span></span><a class="headerlink" href="#galsyn.sfh.SFHReconstructor.sim_file" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>The path to the input HDF5 simulation file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="galsyn.sfh.SFHReconstructor.z">
 <em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">z</span></span><a class="headerlink" href="#galsyn.sfh.SFHReconstructor.z" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>The redshift of the galaxy snapshot.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
 
 </dd></dl>
 
