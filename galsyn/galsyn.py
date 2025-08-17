@@ -279,8 +279,8 @@ class GalaxySynthesizer:
 
     @imf_type.setter
     def imf_type(self, value):
-        if not isinstance(value, int) or value not in [0, 1, 2, 3, 4]:
-            raise ValueError("imf_type must be an integer (0, 1, 2, 3, or 4).")
+        if not isinstance(value, int) or value not in [0, 1, 2, 3, 4, 5]:
+            raise ValueError("imf_type must be an integer (0, 1, 2, 3, 4, or 5). For imf_type=5, the power law IMF form is specified in data directory within FSPS.")
         self._imf_type = value
 
     @property
@@ -492,17 +492,13 @@ class GalaxySynthesizer:
         int: The dust attenuation law to apply.
 
         Options:
-            0: Modified Calzetti+00 with Bump strength tied to `dust_index`,
-               where `dust_index` itself depends on the line-of-sight A_V.
-               
-            1: Modified Calzetti+00 with a free Bump strength (`bump_amp`),
-               where `dust_index` depends on the line-of-sight A_V.
+            0: Modified Calzetti+00 with Bump strength (`bump_amp`) tied to slope (`dust_index`), where `dust_index` itself depends on the line-of-sight A_V.
 
-            2: Modified Calzetti+00 with Bump strength tied to `dust_index`,
-               where `dust_index` is a single free parameter for all stars.
+            1: Modified Calzetti+00 with a free `bump_amp`, where `dust_index` depends on the line-of-sight A_V.
 
-            3: Modified Calzetti+00 with both `bump_amp` and `dust_index` as
-               free parameters, applied uniformly to all stars.
+            2: Modified Calzetti+00 with `bump_amp` tied to `dust_index`, where `dust_index` is a single free parameter for all stars.
+
+            3: Modified Calzetti+00 with both `bump_amp` and `dust_index` as free parameters, applied uniformly to all stars.
 
             4: Salim+18 attenuation law.
 
