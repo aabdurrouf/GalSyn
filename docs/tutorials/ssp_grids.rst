@@ -1,5 +1,5 @@
-Generating SSP grid data
-========================
+Generating SSP Grids File
+=========================
 
 Here is an example of how to generate an SSP grid using FSPS:
 

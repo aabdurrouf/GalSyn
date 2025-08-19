@@ -25,7 +25,7 @@ To download a subhalo cutout of a specific galaxy (given snapshot number and sub
 Make standardized input file
 ----------------------------
 
-After downloading the cutout, the next step is to convert it into the standardized HDF5 format that ``GalSyn`` uses as input:
+After downloading the cutout, the next step is to convert it into the standardized HDF5 format that ``GalaxySynthesizer`` uses as input:
 
 .. code-block:: python
 
