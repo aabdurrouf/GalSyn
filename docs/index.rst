@@ -8,7 +8,7 @@ Welcome to GalSyn's Documentation!
    :align: center
    :width: 400px
 
-**GalSyn** is a powerful Python package designed for generating astrophysical images of galaxies from hydrodynamical simulations.
+**GalSyn** is a powerful Python package designed for generating realistic synthetic spectrophotometric observations of galaxies from hydrodynamical simulation data.
 
 Check out the sections below to learn more about GalSyn's capabilities, how to use it, and its API.
 

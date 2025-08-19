@@ -33,7 +33,6 @@ def init_ssp_worker(imf_type_val, gas_logu_val,
     _ssp_worker_sp_instance.params["dust1"] = 0.0
     _ssp_worker_sp_instance.params["dust2"] = 0.0   # optical depth
 
-    # Set new IMF parameters
     _ssp_worker_sp_instance.params['imf_upper_limit'] = imf_upper_limit_val
     _ssp_worker_sp_instance.params['imf_lower_limit'] = imf_lower_limit_val
     _ssp_worker_sp_instance.params['imf1'] = imf1_val
@@ -103,8 +102,8 @@ def generate_ssp_grid(output_filename="ssp_spectra.hdf5",
                       mdave=0.5,
                       overwrite=False,
                       n_jobs=-1,
-                      rest_wave_min=500,  # New parameter for minimum wavelength
-                      rest_wave_max=30000): # New parameter for maximum wavelength
+                      rest_wave_min=500,  
+                      rest_wave_max=30000): 
     """
     Generates a grid of Simple Stellar Population (SSP) spectra (stellar continuum only and nebular emission only)
     and their corresponding surviving stellar masses using FSPS, and saves them to an HDF5 file.
