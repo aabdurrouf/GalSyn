@@ -162,6 +162,8 @@ def salim18_dust_Alambda_per_AV(wave_ang, salim_a0, salim_a1, salim_a2, salim_a3
 
 def _load_and_interpolate_dust_law(wave_ang, data_file_name):
     """Internal helper to load and interpolate a tabulated dust law."""
+    from scipy.interpolate import interp1d
+    
     try:
         data_path = str(importlib.resources.files('galsyn.data').joinpath(data_file_name))
         data = np.loadtxt(data_path)
