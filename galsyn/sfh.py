@@ -306,26 +306,31 @@ class SFHReconstructor:
         mass_assembly_times = {}
         percentages = [0.05, 0.10, 0.25, 0.50, 0.75, 0.95]
 
-        # Use the cumulative mass returned by construct_SFH (which now includes all bins)
-        # and the full lbt midpoints (which are also consistent across pixels)
-        if sfh_dict['mass'].sum() > 0: # Check if there is any mass in this pixel
+        if sfh_dict['mass'].sum() > 0:  # Check if there is any mass in this pixel
             pixel_total_initial_mass = sfh_dict['mass'].sum()
-            cumulative_mass_formed_for_interp = sfh_dict['cumul_mass'] # This is already cumulative mass formed at end of each bin
+
+            # The 'cumul_mass' array from construct_SFH is ordered corresponding to lookback time,
+            # meaning its values decrease from total_mass to the mass in the oldest bin.
+            decreasing_cumul_mass = sfh_dict['cumul_mass']
             
-            x_interp = sfh_dict['lbt'] # Lookback time midpoints for all bins
-            y_interp = cumulative_mass_formed_for_interp # Cumulative mass formed at end of each bin
+            # The 'lbt' array of lookback time bin midpoints is ordered from youngest to oldest, so it increases.
+            increasing_lbt = sfh_dict['lbt']
+
+            # For np.interp, the x-coordinates (our mass values) must be monotonically increasing.
+            # We reverse both arrays to satisfy this condition.
+            # `increasing_cumul_mass` now correctly goes from mass_in_oldest_bin to total_mass.
+            # `decreasing_lbt` now corresponds to the `increasing_cumul_mass` array.
+            increasing_cumul_mass = decreasing_cumul_mass[::-1]
+            decreasing_lbt = increasing_lbt[::-1]
 
             for p in percentages:
                 target_mass = p * pixel_total_initial_mass
                 
-                # np.interp requires x-coordinates (y_interp here) to be increasing.
-                # cumulative_mass_formed should always be non-decreasing.
-                # If there are zero-mass bins, y_interp will have plateaus.
-                # np.interp handles this correctly.
-                t_assemble = np.interp(target_mass, y_interp, x_interp)
+                # Interpolate using the corrected, monotonically increasing mass array to find the lookback time.
+                t_assemble = np.interp(target_mass, increasing_cumul_mass, decreasing_lbt)
                 mass_assembly_times[f't_{int(p*100)}'] = t_assemble
         else:
-            # If no stars in pixel, all assembly times are NaN
+            # If no stars in the pixel, all assembly times are NaN.
             mass_assembly_times = {f't_{int(p*100)}': np.nan for p in percentages}
 
         sfh_dict['mass_assembly_times'] = mass_assembly_times
