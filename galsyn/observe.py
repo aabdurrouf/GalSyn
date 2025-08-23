@@ -765,8 +765,9 @@ class GalSynMockObservation_ifu:
         """
         print(f"\nSaving IFU results to FITS file: {output_fits_path}...")
         hdul_out = fits.HDUList()
-
-        prihdr = self.image_header.copy()
+        #prihdr = self.image_header.copy()
+        prihdr = fits.Header()
+        prihdr['BUNIT'] = self.original_flux_unit
         prihdr['COMMENT'] = 'Mock IFU Observation Results'
         prihdr['RES_R'] = self.spectral_resolution_R
         prihdr['PIXSIZE'] = self.final_pixel_scale_arcsec
