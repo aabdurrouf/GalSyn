@@ -775,6 +775,7 @@ class GalSynMockObservation_ifu:
         central_wave = self.desired_wave_grid[len(self.desired_wave_grid) // 2]
         prihdr['ZP_MAG'] = (self._get_wave_dependent_param(self.mag_zp, central_wave), 'ZP at central wavelength')
         prihdr['SNR_LIM'] = (self._get_wave_dependent_param(self.snr_limit, central_wave), 'SNR at central wavelength')
+        prihdr['MAG_LIM'] = (self.limiting_magnitude_wave_func(central_wave), 'mag limit at central wavelength')
         prihdr['EXP_TIME'] = (self._get_wave_dependent_param(self.exposure_time, central_wave), 'Exposure time (s) at central wavelength')
         prihdr['BUNIT'] = self.original_flux_unit
 
