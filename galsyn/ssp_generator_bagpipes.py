@@ -58,7 +58,7 @@ def _generate_single_ssp(age, logzsol):
 
     burst = {}
     burst["age"] = age
-    burst["massformed"] = 1.0
+    burst["massformed"] = 0.0                  # log10 of stellar mass
     burst["metallicity"] = metallicity_z_zsun
 
     # --- Generate spectrum with nebular emission ---
@@ -96,7 +96,8 @@ def _generate_single_ssp(age, logzsol):
     # --- Calculate nebular emission only ---
     spec_nebular_emission_interpolated = spec_total_interpolated - spec_stellar_continuum_interpolated
 
-    surv_stellar_mass = model_total.sfh.stellar_mass
+    #surv_stellar_mass = model_total.sfh.stellar_mass
+    surv_stellar_mass = 1.0
 
     return spec_stellar_continuum_interpolated, spec_nebular_emission_interpolated, surv_stellar_mass
 
