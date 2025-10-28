@@ -1,0 +1,58 @@
+[build-system]
+requires = [
+    "setuptools>=61.0",
+]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "galsyn"
+version = "0.1.0"
+description = "A Python package for generating astrophysical images of galaxies from hydrodynamical simulations."
+readme = "README.md"
+requires-python = ">=3.8"
+license = {text = "MIT"}
+authors = [
+    {name = "Abdurrouf", email = "abdurroufastro@gmail.com"}
+]
+keywords = ["astronomy", "astrophysics", "galaxy", "simulation", "hydrodynamics"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering :: Astronomy",
+    "Topic :: Scientific/Engineering :: Physics",
+    "Development Status :: 3 - Alpha",
+]
+
+# illustris_python is typically installed from GitHub
+# pip install git+https://github.com/illustris/illustris_python.git
+dependencies = [
+    "numpy",
+    "astropy",
+    "scipy",
+    "matplotlib",
+    "h5py",
+    "joblib",
+    "tqdm",
+    "tqdm_joblib",
+    "fsps",
+    "psutil",
+    "ipywidgets",
+    "photutils",
+]
+
+[project.urls]
+Homepage = "https://github.com/aabdurrouf/GalSyn"
+Repository = "https://github.com/aabdurrouf/GalSyn"
+Documentation = "https://github.com/aabdurrouf/GalSyn"
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["galsyn*"]
+
+[tool.setuptools.package-data]
+galsyn = ["data/*.hdf5", "data/*.txt"]
