@@ -74,7 +74,7 @@ def interp_age_univ_from_z(z, cosmo):
     return f(z)
 
 def cosmo_redshifting(wave_rest, L_lambda_rest, z, cosmo):
-    """
+    r"""
     Performs cosmological redshifting of a spectrum.
 
     This function converts an emitted spectrum, provided in units of
