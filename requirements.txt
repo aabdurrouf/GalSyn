@@ -6,3 +6,4 @@ tqdm_joblib
 joblib
 ipywidgets
 photutils
+bagpipes
