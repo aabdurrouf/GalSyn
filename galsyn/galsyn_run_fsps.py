@@ -560,6 +560,8 @@ def _process_pixel_data(ii, jj, star_particle_membership_list, gas_particle_memb
                 spec_nebular_emission = spec_total_from_fsps - spec_stellar_continuum
                 ssp_mass_formed = sp_instance.stellar_mass
 
+            norm = stars_mass[star_id] / ssp_mass_formed
+
             # --- Apply Doppler shifts only if outputting spectra (IFS data) ---
             if output_pixel_spectra_flag:
                 # 1. Stellar Continuum Doppler Shift
@@ -650,7 +652,7 @@ def _process_pixel_data(ii, jj, star_particle_membership_list, gas_particle_memb
                 Alambda = unresolved_dust_birth_cloud_Alambda_per_AV(wave, dust_index_bc=dust_index_bc) * dust_AV * dust_eta
                 spec_dust = spec_dust*np.power(10.0, -0.4*Alambda)
     
-            norm = stars_mass[star_id] / ssp_mass_formed
+            #norm = stars_mass[star_id] / ssp_mass_formed
 
             if len(np.asarray(spec_dust).shape) == 1:
                 array_spec.append(spec*norm)
