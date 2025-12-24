@@ -923,24 +923,6 @@ def doppler_shift_spectrum(wave_rest, flux_rest, vel_los_km_s):
     doppler_factor = 1 + (vel_los_km_s / c)
 
     wave_shifted = wave_rest * doppler_factor
-    # Flux is conserved per unit frequency, F_nu, and not F_lambda.
-    # F_lambda d_lambda = F_nu d_nu
-    # Since lambda = c/nu, d_lambda = -c/nu^2 d_nu = -lambda/nu d_nu
-    # d_lambda / d_nu = -lambda/nu
-    # F_lambda = F_nu * |d_nu/d_lambda| = F_nu * nu/lambda
-    # F_lambda_shifted / F_lambda_rest = (nu_shifted/lambda_shifted) / (nu_rest/lambda_rest)
-    # nu_shifted/nu_rest = 1/doppler_factor
-    # lambda_shifted/lambda_rest = doppler_factor
-    # F_lambda_shifted / F_lambda_rest = (1/doppler_factor) / doppler_factor = 1 / doppler_factor^2
-    # For a simple Doppler shift where the total energy is conserved, the flux per unit wavelength
-    # should be divided by the doppler factor because d(lambda_shifted) = doppler_factor * d(lambda_rest)
-    # The total energy in a band is integral(F_lambda d_lambda). If F_nu is conserved, then F_lambda scales inversely with doppler factor.
-    # However, for just applying the shift to the spectrum for a single particle, the intensity
-    # is generally assumed to be conserved, and the spectral features just shift.
-    # If a redshift is applied, the observed flux is lower by (1+z) factor.
-    # Here, we are only shifting the *wavelengths* of the emitted spectrum for a single particle *before* cosmological redshift.
-    # The flux values themselves (per unit Angstrom) are effectively conserved in this transformation,
-    # as we are just moving the spectral features. The overall observed flux will then be handled by the cosmological redshift.
     flux_shifted = flux_rest # Intensity is conserved when just shifting wavelength.
 
     return wave_shifted, flux_shifted

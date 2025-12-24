@@ -209,7 +209,7 @@ def init_worker(ssp_code_val, snap_z_val, pix_area_kpc2_val,
 
     output_pixel_spectra_flag = output_pixel_spectra_val
     
-    # --- MODIFICATION: Convert safe_output_obs_wave (which might be a tuple if empty) back to a numpy array.
+    # Convert safe_output_obs_wave (which might be a tuple if empty) back to a numpy array
     if isinstance(output_obs_wave_grid_val, tuple):
         _worker_output_obs_wave_grid = np.asarray(output_obs_wave_grid_val) 
     else:
@@ -552,7 +552,7 @@ def _process_pixel_data(ii, jj, star_particle_membership_list, gas_particle_memb
 
             norm = stars_mass[star_id] / ssp_mass_formed
             
-            # --- Doppler shift and kinematic calculations (CONDITIONAL BLOCK) ---
+            # --- Doppler shift and kinematic calculations ---
             if output_pixel_spectra_flag:
                 # 1. Stellar Continuum Doppler Shift
                 star_vel_los_to_use = star_vel_los_current # Use actual velocity
@@ -608,7 +608,6 @@ def _process_pixel_data(ii, jj, star_particle_membership_list, gas_particle_memb
                 # Set dummy interpolated spectra for subsequent steps (though they are not strictly used in photometry calc)
                 spec_stellar_continuum_interp = spec_stellar_continuum 
                 spec_nebular_emission_interp = spec_nebular_emission 
-            # --- END CONDITIONAL BLOCK ---
                 
             spec_dust = spec.copy() # Initialize spec_dust with original combined spec
 
@@ -1006,14 +1005,12 @@ def generate_images(sim_file, z, filters, filter_transmission_path, dim_kpc=None
     if num_cores == -1:
         num_cores = multiprocessing.cpu_count()
 
-    # --- MODIFICATION: Prepare output_obs_wave_grid for joblib (to prevent ValueError with np.array([]))
+    # Prepare output_obs_wave_grid for joblib (to prevent ValueError with np.array([]))
     if fixed_global_output_obs_wave.size == 0:
         # Convert empty array to an empty tuple
         safe_output_obs_wave = tuple(fixed_global_output_obs_wave)
     else:
         safe_output_obs_wave = fixed_global_output_obs_wave
-    # --- END MODIFICATION ---
-
 
     print(f"\nStarting parallel pixel processing on {num_cores} cores...")
 

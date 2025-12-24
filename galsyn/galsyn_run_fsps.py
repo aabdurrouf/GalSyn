@@ -232,13 +232,11 @@ def init_worker(ssp_code_val, snap_z_val, pix_area_kpc2_val,
 
     output_pixel_spectra_flag = output_pixel_spectra_val
     
-    # --- MODIFICATION START ---
     # Convert safe_output_obs_wave (which might be a tuple if empty) back to a numpy array.
     if isinstance(output_obs_wave_grid_val, tuple):
         _worker_output_obs_wave_grid = np.asarray(output_obs_wave_grid_val) 
     else:
         _worker_output_obs_wave_grid = output_obs_wave_grid_val # Set the global worker wave grid (it's a non-empty array)
-    # --- MODIFICATION END ---
 
     if use_precomputed_ssp:
         if ssp_filepath_val is None:
@@ -1004,7 +1002,6 @@ def generate_images(sim_file, z, filters, filter_transmission_path, dim_kpc=None
     if num_cores == -1:
         num_cores = multiprocessing.cpu_count()
 
-    # --- MODIFICATION START ---
     # Prepare output_obs_wave_grid for joblib (to prevent ValueError with np.array([]))
     # If the array is empty, convert it to a tuple for safe comparison inside joblib.
     if fixed_global_output_obs_wave.size == 0:
@@ -1012,7 +1009,6 @@ def generate_images(sim_file, z, filters, filter_transmission_path, dim_kpc=None
         safe_output_obs_wave = tuple(fixed_global_output_obs_wave)
     else:
         safe_output_obs_wave = fixed_global_output_obs_wave
-    # --- MODIFICATION END ---
 
 
     print(f"\nStarting parallel pixel processing on {num_cores} cores...")
