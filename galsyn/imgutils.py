@@ -29,9 +29,9 @@ def angular_to_physical(z, arcsec_per_pix, cosmo):
         The physical size of a single pixel in kiloparsecs (kpc).
     """
     kpc_per_arcmin = cosmo.kpc_proper_per_arcmin(z)
-    kpc_per_pix = kpc_per_arcmin.value*arcsec_per_pix/60.0 
-    
-    return kpc_per_pix
+    # Use astropy units for conversion to avoid hardcoded factors
+    kpc_per_pix = (kpc_per_arcmin * arcsec_per_pix * u.arcsec).to(u.kpc)
+    return kpc_per_pix.value
 
 def physical_to_angular(z, physical_size_kpc, cosmo):
     """
