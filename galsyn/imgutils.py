@@ -66,58 +66,34 @@ def physical_to_angular(z, physical_size_kpc, cosmo):
     return angular_size_arcsec
 
 def convert_flux_map(flux_map, wave_eff, to_unit='nJy', pixel_scale_arcsec=None):
-    """
-    Convert a 2D flux map from erg/s/cm^2/Angstrom into specified units.
-
-    Parameters:
-    -----------
-    flux_map : 2D numpy array
-        Flux map in unit of erg/s/cm^2/Angstrom
-    wave_eff : float
-        Effective wavelength in Angstrom
-    to_unit : str
-        Target unit: 'MJy/sr', 'nJy', 'AB magnitude', or 'erg/s/cm2/A'
-    pixel_scale_arcsec : float, optional
-        Pixel size in arcseconds (needed for 'MJy/sr')
-
-    Returns:
-    --------
-    flux_converted : 2D numpy array
-        Flux map in the target unit
-    """
-
-    c = 2.99792458e18  # speed of light in Angstrom/s
-
+    c_as_per_s = 2.99792458e18  # speed of light in Angstrom/s
+    
     if to_unit == 'erg/s/cm2/A':
         return flux_map
 
-    elif to_unit == 'nJy':
-        # Convert to f_nu in erg/s/cm^2/Hz
-        f_nu = flux_map * wave_eff**2 / c
-        # Convert erg/s/cm^2/Hz to nJy (1 Jy = 1e-23 erg/s/cm^2/Hz)
-        return f_nu / 1e-23 * 1e9  # nJy
+    # Calculate f_nu (erg/s/cm2/Hz) once
+    f_nu = flux_map * (wave_eff**2) / c_as_per_s
+
+    if to_unit == 'nJy':
+        return f_nu * 1e23 * 1e9  # 1e23 to Jy, 1e9 to nJy
 
     elif to_unit == 'AB magnitude':
-        # Convert to f_nu
-        f_nu = flux_map * wave_eff**2 / c
-        # AB magnitude: -2.5 * log10(f_nu [erg/s/cm^2/Hz]) - 48.6
-        mag = -2.5 * np.log10(np.clip(f_nu, 1e-50, None)) - 48.6
+        # Mask non-positive values to avoid log10 warnings
+        mag = np.full_like(f_nu, np.nan)
+        mask = f_nu > 0
+        mag[mask] = -2.5 * np.log10(f_nu[mask]) - 48.6
         return mag
 
     elif to_unit == 'MJy/sr':
         if pixel_scale_arcsec is None:
-            raise ValueError("pixel_scale_arcsec is required for conversion to MJy/sr")
-
-        # Convert to f_nu in erg/s/cm^2/Hz
-        f_nu = flux_map * wave_eff**2 / c
-        # Convert erg/s/cm^2/Hz to Jy
-        f_nu_jy = f_nu / 1e-23
-
-        # Pixel area in arcsec² to steradians
-        pixel_area_sr = (pixel_scale_arcsec * np.pi / (180.0 * 3600.0))**2
-
-        # Convert to MJy/sr
-        return f_nu_jy / pixel_area_sr / 1e6
+            raise ValueError("pixel_scale_arcsec is required for MJy/sr")
+        
+        # Steradians per pixel
+        sr_per_arcsec2 = (np.pi / (180.0 * 3600.0))**2
+        pixel_area_sr = (pixel_scale_arcsec**2) * sr_per_arcsec2
+        
+        # Convert f_nu to Jy, then to MJy, then divide by area
+        return (f_nu * 1e23) / 1e6 / pixel_area_sr
 
     else:
         raise ValueError(f"Unsupported target unit: {to_unit}")
