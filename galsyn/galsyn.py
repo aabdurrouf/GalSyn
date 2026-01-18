@@ -40,13 +40,11 @@ class GalaxySynthesizer:
         self._z = z
         self._filters = filters
         self._filter_transmission_path = filter_transmission_path
-
-        # Initialize with default values from config.py
         self._load_config_defaults()
-
-        # Set other default parameters
+        self._dust_method = 'los'
+        self._av_sfrden_relation = None
         self._dim_kpc = None
-        self._smoothing_length = 0.15  # Default in kpc
+        self._smoothing_length = 0.15
         self._pix_arcsec = None
         self._pix_kpc = 0.1
         self._flux_unit = 'MJy/sr'
@@ -87,7 +85,6 @@ class GalaxySynthesizer:
 
         # IGM absorption
         self._igm_type = getattr(config, 'IGM_TYPE', 0)
-
 
         # Dust attenuation tau normalization as function of redshift
         self._scale_dust_redshift = getattr(config, 'SCALE_DUST_REDSHIFT', "Vogelsberger20")
@@ -702,7 +699,26 @@ class GalaxySynthesizer:
         self._rest_delta_wave = float(value)
         if self._rest_delta_wave <= self._rest_wave_min:
             raise ValueError("rest_delta_wave must be greater than rest_wave_min.")
+        
+    @property
+    def dust_method(self):
+        """str: Framework for diffuse ISM dust: 'los' or 'sfr_AV'."""
+        return self._dust_method
 
+    @dust_method.setter
+    def dust_method(self, value):
+        if value not in ['los', 'sfr_AV']:
+            raise ValueError("dust_method must be either 'los' or 'sfr_AV'.")
+        self._dust_method = value
+
+    @property
+    def av_sfrden_relation(self):
+        """dict: Mapping {'AV': [], 'SFR_density': []}."""
+        return self._av_sfrden_relation
+
+    @av_sfrden_relation.setter
+    def av_sfrden_relation(self, value):
+        self._av_sfrden_relation = value
 
     # --- Convenience method for setting multiple parameters ---
     def set_params(self, **kwargs):
@@ -836,6 +852,9 @@ class GalaxySynthesizer:
                 ssp_params = {} # Bagpipes IMF type is fixed to Kroupa (2001)
             else:
                 raise ValueError(f"Unsupported SSP code: {self.ssp_code}")
+            
+            if self.dust_method == 'sfr_AV' and self.av_sfrden_relation is None:
+                print("Warning: dust_method='sfr_AV' but no av_sfrden_relation provided.")
 
             # Common parameters for both SSP codes
             common_params = {
@@ -861,6 +880,8 @@ class GalaxySynthesizer:
                 'dust_eta': self.dust_eta,
                 'scale_dust_redshift': self.scale_dust_redshift,
                 'cosmo_str': self.cosmo_str,
+                'dust_method': self.dust_method,
+                'av_sfrden_relation': self.av_sfrden_relation,
                 'dust_law': self.dust_law,
                 'bump_amp': self.bump_amp,
                 'bump_dwave': self.bump_dwave,

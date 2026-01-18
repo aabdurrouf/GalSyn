@@ -44,11 +44,10 @@ t_esc = None
 dust_eta = None
 dust_law = None
 
-# Unified Dust Model Globals for Option 0
 func_interp_dust_index = None
 func_interp_bump_amp = None
 func_interp_bump_dwave = None
-dust_Alambda_per_AV = None # Used for static laws 4-9
+dust_Alambda_per_AV = None
 
 use_precomputed_ssp = False
 ssp_interpolation_method = 'nearest'
@@ -160,7 +159,7 @@ def init_worker(ssp_code_val, snap_z_val, pix_area_kpc2_val,
                 stars_vel_los_proj_arr, stars_coords_arr, gas_mass_arr, gas_sfr_inst_arr, gas_zmet_arr, 
                 gas_log_temp_arr, gas_mass_H_arr, gas_vel_los_proj_arr, gas_coords_arr, ssp_filepath_val=None, 
                 ssp_interpolation_method_val='nearest', output_pixel_spectra_val=False, 
-                output_obs_wave_grid_val=None): 
+                output_obs_wave_grid_val=None, dust_method_val='los', av_sfrden_relation_val=None): 
     
     global ssp_wave, ssp_ages_gyr, ssp_logzsol_grid, ssp_stellar_mass_grid, ssp_code_z_sun
     global ssp_stellar_continuum_grid, ssp_nebular_emission_grid 
@@ -174,6 +173,7 @@ def init_worker(ssp_code_val, snap_z_val, pix_area_kpc2_val,
     global _worker_imf_upper_limit, _worker_imf_lower_limit, _worker_imf1, _worker_imf2, _worker_imf3, _worker_vdmc, _worker_mdave
     global _worker_scale_dust_tau, _worker_stars_mass, _worker_stars_age, _worker_stars_zmet, _worker_stars_init_mass, _worker_stars_vel_los_proj, _worker_stars_coords
     global _worker_gas_mass, _worker_gas_sfr_inst, _worker_gas_zmet, _worker_gas_log_temp, _worker_gas_mass_H, _worker_gas_vel_los_proj, _worker_gas_coords
+    global _worker_dust_method, func_interp_av_sfrden
 
     # Map worker arrays
     _worker_stars_mass, _worker_stars_age, _worker_stars_zmet = stars_mass_arr, stars_age_arr, stars_zmet_arr
@@ -192,6 +192,13 @@ def init_worker(ssp_code_val, snap_z_val, pix_area_kpc2_val,
     output_pixel_spectra_flag = output_pixel_spectra_val
     #_worker_output_obs_wave_grid = np.asarray(output_obs_wave_grid_val) if isinstance(output_obs_wave_grid_val, tuple) else output_obs_wave_grid_val
     _worker_output_obs_wave_grid = np.asarray(output_obs_wave_grid_val)
+
+    # Dust Framework Setup
+    _worker_dust_method = dust_method_val
+    if _worker_dust_method == 'sfr_AV' and isinstance(av_sfrden_relation_val, dict):
+        func_interp_av_sfrden = interp1d(av_sfrden_relation_val['SFR_density'], 
+                                         av_sfrden_relation_val['AV'], 
+                                         bounds_error=False, fill_value='extrapolate')
 
     if use_precomputed_ssp:
         with h5py.File(ssp_filepath_val, 'r') as f_ssp:
@@ -318,6 +325,12 @@ def _process_pixel_data(ii, jj, star_particle_membership_list, gas_particle_memb
         pixel_results['map_gas_mw_vel_los'] = np.nansum(_worker_gas_mass[gas_ids] * _worker_gas_vel_los_proj[gas_ids]) / g_sum
         pixel_results['map_gas_vel_disp_los'] = np.sqrt(np.nansum(_worker_gas_mass[gas_ids] * (_worker_gas_vel_los_proj[gas_ids] - pixel_results['map_gas_mw_vel_los'])**2) / g_sum)
 
+    # Effective AV calculation for sfr_AV method
+    effective_av = 0.0
+    if _worker_dust_method == 'sfr_AV' and func_interp_av_sfrden is not None:
+        sfr_density = pixel_results['map_sfr_inst'] / pix_area_kpc2
+        effective_av = float(func_interp_av_sfrden(sfr_density))
+
     if len(star_ids) > 0:
         array_spec, array_spec_dust, array_AV, array_tauV, array_L_nodust, array_L_dust = [], [], [], [], [], []
         if output_pixel_spectra_flag: array_vel_los, array_L_nebular, array_vel_los_nebular_weighted = [], [], []
@@ -367,24 +380,32 @@ def _process_pixel_data(ii, jj, star_particle_membership_list, gas_particle_memb
                 spec = s_cont + n_em
 
             spec_dust, d_AV = spec.copy(), 0.0
-            idx_c = np.where((gas_los_dist < star_los_dist[i_sid]) & ((_worker_gas_sfr_inst[gas_ids] > 0.0) | (_worker_gas_log_temp[gas_ids] < 3.9)))[0]
-            if idx_c.size > 0:
-                g_m_s = np.nansum(_worker_gas_mass[gas_ids[idx_c]])
-                if g_m_s > 0:
-                    g_z = np.nansum(_worker_gas_mass[gas_ids[idx_c]]*_worker_gas_zmet[gas_ids[idx_c]]/FSPS_Z_SUN)/g_m_s
-                    nH = np.nansum(_worker_gas_mass_H[gas_ids[idx_c]])*1.247914e+14/pix_area_kpc2
-                    tauV = np.clip(_worker_scale_dust_tau * g_z * nH / 2.1e+21, 1e-10, None)
-                    d_AV = -2.5*np.log10((1.0 - np.exp(-1.0*tauV))/tauV)
-                    if d_AV > 0:
-                        al = dust_reddening_diffuse_ism(d_AV, ssp_wave, dust_law) if dust_law <= 1 else dust_Alambda_per_AV * d_AV
-                        spec_dust *= 10.0**(-0.4*al)
-                        array_tauV.append(tauV); array_AV.append(d_AV)
+
+            # --- Dust Method Branching ---
+            if _worker_dust_method == 'sfr_AV':
+                d_AV = effective_av
+            else:
+                # Default LOS method
+                idx_c = np.where((gas_los_dist < star_los_dist[i_sid]) & ((_worker_gas_sfr_inst[gas_ids] > 0.0) | (_worker_gas_log_temp[gas_ids] < 3.9)))[0]
+                if idx_c.size > 0:
+                    g_m_s = np.nansum(_worker_gas_mass[gas_ids[idx_c]])
+                    if g_m_s > 0:
+                        g_z = np.nansum(_worker_gas_mass[gas_ids[idx_c]]*_worker_gas_zmet[gas_ids[idx_c]]/FSPS_Z_SUN)/g_m_s
+                        nH = np.nansum(_worker_gas_mass_H[gas_ids[idx_c]])*1.247914e+14/pix_area_kpc2
+                        tauV = np.clip(_worker_scale_dust_tau * g_z * nH / 2.1e+21, 1e-10, None)
+                        d_AV = -2.5*np.log10((1.0 - np.exp(-1.0*tauV))/tauV)
+            
+            if d_AV > 0:
+                al = dust_reddening_diffuse_ism(d_AV, ssp_wave, dust_law)
+                spec_dust *= 10.0**(-0.4*al)
+                array_tauV.append(d_AV * 0.921); array_AV.append(d_AV)
             
             if _worker_stars_age[star_id] <= t_esc:
                 al_bc = unresolved_dust_birth_cloud_Alambda_per_AV(ssp_wave, dust_index_bc=dust_index_bc) * d_AV * dust_eta
                 spec_dust *= 10.0**(-0.4*al_bc)
 
-            array_spec.append(spec*norm); array_spec_dust.append(spec_dust*norm)
+            array_spec.append(spec*norm)
+            array_spec_dust.append(spec_dust*norm)
             array_L_nodust.append(simpson(spec[lw_wave_idx]*norm, ssp_wave[lw_wave_idx]) if lw_wave_idx.size > 1 else 0.0)
             array_L_dust.append(simpson(spec_dust[lw_wave_idx]*norm, ssp_wave[lw_wave_idx]) if lw_wave_idx.size > 1 else 0.0)
             
@@ -431,11 +452,12 @@ def generate_images(sim_file, z, filters, filter_transmission_path, dim_kpc=None
                     name_out_img=None, n_jobs=-1, ssp_code='FSPS', imf_type=1, imf_upper_limit=120.0, 
                     imf_lower_limit=0.08, imf1=1.3, imf2=2.3, imf3=2.3, vdmc=0.08, mdave=0.5, gas_logu=-2.0,
                     igm_type=0, dust_index_bc=-0.7, dust_index=0.0, t_esc=0.01, dust_eta=1.0, 
-                    scale_dust_redshift="Vogelsberger20", cosmo_str='Planck18', dust_law=0, bump_amp=0.85, 
-                    bump_dwave=0.035, salim_a0=-4.30, salim_a1=2.71, salim_a2= -0.191, salim_a3=0.0121, 
-                    salim_RV=3.15, salim_B=3.15, initdim_kpc=200, initdim_mass_fraction=0.99, 
-                    use_precomputed_ssp=True, ssp_filepath=None, ssp_interpolation_method='nearest', 
-                    output_pixel_spectra=False, rest_wave_min=1000.0, rest_wave_max=30000.0, rest_delta_wave=5.0):
+                    scale_dust_redshift="Vogelsberger20", cosmo_str='Planck18', dust_method='los', 
+                    av_sfrden_relation=None, dust_law=0, bump_amp=0.85, bump_dwave=0.035, salim_a0=-4.30, 
+                    salim_a1=2.71, salim_a2= -0.191, salim_a3=0.0121, salim_RV=3.15, salim_B=3.15, 
+                    initdim_kpc=200, initdim_mass_fraction=0.99, use_precomputed_ssp=True, ssp_filepath=None, 
+                    ssp_interpolation_method='nearest', output_pixel_spectra=False, rest_wave_min=1000.0, 
+                    rest_wave_max=30000.0, rest_delta_wave=5.0):
     """
     Generates astrophysical images from HDF5 simulation data with parallelized pixel calculations.
     Allows choice between using pre-computed SSP spectra from an HDF5 file or
@@ -477,6 +499,19 @@ def generate_images(sim_file, z, filters, filter_transmission_path, dim_kpc=None
                                                      Can be a string ("Vogelsberger20") or a dictionary with "z" and "tau_dust" keys (1D arrays).
                                                      Defaults to "Vogelsberger20".
         cosmo_str (str, optional): Cosmology string. Defaults to 'Planck18'.
+        dust_method (str, optional): The framework used to calculate diffuse ISM dust attenuation. 
+                                     Options:
+                                     - 'los': (Default) Integration of the optical depth along the 
+                                       line-of-sight for each star particle based on local gas 
+                                       column density and metallicity.
+                                     - 'sfr_AV': Calculates an effective A_V for the entire 
+                                       pixel/grid cell based on the instantaneous SFR surface 
+                                       density (Msun/yr/kpc^2).
+        av_sfrden_relation (dict, optional): A dictionary defining the proportionality between 
+                                             SFR surface density and A_V. Required if 
+                                             dust_method='sfr_AV'. 
+                                             Expected format: {'AV': [values], 'SFR_density': [values]}.
+                                             The units for 'SFR_density' should be Msun/yr/kpc^2.
         dust_law (int, optional): Dust attenuation law type. Defaults to 0.
         bump_amp (float, optional): UV bump amplitude. Defaults to 0.85.
         bump_dwave (float, optional): Width (FWHM) of the dust attenuation bump in units of micron, as parameterized with the Drude profile. Defaults to 0.035 micron.
@@ -494,7 +529,6 @@ def generate_images(sim_file, z, filters, filter_transmission_path, dim_kpc=None
         rest_wave_max (float, optional): Maximum rest-frame wavelength for output spectra (Angstrom). Defaults to 30000.0.
         rest_delta_wave (float, optional): Incremental wavelength in rest-frame for output spectra (Angstrom). Defaults to 5.0.
     """ 
-
     cosmo = define_cosmo(cosmo_str)
     print ('Processing '+sim_file)
     f_t_g, f_w_p_g = _load_filter_transmission_from_paths(filters, filter_transmission_path)
@@ -573,8 +607,8 @@ def generate_images(sim_file, z, filters, filter_transmission_path, dim_kpc=None
                                      s_m, s_age, s_z, s_im, s_v_los, s_c, g_m, 
                                      g_sfr, g_z, g_lt, g_mh, g_v_los, g_c, 
                                      ssp_filepath, ssp_interpolation_method, 
-                                     output_pixel_spectra, 
-                                     f_g_o_w.tolist() if isinstance(f_g_o_w, np.ndarray) else f_g_o_w))(delayed(_process_pixel_data)(*t) for t in tasks)
+                                     output_pixel_spectra, f_g_o_w.tolist(),
+                                     dust_method, av_sfrden_relation))(delayed(_process_pixel_data)(*t) for t in tasks)
 
     for ii, jj, pd in results:
         w_map_stars_mass[ii,jj], w_map_mw_age[ii,jj], w_map_stars_mw_zsol[ii,jj] = pd['map_stars_mass'], pd['map_mw_age'], pd['map_stars_mw_zsol']
@@ -582,7 +616,8 @@ def generate_images(sim_file, z, filters, filter_transmission_path, dim_kpc=None
         w_map_gas_mass[ii,jj], w_map_sfr_inst[ii,jj], w_map_gas_mw_zsol[ii,jj] = pd['map_gas_mass'], pd['map_sfr_inst'], pd['map_gas_mw_zsol']
         w_map_dust_mean_tauV[ii,jj], w_map_dust_mean_AV[ii,jj] = pd['map_dust_mean_tauV'], pd['map_dust_mean_AV']
         w_map_flux[ii,jj], w_map_flux_dust[ii,jj] = pd['map_flux'], pd['map_flux_dust']
-        if output_pixel_spectra: w_map_spec_n[ii,jj], w_map_spec_d[ii,jj] = pd['obs_spectra_nodust_igm'], pd['obs_spectra_dust_igm']
+        if output_pixel_spectra: 
+            w_map_spec_n[ii,jj], w_map_spec_d[ii,jj] = pd['obs_spectra_nodust_igm'], pd['obs_spectra_dust_igm']
         w_map_lw['age_n'][ii,jj], w_map_lw['age_d'][ii,jj], w_map_lw['z_n'][ii,jj], w_map_lw['z_d'][ii,jj] = pd['map_lw_age_nodust'], pd['map_lw_age_dust'], pd['map_lw_zsol_nodust'], pd['map_lw_zsol_dust']
         w_map_lw['v_s_mw'][ii,jj], w_map_lw['v_g_mw'][ii,jj], w_map_lw['v_s_disp'][ii,jj], w_map_lw['v_g_disp'][ii,jj] = pd['map_stars_mw_vel_los'], pd['map_gas_mw_vel_los'], pd['map_stars_vel_disp_los'], pd['map_gas_vel_disp_los']
         w_map_lw['v_n'][ii,jj], w_map_lw['v_d'][ii,jj], w_map_lw['v_neb'][ii,jj] = pd['map_lw_vel_los_nodust'], pd['map_lw_vel_los_dust'], pd['map_lw_vel_los_nebular']
@@ -635,14 +670,12 @@ def generate_images(sim_file, z, filters, filter_transmission_path, dim_kpc=None
                 primary_data = map_flux[:, :, 0]
                 prihdr = fits.Header()
                 prihdr['COMMENT'] = 'Primary Image: First band (no dust)'
-                # WCS based on rebinned (final) dimensions
                 prihdr['CRPIX1'] = final_dimx / 2.0 + 0.5
                 prihdr['CRPIX2'] = final_dimy / 2.0 + 0.5
                 prihdr['CDELT1'] = pix_kpc
                 prihdr['CDELT2'] = pix_kpc
                 prihdr['CUNIT1'] = 'kpc'
                 prihdr['CUNIT2'] = 'kpc'
-                # Simulation Metadata
                 prihdr['REDSHIFT'] = snap_z
                 prihdr['POLAR'] = polar_angle_deg
                 prihdr['AZIMUTH'] = azimuth_angle_deg
@@ -652,11 +685,10 @@ def generate_images(sim_file, z, filters, filter_transmission_path, dim_kpc=None
                 prihdr['BUNIT'] = flux_unit
                 prihdr['SSP_CODE'] = ssp_code
                 prihdr['SM_LEN'] = smoothing_length
-
+                prihdr['DUST_MET'] = dust_method
                 primary_hdu = fits.PrimaryHDU(data=primary_data, header=prihdr)
                 hdul.append(primary_hdu)
 
-                # Add Photometry Extensions (No Dust)
                 for i_band in range(len(filters)):
                     ext_hdr = fits.Header()
                     ext_hdr['EXTNAME'] = 'NODUST_'+filters[i_band].upper() 
@@ -665,7 +697,6 @@ def generate_images(sim_file, z, filters, filter_transmission_path, dim_kpc=None
                     ext_hdr['BUNIT'] = flux_unit
                     hdul.append(fits.ImageHDU(data=map_flux[:, :, i_band], header=ext_hdr))
 
-                # Add Photometry Extensions (With Dust)
                 for i_band in range(len(filters)):
                     ext_hdr = fits.Header()
                     ext_hdr['EXTNAME'] = 'DUST_'+filters[i_band].upper() 
@@ -708,7 +739,6 @@ def generate_images(sim_file, z, filters, filter_transmission_path, dim_kpc=None
                     ext_hdr = fits.Header()
                     ext_hdr['EXTNAME'] = map_name
                     ext_hdr['COMMENT'] = f'Map of {map_name.replace("_", " ").title()}'
-                    # Unit tagging
                     if 'AGE' in map_name: 
                         ext_hdr['BUNIT'] = 'Gyr'
                     elif 'ZSOL' in map_name: 
@@ -733,21 +763,16 @@ def generate_images(sim_file, z, filters, filter_transmission_path, dim_kpc=None
                     h = fits.Header()
                     h['EXTNAME'] = ext_name
                     h['COMMENT'] = 'Observed-frame spectra'
-                    
-                    # Spectral Axis
                     h['CRPIX1'] = 1.0
                     h['CRVAL1'] = f_g_o_w[0] if f_g_o_w.size > 0 else 0.0
                     h['CDELT1'] = (f_g_o_w[1] - f_g_o_w[0]) if f_g_o_w.size > 1 else 0.0
                     h['CUNIT1'] = 'Angstrom'
-                    
-                    # Spatial Axes (rebinned)
                     h['CRPIX2'] = final_dimy / 2.0 + 0.5
                     h['CDELT2'] = pix_kpc
                     h['CUNIT2'] = 'kpc'
                     h['CRPIX3'] = final_dimx / 2.0 + 0.5
                     h['CDELT3'] = pix_kpc
                     h['CUNIT3'] = 'kpc'
-                    
                     h['BUNIT'] = 'erg/s/cm2/Angstrom'
                     hdul.append(fits.ImageHDU(data=data_cube, header=h))
                 
