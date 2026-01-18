@@ -29,19 +29,19 @@ def tau_dust_given_z(z, norm_dust_z, norm_dust_tau):
     f = interp1d(norm_dust_z, norm_dust_tau, fill_value="extrapolate")
     return f(z)
 
-def drude_profile(Bump_strength, wave_um):
+def drude_profile(Bump_strength, wave_um, dwave=0.035):
     """
     Calculates the Drude profile for the 2175 Angstrom UV bump.
 
     Args:
         Bump_strength (float): The amplitude or strength of the UV bump feature.
         wave_um (array-like): Wavelength in units of microns.
+        dwave (float): The FWHM of the bump in microns. Default to 0.035.
 
     Returns:
         np.ndarray: The Drude profile D(lambda) corresponding to the input wavelengths.
     """
     wave0 = 0.2175
-    dwave = 0.035
     part1 = wave_um * wave_um * dwave * dwave
     part2 = np.square((wave_um*wave_um) - (wave0*wave0))  
 
@@ -115,7 +115,7 @@ def calzetti_dust_Alambda_per_AV(wave_ang):
     Alambda_per_AV = k_lambda/4.05
     return Alambda_per_AV
 
-def modified_calzetti_dust_Alambda_per_AV(wave_ang, dust_index=0.0, bump_amp=None):
+def modified_calzetti_dust_Alambda_per_AV(wave_ang, dust_index=0.0, bump_amp=None, bump_dwave=0.035):
     """
     Calculates a modified Calzetti law with a UV bump and power-law tilt.
 
@@ -124,6 +124,7 @@ def modified_calzetti_dust_Alambda_per_AV(wave_ang, dust_index=0.0, bump_amp=Non
         dust_index (float, optional): The power-law slope modifier. Defaults to 0.0.
         bump_amp (float, optional): The UV bump amplitude. If None, it is derived
                                     from `dust_index`. Defaults to None.
+        bump_dwave (float, optional): The width of the 2175 Bump in microns. Default to 0.035. 
 
     Returns:
         np.ndarray: The normalized modified Calzetti attenuation curve.
@@ -134,7 +135,7 @@ def modified_calzetti_dust_Alambda_per_AV(wave_ang, dust_index=0.0, bump_amp=Non
         bump_amp = bump_amp_from_dust_index(dust_index)
 
     wave_um = wave_ang/1e+4
-    D_lambda = drude_profile(bump_amp, wave_um)
+    D_lambda = drude_profile(bump_amp, wave_um, dwave=bump_dwave)
     Alambda_per_AV = (k_lambda + D_lambda)*np.power(wave_um/wave_V, dust_index)/4.05
     return Alambda_per_AV
 
@@ -220,4 +221,21 @@ def smc_gordon2003_dust_Alambda_per_AV(wave_ang):
     """
     return _load_and_interpolate_dust_law(wave_ang, "smc_gordon2003.txt")
 
-
+def relation_AVslope(model_name="salim18"):
+    """
+    Returns a dictionary mapping AV to dust_index for predefined empirical relations.
+    
+    Args:
+        model_name (str): 'salim18', 'nagaraj22', or 'battisti19'.
+        
+    Returns:
+        dict: {'AV': np.array, 'dust_index': np.array}
+    """
+    try:
+        # Load the data from the packaged data directory
+        data_path = str(importlib.resources.files('galsyn.data').joinpath(f"{model_name}_AV_dust_index.txt"))
+        data = np.loadtxt(data_path)
+        return {"AV": data[:, 0], "dust_index": data[:, 1]}
+    except Exception as e:
+        print(f"Error loading relation {model_name}: {e}")
+        return None

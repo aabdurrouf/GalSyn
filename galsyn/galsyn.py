@@ -96,13 +96,10 @@ class GalaxySynthesizer:
         self._dust_law = getattr(config, 'DUST_LAW', 0)
         self._dust_index = getattr(config, 'DUST_INDEX', 0.0)
         self._bump_amp = getattr(config, 'BUMP_AMP', 0.85)
+        self._bump_dwave = getattr(config, 'BUMP_DWAVE', 0.035)      # in micron
         self._dust_index_bc = getattr(config, 'DUST_INDEX_BC', -0.7)
         self._t_esc = getattr(config, 'T_ESC', 0.01)
         self._dust_eta = getattr(config, 'DUST_ETA', 1.0)
-
-        # New parameter: A_V vs dust_index relation
-        self._relation_AVslope = getattr(config, 'RELATION_AVSLOPE', "Salim18")
-
         self._salim_a0 = getattr(config, 'SALIM_A0', -4.30)
         self._salim_a1 = getattr(config, 'SALIM_A1', 2.71)
         self._salim_a2 = getattr(config, 'SALIM_A2', -0.191)
@@ -436,13 +433,13 @@ class GalaxySynthesizer:
 
     @property
     def dust_index(self):
-        """Dust index for diffuse ISM. Defaults to 0.0."""
+        """float or dict: Constant slope or {'AV': [], 'dust_index': []} dictionary."""
         return self._dust_index
 
     @dust_index.setter
     def dust_index(self, value):
-        if not isinstance(value, (int, float)):
-            raise ValueError("dust_index must be a number.")
+        if not isinstance(value, (int, float, dict)):
+            raise ValueError("dust_index must be a number or a dictionary.")
         self._dust_index = value
 
     @property
@@ -516,68 +513,44 @@ class GalaxySynthesizer:
     def dust_law(self):
         """
         int: The dust attenuation law to apply.
-
         Options:
-            0: Modified Calzetti+00 with Bump strength (`bump_amp`) tied to slope (`dust_index`), where `dust_index` itself depends on the line-of-sight A_V.
-            1: Modified Calzetti+00 with a free `bump_amp`, where `dust_index` depends on the line-of-sight A_V.
-            2: Modified Calzetti+00 with `bump_amp` tied to `dust_index`, where `dust_index` is a single free parameter for all stars.
-            3: Modified Calzetti+00 with both `bump_amp` and `dust_index` as free parameters, applied uniformly to all stars.
-            4: Salim+18 attenuation law.
-            5: The original Calzetti+00 starburst attenuation law.
-            6: Small Magellanic Cloud (SMC) extinction law from Gordon+03.
-            7: Large Magellanic Cloud (LMC) extinction law from Gordon+03.
-            8: Milky Way (MW) extinction law from Cardelli, Clayton, & Mathis (1989).
-            9: Milky Way (MW) extinction law from Fitzpatrick (1999).
+            0: Modified Calzetti+2000 with variable slope and bump.
+            1: Salim+18 attenuation law.
+            2: The original Calzetti+2000 starburst attenuation law.
+            3: Small Magellanic Cloud (SMC) extinction law from Gordon+2003.
+            4: Large Magellanic Cloud (LMC) extinction law from Gordon+2003.
+            5: Milky Way (MW) extinction law from Cardelli, Clayton, & Mathis (1989).
+            6: Milky Way (MW) extinction law from Fitzpatrick (1999).
         """
         return self._dust_law
 
     @dust_law.setter
     def dust_law(self, value):
-        if not isinstance(value, int) or value not in [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]:
-            raise ValueError("dust_law must be integer in the range of 0 to 9!")
+        if not isinstance(value, int) or value not in [0, 1, 2, 3, 4, 5, 6]:
+            raise ValueError("dust_law must be integer in the range of 0 to 6!")
         self._dust_law = value
 
     @property
     def bump_amp(self):
-        """UV bump amplitude. Defaults to 0.85."""
+        """float or dict: UV bump amplitude B or {'AV': [], 'bump_amp': []}."""
         return self._bump_amp
 
     @bump_amp.setter
     def bump_amp(self, value):
-        if not isinstance(value, (int, float)):
-            raise ValueError("bump_amp must be a number.")
+        if not isinstance(value, (int, float, dict)):
+            raise ValueError("bump_amp must be a number or a dictionary.")
         self._bump_amp = value
 
     @property
-    def relation_AVslope(self):
-        """Defines the A_V vs dust_index relation.
-            Can be a string with options of "Salim18", "Nagaraj22", and "Battisti19",
-            or a dictionary with "AV" and "dust_index" keys (1D arrays).
-            Defaults to "Salim18".
-        """
-        return self._relation_AVslope
+    def bump_dwave(self):
+        """float or dict: UV bump width (micron) or {'AV': [], 'bump_dwave': []}."""
+        return self._bump_dwave
 
-    @relation_AVslope.setter
-    def relation_AVslope(self, value):
-        if isinstance(value, str):
-            if value not in ["Salim18", "Nagaraj22", "Battisti19"]:
-                raise ValueError("relation_AVslope string must be 'Salim18', 'Nagaraj22', or 'Battisti19'.")
-        elif isinstance(value, dict):
-            if "AV" not in value or "dust_index" not in value:
-                raise ValueError("relation_AVslope dictionary must contain 'AV' and 'dust_index' keys.")
-            if not isinstance(value["AV"], (list, np.ndarray)) or not isinstance(value["dust_index"], (list, np.ndarray)):
-                raise ValueError("Both 'AV' and 'dust_index' in relation_AVslope dictionary must be lists or numpy arrays.")
-            if len(value["AV"]) != len(value["dust_index"]):
-                raise ValueError("'AV' and 'dust_index' arrays in relation_AVslope must have the same length.")
-            try:
-                # Attempt to convert to numpy arrays and check if elements are numeric
-                np.asarray(value["AV"], dtype=float)
-                np.asarray(value["dust_index"], dtype=float)
-            except ValueError:
-                raise ValueError("All elements in 'AV' and 'dust_index' arrays must be numeric.")
-        else:
-            raise ValueError("relation_AVslope must be a string ('Salim18', 'Nagaraj22', 'Battisti19') or a dictionary with 'AV' and 'dust_index' keys.")
-        self._relation_AVslope = value
+    @bump_dwave.setter
+    def bump_dwave(self, value):
+        if not isinstance(value, (int, float, dict)):
+            raise ValueError("bump_dwave must be a number or a dictionary.")
+        self._bump_dwave = value
 
     @property
     def salim_a0(self):
@@ -890,7 +863,7 @@ class GalaxySynthesizer:
                 'cosmo_str': self.cosmo_str,
                 'dust_law': self.dust_law,
                 'bump_amp': self.bump_amp,
-                'relation_AVslope': self.relation_AVslope,
+                'bump_dwave': self.bump_dwave,
                 'salim_a0': self.salim_a0,
                 'salim_a1': self.salim_a1,
                 'salim_a2': self.salim_a2,

@@ -40,24 +40,18 @@ pix_area_kpc2 = None
 gas_logu = None
 igm_type = None
 dust_index_bc = None
-dust_index = None
 t_esc = None
 dust_eta = None
 dust_law = None
-bump_amp = None
-salim_a0 = None
-salim_a1 = None
-salim_a2 = None
-salim_a3 = None
-salim_RV = None
-salim_B = None
-dust_Alambda_per_AV = None
+
+# Unified Dust Model Globals for Option 0
 func_interp_dust_index = None
+func_interp_bump_amp = None
+func_interp_bump_dwave = None
+dust_Alambda_per_AV = None # Used for static laws 4-9
+
 use_precomputed_ssp = False
 ssp_interpolation_method = 'nearest'
-
-dustindexAV_AV = None
-dustindexAV_dust_index = None
 
 _worker_scale_dust_tau = None
 output_pixel_spectra_flag = False
@@ -91,7 +85,6 @@ _worker_gas_coords = None
 
 _lw_wave_min_rest = 1000.0 
 _lw_wave_max_rest = 30000.0 
-
 
 def rebin_map(data, factor, mode='sum'):
     """
@@ -161,43 +154,44 @@ def init_worker(ssp_code_val, snap_z_val, pix_area_kpc2_val,
                 imf1_val, imf2_val, imf3_val, vdmc_val, mdave_val,     
                 gas_logu_val, igm_type_val, dust_index_bc_val, 
                 dust_index_val, t_esc_val, dust_eta_val, precomputed_scale_dust_tau_val,
-                cosmo_str_val, dust_law_val, bump_amp_val, relation_AVslope_val, salim_a0_val, 
-                salim_a1_val, salim_a2_val, salim_a3_val, salim_RV_val, salim_B_val, use_precomputed_ssp_val, 
-                stars_mass_arr, stars_age_arr, stars_zmet_arr, stars_init_mass_arr, stars_vel_los_proj_arr, stars_coords_arr,
-                gas_mass_arr, gas_sfr_inst_arr, gas_zmet_arr, gas_log_temp_arr, gas_mass_H_arr, gas_vel_los_proj_arr, gas_coords_arr, 
-                ssp_filepath_val=None, ssp_interpolation_method_val='nearest', 
-                output_pixel_spectra_val=False, output_obs_wave_grid_val=None): 
+                cosmo_str_val, dust_law_val, bump_amp_val, bump_dwave_val,
+                salim_a0_val, salim_a1_val, salim_a2_val, salim_a3_val, salim_RV_val, salim_B_val, 
+                use_precomputed_ssp_val, stars_mass_arr, stars_age_arr, stars_zmet_arr, stars_init_mass_arr, 
+                stars_vel_los_proj_arr, stars_coords_arr, gas_mass_arr, gas_sfr_inst_arr, gas_zmet_arr, 
+                gas_log_temp_arr, gas_mass_H_arr, gas_vel_los_proj_arr, gas_coords_arr, ssp_filepath_val=None, 
+                ssp_interpolation_method_val='nearest', output_pixel_spectra_val=False, 
+                output_obs_wave_grid_val=None): 
     
     global ssp_wave, ssp_ages_gyr, ssp_logzsol_grid, ssp_stellar_mass_grid, ssp_code_z_sun
     global ssp_stellar_continuum_grid, ssp_nebular_emission_grid 
     global _global_ssp_stellar_continuum_interpolator, _global_ssp_nebular_emission_interpolator, _global_ssp_stellar_mass_interpolator
     global sp_instance, igm_trans, snap_z, pix_area_kpc2
-    global gas_logu, igm_type, dust_index_bc, dust_index, t_esc, dust_eta, dust_law, bump_amp
-    global salim_a0, salim_a1, salim_a2, salim_a3, salim_RV, salim_B, dust_Alambda_per_AV, func_interp_dust_index
+    global gas_logu, igm_type, dust_index_bc, t_esc, dust_eta, dust_law
+    global salim_a0, salim_a1, salim_a2, salim_a3, salim_RV, salim_B, dust_Alambda_per_AV
+    global func_interp_dust_index, func_interp_bump_amp, func_interp_bump_dwave
     global use_precomputed_ssp, ssp_interpolation_method, output_pixel_spectra_flag, _worker_output_obs_wave_grid 
     global _worker_filters, _worker_filter_transmission, _worker_filter_wave_eff, _worker_imf_type, _worker_cosmo
     global _worker_imf_upper_limit, _worker_imf_lower_limit, _worker_imf1, _worker_imf2, _worker_imf3, _worker_vdmc, _worker_mdave
-    global dustindexAV_AV, dustindexAV_dust_index, _worker_scale_dust_tau
-    global _worker_stars_mass, _worker_stars_age, _worker_stars_zmet, _worker_stars_init_mass, _worker_stars_vel_los_proj, _worker_stars_coords
+    global _worker_scale_dust_tau, _worker_stars_mass, _worker_stars_age, _worker_stars_zmet, _worker_stars_init_mass, _worker_stars_vel_los_proj, _worker_stars_coords
     global _worker_gas_mass, _worker_gas_sfr_inst, _worker_gas_zmet, _worker_gas_log_temp, _worker_gas_mass_H, _worker_gas_vel_los_proj, _worker_gas_coords
 
+    # Map worker arrays
     _worker_stars_mass, _worker_stars_age, _worker_stars_zmet = stars_mass_arr, stars_age_arr, stars_zmet_arr
     _worker_stars_init_mass, _worker_stars_vel_los_proj, _worker_stars_coords = stars_init_mass_arr, stars_vel_los_proj_arr, stars_coords_arr
     _worker_gas_mass, _worker_gas_sfr_inst, _worker_gas_zmet = gas_mass_arr, gas_sfr_inst_arr, gas_zmet_arr
     _worker_gas_log_temp, _worker_gas_mass_H, _worker_gas_vel_los_proj, _worker_gas_coords = gas_log_temp_arr, gas_mass_H_arr, gas_vel_los_proj_arr, gas_coords_arr
 
+    # Basic setup
     snap_z, pix_area_kpc2, _worker_imf_type = snap_z_val, pix_area_kpc2_val, imf_type_val
-    _worker_imf_upper_limit, _worker_imf_lower_limit = imf_upper_limit_val, imf_lower_limit_val
-    _worker_imf1, _worker_imf2, _worker_imf3 = imf1_val, imf2_val, imf3_val
-    _worker_vdmc, _worker_mdave, gas_logu, igm_type = vdmc_val, mdave_val, gas_logu_val, igm_type_val
+    dust_law = dust_law_val
     dust_index_bc, t_esc, dust_eta, _worker_scale_dust_tau = dust_index_bc_val, t_esc_val, dust_eta_val, precomputed_scale_dust_tau_val
     _worker_cosmo = define_cosmo(cosmo_str_val)
-    dust_law, salim_a0, salim_a1, salim_a2, salim_a3, salim_RV, salim_B = dust_law_val, salim_a0_val, salim_a1_val, salim_a2_val, salim_a3_val, salim_RV_val, salim_B_val
-    dust_index, bump_amp, use_precomputed_ssp, ssp_interpolation_method = dust_index_val, bump_amp_val, use_precomputed_ssp_val, ssp_interpolation_method_val 
+    use_precomputed_ssp, ssp_interpolation_method = use_precomputed_ssp_val, ssp_interpolation_method_val 
     _worker_filters = filters_list_val
     _worker_filter_transmission, _worker_filter_wave_eff = _load_filter_transmission_from_paths(_worker_filters, filter_transmission_path_val)
     output_pixel_spectra_flag = output_pixel_spectra_val
-    _worker_output_obs_wave_grid = np.asarray(output_obs_wave_grid_val) if isinstance(output_obs_wave_grid_val, tuple) else output_obs_wave_grid_val
+    #_worker_output_obs_wave_grid = np.asarray(output_obs_wave_grid_val) if isinstance(output_obs_wave_grid_val, tuple) else output_obs_wave_grid_val
+    _worker_output_obs_wave_grid = np.asarray(output_obs_wave_grid_val)
 
     if use_precomputed_ssp:
         with h5py.File(ssp_filepath_val, 'r') as f_ssp:
@@ -231,33 +225,46 @@ def init_worker(ssp_code_val, snap_z_val, pix_area_kpc2_val,
         ssp_wave, _ = sp_instance.get_spectrum(peraa=True, tage=1.0)
         ssp_code_z_sun = FSPS_Z_SUN 
 
-    # Handle relation_AVslope_val
-    if isinstance(relation_AVslope_val, str):
-        data = np.loadtxt(str(importlib.resources.files('galsyn.data').joinpath(f"{relation_AVslope_val}_AV_dust_index.txt")))
-        dustindexAV_AV, dustindexAV_dust_index = data[:, 0], data[:, 1]
-    else:
-        dustindexAV_AV, dustindexAV_dust_index = np.asarray(relation_AVslope_val["AV"]), np.asarray(relation_AVslope_val["dust_index"])
+    # --- Unified Option 0 Dust Interpolators ---
+    if dust_law == 0:
+        # Dust Index (Slope)
+        if isinstance(dust_index_val, dict):
+            func_interp_dust_index = interp1d(dust_index_val['AV'], dust_index_val['dust_index'], bounds_error=False, fill_value='extrapolate')
+        else:
+            func_interp_dust_index = lambda av: dust_index_val
 
-    if dust_law <= 1:
-        func_interp_dust_index = interp1d(dustindexAV_AV, dustindexAV_dust_index, bounds_error=False, fill_value='extrapolate')
-    elif dust_law == 2 or dust_law == 3:
-        current_bump = bump_amp_from_dust_index(dust_index) if dust_law == 2 else bump_amp
-        dust_Alambda_per_AV = modified_calzetti_dust_Alambda_per_AV(ssp_wave, dust_index=dust_index, bump_amp=current_bump)
-    elif dust_law == 4:
-        dust_Alambda_per_AV = salim18_dust_Alambda_per_AV(ssp_wave, salim_a0, salim_a1, salim_a2, salim_a3, salim_B, salim_RV)
-    elif dust_law == 5: dust_Alambda_per_AV = calzetti_dust_Alambda_per_AV(ssp_wave)
-    elif dust_law == 6: dust_Alambda_per_AV = smc_gordon2003_dust_Alambda_per_AV(ssp_wave)
-    elif dust_law == 7: dust_Alambda_per_AV = lmc_gordon2003_dust_Alambda_per_AV(ssp_wave)
-    elif dust_law == 8: dust_Alambda_per_AV = ccm89_dust_Alambda_per_AV(ssp_wave)
-    elif dust_law == 9: dust_Alambda_per_AV = fitzpatrick99_dust_Alambda_per_AV(ssp_wave)
+        # Bump Amplitude
+        if isinstance(bump_amp_val, dict):
+            func_interp_bump_amp = interp1d(bump_amp_val['AV'], bump_amp_val['bump_amp'], bounds_error=False, fill_value='extrapolate')
+        else:
+            func_interp_bump_amp = lambda av: bump_amp_val
+
+        # Bump Width (micron)
+        if isinstance(bump_dwave_val, dict):
+            func_interp_bump_dwave = interp1d(bump_dwave_val['AV'], bump_dwave_val['bump_dwave'], bounds_error=False, fill_value='extrapolate')
+        else:
+            func_interp_bump_dwave = lambda av: bump_dwave_val
+
+    # Tabulated Dust Laws (4-9)
+    elif dust_law == 1: dust_Alambda_per_AV = salim18_dust_Alambda_per_AV(ssp_wave, salim_a0_val, salim_a1_val, salim_a2_val, salim_a3_val, salim_B_val, salim_RV_val)
+    elif dust_law == 2: dust_Alambda_per_AV = calzetti_dust_Alambda_per_AV(ssp_wave)
+    elif dust_law == 3: dust_Alambda_per_AV = smc_gordon2003_dust_Alambda_per_AV(ssp_wave)
+    elif dust_law == 4: dust_Alambda_per_AV = lmc_gordon2003_dust_Alambda_per_AV(ssp_wave)
+    elif dust_law == 5: dust_Alambda_per_AV = ccm89_dust_Alambda_per_AV(ssp_wave)
+    elif dust_law == 6: dust_Alambda_per_AV = fitzpatrick99_dust_Alambda_per_AV(ssp_wave)
 
     if igm_type == 0: igm_trans = igm_att_madau(ssp_wave * (1.0+snap_z), snap_z)
     else: igm_trans = igm_att_inoue(ssp_wave * (1.0+snap_z), snap_z)
 
 def dust_reddening_diffuse_ism(dust_AV, wave, dust_law):
-    dust_index1 = func_interp_dust_index(dust_AV)
-    bump_amp1 = bump_amp_from_dust_index(dust_index1) if dust_law == 0 else bump_amp
-    return modified_calzetti_dust_Alambda_per_AV(wave, dust_index=dust_index1, bump_amp=bump_amp1) * dust_AV
+    """Calculates attenuation for Option 0 using interpolators or static laws."""
+    if dust_law == 0:
+        d_idx = func_interp_dust_index(dust_AV)
+        b_amp = func_interp_bump_amp(dust_AV)
+        b_w   = func_interp_bump_dwave(dust_AV)
+        return modified_calzetti_dust_Alambda_per_AV(wave, dust_index=d_idx, bump_amp=b_amp, bump_dwave=b_w) * dust_AV
+    else:
+        return dust_Alambda_per_AV * dust_AV
 
 def _process_pixel_data(ii, jj, star_particle_membership_list, gas_particle_membership_list):
     """
@@ -419,18 +426,16 @@ def _process_pixel_data(ii, jj, star_particle_membership_list, gas_particle_memb
 
     return ii, jj, pixel_results
 
-def generate_images(sim_file, z, filters, filter_transmission_path, smoothing_length=0.15, dim_kpc=None,
+def generate_images(sim_file, z, filters, filter_transmission_path, dim_kpc=None, smoothing_length=0.15, 
                     pix_arcsec=0.1, pix_kpc=None, flux_unit='MJy/sr', polar_angle_deg=0, azimuth_angle_deg=0,
-                    name_out_img=None, n_jobs=-1, ssp_code='FSPS', imf_type=1, imf_upper_limit=120.0, imf_lower_limit=0.08,
-                    imf1=1.3, imf2=2.3, imf3=2.3, vdmc=0.08, mdave=0.5, gas_logu=-2.0,
-                    igm_type=0, dust_index_bc=-0.7, dust_index=0.0, t_esc=0.01, dust_eta=1.0,
-                    scale_dust_redshift="Vogelsberger20", cosmo_str='Planck18',  
-                    dust_law=0, bump_amp=0.85, relation_AVslope="Salim18", salim_a0=-4.30, 
-                    salim_a1=2.71, salim_a2= -0.191, salim_a3=0.0121, salim_RV=3.15, salim_B=3.15,
-                    initdim_kpc=200, initdim_mass_fraction=0.99, use_precomputed_ssp=True, 
-                    ssp_filepath=None, ssp_interpolation_method='nearest', 
-                    output_pixel_spectra=False, rest_wave_min=1000.0, rest_wave_max=30000.0, 
-                    rest_delta_wave=5.0):
+                    name_out_img=None, n_jobs=-1, ssp_code='FSPS', imf_type=1, imf_upper_limit=120.0, 
+                    imf_lower_limit=0.08, imf1=1.3, imf2=2.3, imf3=2.3, vdmc=0.08, mdave=0.5, gas_logu=-2.0,
+                    igm_type=0, dust_index_bc=-0.7, dust_index=0.0, t_esc=0.01, dust_eta=1.0, 
+                    scale_dust_redshift="Vogelsberger20", cosmo_str='Planck18', dust_law=0, bump_amp=0.85, 
+                    bump_dwave=0.035, salim_a0=-4.30, salim_a1=2.71, salim_a2= -0.191, salim_a3=0.0121, 
+                    salim_RV=3.15, salim_B=3.15, initdim_kpc=200, initdim_mass_fraction=0.99, 
+                    use_precomputed_ssp=True, ssp_filepath=None, ssp_interpolation_method='nearest', 
+                    output_pixel_spectra=False, rest_wave_min=1000.0, rest_wave_max=30000.0, rest_delta_wave=5.0):
     """
     Generates astrophysical images from HDF5 simulation data with parallelized pixel calculations.
     Allows choice between using pre-computed SSP spectra from an HDF5 file or
@@ -474,10 +479,7 @@ def generate_images(sim_file, z, filters, filter_transmission_path, smoothing_le
         cosmo_str (str, optional): Cosmology string. Defaults to 'Planck18'.
         dust_law (int, optional): Dust attenuation law type. Defaults to 0.
         bump_amp (float, optional): UV bump amplitude. Defaults to 0.85.
-        relation_AVslope (str or dict, optional): Defines the A_V vs dust_index relation.
-                                                  Can be a string ("Salim18", "Nagaraj22", "Battisti19")
-                                                  or a dictionary with "AV" and "dust_index" keys (1D arrays).
-                                                  Defaults to "Salim18".
+        bump_dwave (float, optional): Width (FWHM) of the dust attenuation bump in units of micron, as parameterized with the Drude profile. Defaults to 0.035 micron.
         salim_a0, salim_a1, salim_a2, salim_a3, salim_RV, salim_B (float, optional): Parameters for Salim+2018 dust law.
         initdim_kpc (float, optional): Initial guess for image dimension in kpc. Defaults to 100.
         initdim_mass_fraction (float, optional): Mass fraction to determine initial image dimension. Defaults to 0.99. 
@@ -558,19 +560,21 @@ def generate_images(sim_file, z, filters, filter_transmission_path, smoothing_le
     tasks.sort(key=lambda x: len(x[2]) + len(x[3]), reverse=True)
 
     with tqdm_joblib(total=len(tasks), desc="Processing pixels") as pb:
-        results = Parallel(n_jobs=n_jobs, initializer=init_worker, initargs=(ssp_code, snap_z, pix_area_kpc2_working, 
-                                                                             filters, filter_transmission_path, 
-                                                                             imf_type, imf_upper_limit, imf_lower_limit, 
-                                                                             imf1, imf2, imf3, vdmc, mdave, gas_logu, 
-                                                                             igm_type, dust_index_bc, dust_index, 
-                                                                             t_esc, dust_eta, s_d_t, cosmo_str, 
-                                                                             dust_law, bump_amp, relation_AVslope, 
-                                                                             salim_a0, salim_a1, salim_a2, salim_a3, 
-                                                                             salim_RV, salim_B, use_precomputed_ssp, 
-                                                                             s_m, s_age, s_z, s_im, s_v_los, s_c, g_m, 
-                                                                             g_sfr, g_z, g_lt, g_mh, g_v_los, g_c, 
-                                                                             ssp_filepath, ssp_interpolation_method, 
-                                                                             output_pixel_spectra, tuple(f_g_o_w) if f_g_o_w.size==0 else f_g_o_w))(delayed(_process_pixel_data)(*t) for t in tasks)
+        results = Parallel(n_jobs=n_jobs, initializer=init_worker, 
+                           initargs=(ssp_code, snap_z, pix_area_kpc2_working, 
+                                     filters, filter_transmission_path, 
+                                     imf_type, imf_upper_limit, imf_lower_limit, 
+                                     imf1, imf2, imf3, vdmc, mdave, gas_logu, 
+                                     igm_type, dust_index_bc, dust_index, 
+                                     t_esc, dust_eta, s_d_t, cosmo_str, 
+                                     dust_law, bump_amp, bump_dwave, 
+                                     salim_a0, salim_a1, salim_a2, salim_a3, 
+                                     salim_RV, salim_B, use_precomputed_ssp, 
+                                     s_m, s_age, s_z, s_im, s_v_los, s_c, g_m, 
+                                     g_sfr, g_z, g_lt, g_mh, g_v_los, g_c, 
+                                     ssp_filepath, ssp_interpolation_method, 
+                                     output_pixel_spectra, 
+                                     f_g_o_w.tolist() if isinstance(f_g_o_w, np.ndarray) else f_g_o_w))(delayed(_process_pixel_data)(*t) for t in tasks)
 
     for ii, jj, pd in results:
         w_map_stars_mass[ii,jj], w_map_mw_age[ii,jj], w_map_stars_mw_zsol[ii,jj] = pd['map_stars_mass'], pd['map_mw_age'], pd['map_stars_mw_zsol']
@@ -582,7 +586,6 @@ def generate_images(sim_file, z, filters, filter_transmission_path, smoothing_le
         w_map_lw['age_n'][ii,jj], w_map_lw['age_d'][ii,jj], w_map_lw['z_n'][ii,jj], w_map_lw['z_d'][ii,jj] = pd['map_lw_age_nodust'], pd['map_lw_age_dust'], pd['map_lw_zsol_nodust'], pd['map_lw_zsol_dust']
         w_map_lw['v_s_mw'][ii,jj], w_map_lw['v_g_mw'][ii,jj], w_map_lw['v_s_disp'][ii,jj], w_map_lw['v_g_disp'][ii,jj] = pd['map_stars_mw_vel_los'], pd['map_gas_mw_vel_los'], pd['map_stars_vel_disp_los'], pd['map_gas_vel_disp_los']
         w_map_lw['v_n'][ii,jj], w_map_lw['v_d'][ii,jj], w_map_lw['v_neb'][ii,jj] = pd['map_lw_vel_los_nodust'], pd['map_lw_vel_los_dust'], pd['map_lw_vel_los_nebular']
-
 
 
     # --- FLUX CONSERVING REBINNING TO USER PIXEL SIZE ---
