@@ -458,12 +458,13 @@ def generate_images(sim_file, z, filters, filter_transmission_path, smoothing_le
                                                      ("Vogelsberger20") or a dictionary.
                                                      Defaults to "Vogelsberger20".
         cosmo_str (str, optional): Cosmology string. Defaults to 'Planck18'.
-        dust_method (str, optional): The framework used to calculate diffuse ISM dust attenuation. 
-                                     Options:
-                                     - 'los': (Default) Integration of optical depth along the 
-                                       line-of-sight based on local gas column density and metallicity.
-                                     - 'sfr_AV': Calculates effective A_V for pixel based on 
-                                       instantaneous SFR surface density (Msun/yr/kpc^2).
+        
+        dust_method (str, optional): The framework used to calculate diffuse ISM dust attenuation. Options: 
+                                        
+                                        - 'los': (Default) Integration of the optical depth along the line-of-sight for each star particle based on local gas column density and metallicity. 
+                                        
+                                        - 'sfr_AV': Calculates an effective A_V for the entire pixel/grid cell based on the instantaneous SFR surface density (Msun/yr/kpc^2).
+
         av_sfrden_relation (dict, optional): Dictionary defining proportionality between 
                                              SFR surface density and A_V. Required if 
                                              dust_method='sfr_AV'. 
@@ -645,7 +646,7 @@ def generate_images(sim_file, z, filters, filter_transmission_path, smoothing_le
                 prihdr['SSP_CODE'] = ssp_code
                 prihdr['SM_LEN'] = smoothing_length
                 prihdr['DUST_MET'] = dust_method
-                
+
                 primary_hdu = fits.PrimaryHDU(data=primary_data, header=prihdr)
                 hdul.append(primary_hdu)
 

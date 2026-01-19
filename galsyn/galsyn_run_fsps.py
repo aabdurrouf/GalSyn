@@ -495,23 +495,18 @@ def generate_images(sim_file, z, filters, filter_transmission_path, dim_kpc=None
         dust_index (float, optional): Dust index for diffuse ISM (if applicable). Defaults to 0.0.
         t_esc (float, optional): Escape time for young stars. Defaults to 0.01.
         dust_eta (float, optional): Ratio of the dust attenuation A_V in the birth clouds and the diffuse ISM. Defaults to 1.0.
-        scale_dust_redshift (str or dict, optional): Defines the dust_tau normalization vs redshift relation.
-                                                     Can be a string ("Vogelsberger20") or a dictionary with "z" and "tau_dust" keys (1D arrays).
-                                                     Defaults to "Vogelsberger20".
+        scale_dust_redshift (str or dict, optional): Defines the dust_tau normalization vs redshift relation. 
+                                                    Can be a string ("Vogelsberger20") or a dictionary with "z" and "tau_dust" keys (1D arrays). 
+                                                    Defaults to "Vogelsberger20".
         cosmo_str (str, optional): Cosmology string. Defaults to 'Planck18'.
-        dust_method (str, optional): The framework used to calculate diffuse ISM dust attenuation. 
-                                     Options:
-                                     - 'los': (Default) Integration of the optical depth along the 
-                                       line-of-sight for each star particle based on local gas 
-                                       column density and metallicity.
-                                     - 'sfr_AV': Calculates an effective A_V for the entire 
-                                       pixel/grid cell based on the instantaneous SFR surface 
-                                       density (Msun/yr/kpc^2).
-        av_sfrden_relation (dict, optional): A dictionary defining the proportionality between 
-                                             SFR surface density and A_V. Required if 
-                                             dust_method='sfr_AV'. 
-                                             Expected format: {'AV': [values], 'SFR_density': [values]}.
-                                             The units for 'SFR_density' should be Msun/yr/kpc^2.
+
+        dust_method (str, optional): The framework used to calculate diffuse ISM dust attenuation. Options: 
+                                        
+                                        - 'los': (Default) Integration of the optical depth along the line-of-sight for each star particle based on local gas column density and metallicity. 
+                                        
+                                        - 'sfr_AV': Calculates an effective A_V for the entire pixel/grid cell based on the instantaneous SFR surface density (Msun/yr/kpc^2).
+
+        av_sfrden_relation (dict, optional): A dictionary defining the proportionality between SFR surface density and A_V. Required if dust_method='sfr_AV'. Expected format: {'AV': [values], 'SFR_density': [values]}. The units for 'SFR_density' should be Msun/yr/kpc^2.
         dust_law (int, optional): Dust attenuation law type. Defaults to 0.
         bump_amp (float, optional): UV bump amplitude. Defaults to 0.85.
         bump_dwave (float, optional): Width (FWHM) of the dust attenuation bump in units of micron, as parameterized with the Drude profile. Defaults to 0.035 micron.

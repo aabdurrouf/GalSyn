@@ -150,7 +150,7 @@ def cosmic_times_of_snapshots(snaps, sim='TNG50-1', snaps_info=None, cosmo='Plan
 
     return np.asarray(cosmic_times)
 
-def download_cutout_subhalo_hdf5(snap_number, subhalo_id, api_key="api-key", sim='TNG50-1', params=None):
+def download_cutout_subhalo_hdf5(snap_number, subhalo_id, api_key="api-key", sim='TNG50-1', params=None, name=None):
     """
     Downloads the HDF5 data cutout for a specific subhalo.
 
@@ -161,6 +161,7 @@ def download_cutout_subhalo_hdf5(snap_number, subhalo_id, api_key="api-key", sim
         sim (str): The name of the TNG simulation.
         params (dict, optional): Additional parameters for the API request,
                                  e.g., {'gas':'all', 'stars':'all'}.
+        name (str, optional): Desired output name.
 
     Returns:
         str: The filename of the downloaded and renamed HDF5 file.
@@ -170,11 +171,12 @@ def download_cutout_subhalo_hdf5(snap_number, subhalo_id, api_key="api-key", sim
     url = "http://www.tng-project.org/api/" + sim + "/snapshots/" + str(int(snap_number)) + "/subhalos/" + str(int(subhalo_id))
     sub = get(url, params=params)
     name0 = get(sub['cutouts']['subhalo'],params)
-    name = 'cutout_shalo_'+str(int(snap_number))+'_'+str(int(subhalo_id))+'.hdf5'
+    if name is None:
+        name = 'cutout_shalo_'+str(int(snap_number))+'_'+str(int(subhalo_id))+'.hdf5'
     os.rename(name0, name)
     return name 
 
-def download_cutout_parent_halo_hdf5(snap_number, subhalo_id, api_key="api-key", sim='TNG50-1', params=None):
+def download_cutout_parent_halo_hdf5(snap_number, subhalo_id, api_key="api-key", sim='TNG50-1', params=None, name=None):
     """
     Downloads the HDF5 data cutout for the parent halo of a specified subhalo.
 
@@ -184,6 +186,7 @@ def download_cutout_parent_halo_hdf5(snap_number, subhalo_id, api_key="api-key",
         api_key (str): Your TNG API key.
         sim (str): The name of the TNG simulation.
         params (dict, optional): Additional parameters for the API request.
+        name (str, optional): Desired output name.
 
     Returns:
         str: The filename of the downloaded and renamed HDF5 file.
@@ -193,7 +196,8 @@ def download_cutout_parent_halo_hdf5(snap_number, subhalo_id, api_key="api-key",
     url = "http://www.tng-project.org/api/" + sim + "/snapshots/" + str(int(snap_number)) + "/subhalos/" + str(int(subhalo_id))
     sub = get(url, params=params)
     name0 = get(sub['cutouts']['parent_halo'],params)
-    name = 'cutout_phalo_'+str(int(snap_number))+'_'+str(int(subhalo_id))+'.hdf5'
+    if name is None:
+        name = 'cutout_phalo_'+str(int(snap_number))+'_'+str(int(subhalo_id))+'.hdf5'
     os.rename(name0, name)
     return name
 
