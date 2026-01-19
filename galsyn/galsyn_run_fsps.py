@@ -232,7 +232,7 @@ def init_worker(ssp_code_val, snap_z_val, pix_area_kpc2_val,
         ssp_wave, _ = sp_instance.get_spectrum(peraa=True, tage=1.0)
         ssp_code_z_sun = FSPS_Z_SUN 
 
-    # --- Unified Option 0 Dust Interpolators ---
+    # Unified Option 0 Dust Interpolators
     if dust_law == 0:
         # Dust Index (Slope)
         if isinstance(dust_index_val, dict):
@@ -381,7 +381,7 @@ def _process_pixel_data(ii, jj, star_particle_membership_list, gas_particle_memb
 
             spec_dust, d_AV = spec.copy(), 0.0
 
-            # --- Dust Method Branching ---
+            # Dust Method Branching
             if _worker_dust_method == 'sfr_AV':
                 d_AV = effective_av
             else:
@@ -565,14 +565,14 @@ def generate_images(sim_file, z, filters, filter_transmission_path, dim_kpc=None
     dimx, dimy = g_inf['num_pixels_x'], g_inf['num_pixels_y']
     #print ('Cutout size: %d x %d pix or %d x %d kpc' % (dimx,dimy,dim_kpc,dim_kpc))
 
-    # --- Dust normalization loading ---
+    # Dust normalization loading
     if isinstance(scale_dust_redshift, str):
         data = np.loadtxt(str(importlib.resources.files('galsyn.data').joinpath("Vogelsberger20_scale_dust.txt")))
         n_d_z, n_d_t = data[:,0], data[:,1]
     else: n_d_z, n_d_t = np.asarray(scale_dust_redshift["z"]), np.asarray(scale_dust_redshift["tau_dust"])
     s_d_t = tau_dust_given_z(snap_z, n_d_z, n_d_t)
 
-    # --- Define the fixed observed-frame wavelength grid for output spectra ---
+    # Define the fixed observed-frame wavelength grid for output spectra
     f_g_o_w = np.arange(rest_wave_min*(1+z), (rest_wave_max+rest_delta_wave)*(1+z), rest_delta_wave*(1+z)) if output_pixel_spectra else np.array([])
     num_w = f_g_o_w.size
 
@@ -618,7 +618,7 @@ def generate_images(sim_file, z, filters, filter_transmission_path, dim_kpc=None
         w_map_lw['v_n'][ii,jj], w_map_lw['v_d'][ii,jj], w_map_lw['v_neb'][ii,jj] = pd['map_lw_vel_los_nodust'], pd['map_lw_vel_los_dust'], pd['map_lw_vel_los_nebular']
 
 
-    # --- FLUX CONSERVING REBINNING TO USER PIXEL SIZE ---
+    # FLUX CONSERVING REBINNING TO USER PIXEL SIZE
     # The raw values in w_map_flux are in erg/s/cm2/A (linear flux density).
     # To conserve flux, we sum the sub-pixels within each target pixel.
     map_flux_summed = rebin_map(w_map_flux, rebin_factor, mode='sum')
@@ -644,7 +644,7 @@ def generate_images(sim_file, z, filters, filter_transmission_path, dim_kpc=None
         map_spec_nodust = rebin_map(w_map_spec_n, rebin_factor, mode='sum')
         map_spec_dust = rebin_map(w_map_spec_d, rebin_factor, mode='sum')
 
-    # --- FINAL UNIT CONVERSION ---
+    # FINAL UNIT CONVERSION
     # Now convert the summed erg/s/cm2/A into the user's requested unit.
     # We use the FINAL pix_arcsec to handle MJy/sr correctly.
     map_flux = np.zeros((map_flux_summed.shape[0], map_flux_summed.shape[1], len(filters)))
@@ -654,7 +654,7 @@ def generate_images(sim_file, z, filters, filter_transmission_path, dim_kpc=None
         map_flux[:,:,i] = convert_flux_map(map_flux_summed[:,:,i], f_w_p_g[filters[i]], to_unit=flux_unit, pixel_scale_arcsec=pix_arcsec)
         map_flux_dust[:,:,i] = convert_flux_map(map_flux_dust_summed[:,:,i], f_w_p_g[filters[i]], to_unit=flux_unit, pixel_scale_arcsec=pix_arcsec)
 
-    # --- SAVE TO FITS ---
+    # SAVE TO FITS
     if name_out_img is not None:
         try:
             hdul = fits.HDUList()

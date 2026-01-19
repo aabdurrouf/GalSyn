@@ -211,7 +211,7 @@ def init_worker(ssp_code_val, snap_z_val, pix_area_kpc2_val,
         ssp_wave = dummy_model.wavelengths
         ssp_code_z_sun = BAGPIPES_Z_SUN
 
-    # --- Unified Option 0 Dust Interpolators ---
+    # Unified Option 0 Dust Interpolators
     if dust_law == 0:
         # Dust Index (Slope)
         if isinstance(dust_index_val, dict):
@@ -345,7 +345,7 @@ def _process_pixel_data(ii, jj, star_particle_membership_list, gas_particle_memb
 
             spec_dust, d_AV = spec.copy(), 0.0
 
-            # --- Dust Method Branching ---
+            # Dust Method Branching
             if _worker_dust_method == 'sfr_AV':
                 d_AV = effective_av
             else:
@@ -458,7 +458,7 @@ def generate_images(sim_file, z, filters, filter_transmission_path, smoothing_le
                                                      ("Vogelsberger20") or a dictionary.
                                                      Defaults to "Vogelsberger20".
         cosmo_str (str, optional): Cosmology string. Defaults to 'Planck18'.
-        
+
         dust_method (str, optional): The framework used to calculate diffuse ISM dust attenuation. Options: 
                                         
                                         - 'los': (Default) Integration of the optical depth along the line-of-sight for each star particle based on local gas column density and metallicity. 
@@ -620,7 +620,7 @@ def generate_images(sim_file, z, filters, filter_transmission_path, smoothing_le
         map_flux[:,:,i] = convert_flux_map(map_flux_summed[:,:,i], f_w_p_g[filters[i]], to_unit=flux_unit, pixel_scale_arcsec=pix_arcsec)
         map_flux_dust[:,:,i] = convert_flux_map(map_flux_dust_summed[:,:,i], f_w_p_g[filters[i]], to_unit=flux_unit, pixel_scale_arcsec=pix_arcsec)
 
-    # --- SAVE TO FITS ---
+    # SAVE TO FITS
     if name_out_img is not None:
         try:
             hdul = fits.HDUList()

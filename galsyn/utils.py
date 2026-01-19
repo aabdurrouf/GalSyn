@@ -679,7 +679,7 @@ def get_2d_density_projection_no_los_binning(star_coords, particle_masses, pixel
         ValueError: If star_coords/particle_masses are invalid, pixel_size is not positive,
                     output_dimension is invalid, or `gas_coords` is provided without `gas_masses` (or vice-versa).
     """
-    # --- Input Validation ---
+    # Input Validation
     if not isinstance(star_coords, np.ndarray) or star_coords.ndim != 2 or star_coords.shape[1] != 3:
         raise ValueError("star_coords must be a NumPy array of shape (N, 3).")
     if not isinstance(particle_masses, np.ndarray) or particle_masses.ndim != 1 or particle_masses.shape[0] != star_coords.shape[0]:
@@ -705,14 +705,14 @@ def get_2d_density_projection_no_los_binning(star_coords, particle_masses, pixel
         raise ValueError("gas_vels must have the same shape as gas_coords if provided.")
 
 
-    # --- Handle Empty Particle Set (Stars) ---
+    # Handle Empty Particle Set (Stars)
     if star_coords.shape[0] == 0:
         print("Warning: No star particles provided. Returning empty results for no LOS binning.")
         return ([], np.array([[]]), (0, 0), {'min_x_proj': 0, 'min_y_proj': 0, 'num_pixels_x': 0, 'num_pixels_y': 0,
                                             'effective_pixel_size_x': pixel_size, 'effective_pixel_size_y': pixel_size}, 
                 [], np.array([[]]), np.array([]), np.array([]))
 
-    # --- Determine transformation based on polar and azimuth angles ---
+    # Determine transformation based on polar and azimuth angles
     polar_rad = np.deg2rad(polar_angle_deg)
     azimuth_rad = np.deg2rad(azimuth_angle_deg)
 
@@ -770,11 +770,11 @@ def get_2d_density_projection_no_los_binning(star_coords, particle_masses, pixel
             gas_vel_los_proj = rotated_gas_vels[:, 2] # Z' component of velocity
 
 
-    # --- Extract projected 2D coordinates and raw line-of-sight distances for STARS ---
+    # Extract projected 2D coordinates and raw line-of-sight distances for STARS
     projected_star_2d_coords = rotated_star_coords[:, :2] # X' and Y'
     star_line_of_sight_distances_raw = rotated_star_coords[:, 2] # Z' (LOS)
 
-    # --- Determine the global minimum LOS distance for normalization (from all particles) ---
+    # Determine the global minimum LOS distance for normalization (from all particles)
     all_los_distances = star_line_of_sight_distances_raw
     if gas_coords is not None:
         gas_line_of_sight_distances_raw = rotated_gas_coords[:, 2]
@@ -783,10 +783,10 @@ def get_2d_density_projection_no_los_binning(star_coords, particle_masses, pixel
     # Handle case where all_los_distances might be empty (e.g., if both star_coords and gas_coords are empty after initial check)
     min_global_los = np.min(all_los_distances) if all_los_distances.size > 0 else 0.0
 
-    # --- Normalize line-of-sight distances for STARS ---
+    # Normalize line-of-sight distances for STARS
     star_line_of_sight_distances_normalized = star_line_of_sight_distances_raw - min_global_los
 
-    # --- Calculate the extent of the *entire* projected STAR dataset for global map ---
+    # Calculate the extent of the *entire* projected STAR dataset for global map
     min_x_full, min_y_full = np.min(projected_star_2d_coords, axis=0)
     max_x_full, max_y_full = np.max(projected_star_2d_coords, axis=0)
 
@@ -800,7 +800,7 @@ def get_2d_density_projection_no_los_binning(star_coords, particle_masses, pixel
     if num_pixels_x_global == 0: num_pixels_x_global = 1
     if num_pixels_y_global == 0: num_pixels_y_global = 1
 
-    # --- Create a global mass density map (STARS) to find the most massive pixel ---
+    # Create a global mass density map (STARS) to find the most massive pixel
     global_star_mass_density_map = np.zeros((num_pixels_y_global, num_pixels_x_global), dtype=float)
 
     for i in range(star_coords.shape[0]):
@@ -816,7 +816,7 @@ def get_2d_density_projection_no_los_binning(star_coords, particle_masses, pixel
 
         global_star_mass_density_map[y_idx_global][x_idx_global] += particle_masses[i]
 
-    # --- Find the most massive pixel in the global STAR map ---
+    # Find the most massive pixel in the global STAR map
     most_massive_pixel_x_idx_global = 0
     most_massive_pixel_y_idx_global = 0
 
@@ -830,7 +830,7 @@ def get_2d_density_projection_no_los_binning(star_coords, particle_masses, pixel
     most_massive_pixel_y_coord_global = min_y_full + (most_massive_pixel_y_idx_global + 0.5) * effective_pixel_size_global
 
 
-    # --- Define the cutout grid's extent and dimensions based on most massive STAR pixel ---
+    # Define the cutout grid's extent and dimensions based on most massive STAR pixel
     num_pixels_x_cutout = int(np.ceil(output_dimension[0] / pixel_size))
     num_pixels_y_cutout = int(np.ceil(output_dimension[1] / pixel_size))
 
@@ -842,11 +842,11 @@ def get_2d_density_projection_no_los_binning(star_coords, particle_masses, pixel
     min_x_cutout = most_massive_pixel_x_coord_global - (num_pixels_x_cutout * pixel_size / 2.0)
     min_y_cutout = most_massive_pixel_y_coord_global - (num_pixels_y_cutout * pixel_size / 2.0)
 
-    # --- Initialize output arrays for the cutout region (STARS) ---
+    # Initialize output arrays for the cutout region (STARS)
     star_particle_membership = [[[] for _ in range(num_pixels_x_cutout)] for _ in range(num_pixels_y_cutout)]
     star_mass_density_map = np.zeros((num_pixels_y_cutout, num_pixels_x_cutout), dtype=float)
 
-    # --- Assign STAR particles to the cutout grid ---
+    # Assign STAR particles to the cutout grid
     for i in range(star_coords.shape[0]):
         x_coord_proj = projected_star_2d_coords[i, 0]
         y_coord_proj = projected_star_2d_coords[i, 1]
@@ -859,12 +859,12 @@ def get_2d_density_projection_no_los_binning(star_coords, particle_masses, pixel
             star_particle_membership[y_idx_cutout][x_idx_cutout].append((i, star_line_of_sight_distances_normalized[i])) # Use normalized distance
             star_mass_density_map[y_idx_cutout][x_idx_cutout] += particle_masses[i]
 
-    # --- Set central pixel coordinate to the geometric center of the cutout ---
+    # Set central pixel coordinate to the geometric center of the cutout
     central_pixel_x = num_pixels_x_cutout // 2
     central_pixel_y = num_pixels_y_cutout // 2
     central_pixel_coords = (central_pixel_x, central_pixel_y)
 
-    # --- Process GAS particles if provided ---
+    # Process GAS particles if provided
     gas_particle_membership = None
     gas_mass_density_map = None
     if gas_coords is not None:
@@ -885,7 +885,7 @@ def get_2d_density_projection_no_los_binning(star_coords, particle_masses, pixel
                 gas_particle_membership[y_idx_cutout][x_idx_cutout].append((i, gas_line_of_sight_distances_normalized[i])) # Use normalized distance
                 gas_mass_density_map[y_idx_cutout][x_idx_cutout] += gas_masses[i]
 
-    # --- Prepare grid information for output ---
+    # Prepare grid information for output
     grid_info = {
         'min_x_proj': min_x_cutout,
         'min_y_proj': min_y_cutout,

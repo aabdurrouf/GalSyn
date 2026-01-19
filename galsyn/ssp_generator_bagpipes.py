@@ -61,7 +61,7 @@ def _generate_single_ssp(age, logzsol):
     burst["massformed"] = 0.0                  # log10 of stellar mass
     burst["metallicity"] = metallicity_z_zsun
 
-    # --- Generate spectrum with nebular emission ---
+    # Generate spectrum with nebular emission
     current_model_components_total = _ssp_worker_bagpipes_instance.copy()
     current_model_components_total["burst"] = burst
 
@@ -78,7 +78,7 @@ def _generate_single_ssp(age, logzsol):
                                  bounds_error=False, fill_value=0.0)
     spec_total_interpolated = interp_func_total(rest_frame_wave_target)
 
-    # --- Generate spectrum with stellar continuum only (no nebular emission) ---
+    # Generate spectrum with stellar continuum only (no nebular emission)
     current_model_components_stellar = _ssp_worker_bagpipes_instance.copy()
     current_model_components_stellar["burst"] = burst
     # Disable nebular emission for stellar continuum only
@@ -93,7 +93,7 @@ def _generate_single_ssp(age, logzsol):
                                    bounds_error=False, fill_value=0.0)
     spec_stellar_continuum_interpolated = interp_func_stellar(rest_frame_wave_target)
 
-    # --- Calculate nebular emission only ---
+    # Calculate nebular emission only
     spec_nebular_emission_interpolated = spec_total_interpolated - spec_stellar_continuum_interpolated
 
     #surv_stellar_mass = model_total.sfh.stellar_mass

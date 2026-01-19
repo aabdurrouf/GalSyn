@@ -348,7 +348,7 @@ class SFHReconstructor:
         cosmo = define_cosmo(self.cosmo_str)
         print(f"Processing {self.sim_file} at redshift z={self.z}")
 
-        # --- Data Loading and Initial Calculations (Sequential) ---
+        # Data Loading and Initial Calculations (Sequential)
         try:
             f = h5py.File(self.sim_file, 'r')
 
@@ -491,7 +491,7 @@ class SFHReconstructor:
 
         print("All SFH calculations complete. Maps populated.")
 
-        # --- Save results to FITS file ---
+        # Save results to FITS file
         try:
             hdul = fits.HDUList()
 

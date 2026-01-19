@@ -418,6 +418,26 @@ class GalaxySynthesizer:
         self._igm_type = value
 
     @property
+    def dust_method(self):
+        """str: Framework for diffuse ISM dust: 'los' or 'sfr_AV'."""
+        return self._dust_method
+
+    @dust_method.setter
+    def dust_method(self, value):
+        if value not in ['los', 'sfr_AV']:
+            raise ValueError("dust_method must be either 'los' or 'sfr_AV'.")
+        self._dust_method = value
+
+    @property
+    def av_sfrden_relation(self):
+        """dict: Mapping {'AV': [], 'SFR_density': []}."""
+        return self._av_sfrden_relation
+
+    @av_sfrden_relation.setter
+    def av_sfrden_relation(self, value):
+        self._av_sfrden_relation = value
+
+    @property
     def dust_index_bc(self):
         """Dust index for birth clouds. Defaults to -0.7."""
         return self._dust_index_bc
@@ -699,26 +719,6 @@ class GalaxySynthesizer:
         self._rest_delta_wave = float(value)
         if self._rest_delta_wave <= self._rest_wave_min:
             raise ValueError("rest_delta_wave must be greater than rest_wave_min.")
-        
-    @property
-    def dust_method(self):
-        """str: Framework for diffuse ISM dust: 'los' or 'sfr_AV'."""
-        return self._dust_method
-
-    @dust_method.setter
-    def dust_method(self, value):
-        if value not in ['los', 'sfr_AV']:
-            raise ValueError("dust_method must be either 'los' or 'sfr_AV'.")
-        self._dust_method = value
-
-    @property
-    def av_sfrden_relation(self):
-        """dict: Mapping {'AV': [], 'SFR_density': []}."""
-        return self._av_sfrden_relation
-
-    @av_sfrden_relation.setter
-    def av_sfrden_relation(self, value):
-        self._av_sfrden_relation = value
 
     # --- Convenience method for setting multiple parameters ---
     def set_params(self, **kwargs):
