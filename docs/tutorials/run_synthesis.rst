@@ -236,7 +236,7 @@ Next, we check spectrum integrated within a circular aperture around the galaxy'
     wavelength = cube['WAVELENGTH_GRID'].data['WAVELENGTH']
 
     pix_kpc = cube[0].header['pix_kpc'] 
-    radius_kpc = 2.5
+    radius_kpc = 3.0
     radius_pixels = radius_kpc / pix_kpc
 
     # Select wavelength grids around the OIII and H-alpha lines
