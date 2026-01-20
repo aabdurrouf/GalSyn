@@ -3,10 +3,15 @@
 GalSyn: Synthetic Observations from Hydrodynamical Simulations 
 ==============================================================
 
-.. image:: ../galsyn_logo.png
-   :alt: GalSyn Logo
+.. image:: figures/stamp_img1.png
+   :alt: image
    :align: center
-   :width: 400px
+   :width: 600px
+
+.. image:: figures/stamp_ifu2.png
+   :alt: IFU
+   :align: center
+   :width: 600px
 
 **GalSyn** is a modular Python package designed for generating realistic synthetic spectrophotometric 
 observations of galaxies from hydrodynamical simulation data. By employing particle-by-particle spectral modeling to 
