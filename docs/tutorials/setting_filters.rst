@@ -1,4 +1,4 @@
-Setting up filter transmission curves
+Setting up Filter Transmission Curves
 =====================================
 
 To generate synthetic imaging data cubes using ``GalaxySynthesizer``, user needs to specify list of filters and their transmission curves. 

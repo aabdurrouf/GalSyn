@@ -80,6 +80,8 @@ _child_wave_max_rest = 30000.0
 def rebin_map(data, factor, mode='sum'):
     """
     Rebins a 2D or 3D array with float factors and robust NaN handling.
+    Updated to use grid_mode=True for astronomical pixel area conservation.
+    
     'sum' preserves total flux/mass.
     'mean' preserves average property values (Age, Temperature).
     """
@@ -90,9 +92,11 @@ def rebin_map(data, factor, mode='sum'):
     # Handle spatial scaling (assumes Y, X are first two dims)
     zoom_factors = (zoom_rate, zoom_rate, 1) if data.ndim == 3 else (zoom_rate, zoom_rate)
 
-    # Use order=1 (bilinear) as it is the most stable for physical data
-    # Note: zoom will propagate NaNs into the surrounding pixels
-    rescaled = zoom(data, zoom_factors, order=1, prefilter=False)
+    # Use order=1 (bilinear) as it is the most stable for physical data.
+    # grid_mode=True treats pixels as having area, which is correct for fluxes and masses.
+    # mode='grid-constant' ensures proper boundary handling without pixel shrinkage.
+    rescaled = zoom(data, zoom_factors, order=1, prefilter=False, 
+                    grid_mode=True, mode='grid-constant')
 
     if mode == 'sum':
         # Apply the area-scaling factor

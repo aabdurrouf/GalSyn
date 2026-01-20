@@ -3,8 +3,8 @@ Simulating the Observational Effects
 To bridge the gap between theoretical models and observational data, it is essential to account for the limitations of astronomical instruments. 
 
 
-Adding observational effects on synthetic imaging data 
-------------------------------------------------------
+Adding observational effects on synthetic imaging data cube 
+-----------------------------------------------------------
 
 The ``GalSynMockObservation_imaging`` class in the ``observe`` module transforms idealized synthetic images into realistic mock observations. 
 The process include spatial resapling (to a user-defined pixel scale, matching to the instrument characterictics), PSF convolution, noise simulation and injection. 
@@ -140,8 +140,8 @@ Now, we check the resulting data cube
    :width: 800px
 
 
-Adding observational effects on synthetic IFU data 
---------------------------------------------------
+Adding observational effects on synthetic IFU data cube
+-------------------------------------------------------
 
 Beyond broadband imaging, GalSyn allows you to simulate realistic Integral Field Unit (IFU) observations. 
 This process transforms idealized spectral cubes into mock observations by accounting for wavelength-dependent sensitivity, instrumental resolution, and spatial blurring.

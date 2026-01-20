@@ -14,5 +14,5 @@ This section provides practical guides and examples to help you get started with
    tutorials/run_synthesis
    tutorials/sfh_reconstruct
    tutorials/observe
-   tutorials/analyze_data
    tutorials/analyze_props
+   tutorials/analyze_data

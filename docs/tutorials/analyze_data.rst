@@ -1,2 +1,2 @@
-Analyzing Synthetic Data Cubes
-==============================
+Further Tutorial: Select Galaxies from IllustrisTNG  
+===================================================
