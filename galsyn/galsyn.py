@@ -718,8 +718,6 @@ class GalaxySynthesizer:
         if not isinstance(value, (int, float)) or value <= 0:
             raise ValueError("rest_delta_wave must be a positive number.")
         self._rest_delta_wave = float(value)
-        if self._rest_delta_wave <= 0:
-            raise ValueError("rest_delta_wave must must be a positive number.")
         
     @property
     def max_dist_neb(self):
