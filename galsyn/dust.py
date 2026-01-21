@@ -239,3 +239,7 @@ def relation_AVslope(model_name="salim18"):
     except Exception as e:
         print(f"Error loading relation {model_name}: {e}")
         return None
+
+def scale_dust_redshift_Vogelsberger20():
+    data = np.loadtxt(str(importlib.resources.files('galsyn.data').joinpath("Vogelsberger20_scale_dust.txt")))
+    return {"z": data[:,0], "tau_dust": data[:,1]}
