@@ -413,7 +413,7 @@ def _process_pixel_data(ii, jj, star_particle_membership_list, gas_particle_memb
                 spec_dust *= 10.0**(-0.4*al)
                 array_tauV.append(d_AV * 0.921); array_AV.append(d_AV)
             
-            if _worker_stars_age[star_id] <= t_esc:
+            if _worker_stars_age[star_id] <= t_esc and dust_eta != 0.0:
                 al_bc = unresolved_dust_birth_cloud_Alambda_per_AV(ssp_wave, dust_index_bc=dust_index_bc) * d_AV * dust_eta
                 spec_dust *= 10.0**(-0.4*al_bc)
 
