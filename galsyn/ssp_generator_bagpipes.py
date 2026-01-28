@@ -14,7 +14,7 @@ BAGPIPES_Z_SUN = 0.02
 
 _ssp_worker_bagpipes_instance = None
 
-def init_ssp_worker(gas_logu_val, rest_frame_wave_val):
+def init_ssp_worker(rest_frame_wave_val):
     """
     Initializer function for each worker process in the SSP generation.
     Initializes the common components for the Bagpipes model.
@@ -82,7 +82,10 @@ def generate_ssp_grid_bagpipes(output_filename="ssp_spectra_bagpipes.hdf5",
                                logzsol_grid=None,
                                logu_grid=None,
                                overwrite=False,
-                               n_jobs=-1):
+                               n_jobs=-1,
+                               rest_wave_min=500,  
+                               rest_wave_max=30000,
+                               delta_wave=5.0):
     """
     Generates a grid of Simple Stellar Population (SSP) models using Bagpipes.
 
@@ -108,6 +111,9 @@ def generate_ssp_grid_bagpipes(output_filename="ssp_spectra_bagpipes.hdf5",
                                     Defaults to False.
         n_jobs (int, optional): The number of CPU cores to use for parallel
                                 processing. Defaults to -1 (use all available cores).
+        rest_wave_min (float, optional): Minimum wavelength in Angstroms for the output spectra. Defaults to 500.
+        rest_wave_max (float, optional): Maximum wavelength in Angstroms for the output spectra. Defaults to 30000.
+        delta_wave (float, optional): Wavelength step in Angstroms for the output spectra. Defaults to 5.0.
 
     Returns:
         str: The path to the generated HDF5 file.
@@ -127,7 +133,7 @@ def generate_ssp_grid_bagpipes(output_filename="ssp_spectra_bagpipes.hdf5",
         logu_grid = np.linspace(-4.0, -1.0, 10)
 
     # Define master wavelength grid
-    rest_frame_wave = np.arange(500., 30000., 5.)
+    rest_frame_wave = np.arange(rest_wave_min, rest_wave_max, delta_wave)
 
     # Initialize 4D spectra cube: (age, zstar, logu, wave)
     shape_spec = (len(ages_gyr), len(logzsol_grid), len(logu_grid), len(rest_frame_wave))
