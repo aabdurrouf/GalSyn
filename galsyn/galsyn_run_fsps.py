@@ -19,6 +19,10 @@ import fsps
 
 FSPS_Z_SUN = 0.019
 
+# Conversion factor: (Atoms per Msun) / (cm3 per kpc3)
+# (1.189e57) / (2.938e64) = 4.047e-8
+MASS_VOL_TO_NH = 4.047e-8
+
 # Global variables for SSP data
 ssp_wave = None
 ssp_ages_gyr = None
@@ -26,7 +30,8 @@ ssp_logzsol_grid = None
 ssp_stellar_mass_grid = None
 ssp_code_z_sun = None
 ssp_stellar_continuum_grid = None 
-ssp_nebular_emission_grid = None    
+ssp_nebular_emission_grid = None 
+ssp_logu_grid = None   
 
 _global_ssp_stellar_mass_interpolator = None
 _global_ssp_stellar_continuum_interpolator = None
@@ -38,7 +43,6 @@ sp_instance = None
 igm_trans = None
 snap_z = None
 pix_area_kpc2 = None
-gas_logu = None
 igm_type = None
 dust_index_bc = None
 t_esc = None
@@ -81,10 +85,61 @@ _worker_gas_zmet = None
 _worker_gas_log_temp = None
 _worker_gas_mass_H = None
 _worker_gas_vel_los_proj = None
-_worker_gas_coords = None 
+_worker_gas_coords = None
 
 _lw_wave_min_rest = 1000.0 
 _lw_wave_max_rest = 30000.0 
+
+
+def calculate_local_logu(sfr_pixel, nH_local, log_xi_ion=25.39, epsilon=0.3):
+    """
+    Calculates the ionization parameter log10(U) using the analytical formula 
+    from Reddy et al. (2023).
+    
+    Equation: U = k * (n_H * Q * epsilon**2)**(1/3)
+    
+    Parameters:
+    -----------
+    sfr_pixel : float
+        Instantaneous star formation rate in the pixel (Msun/yr).
+    nH_local : float
+        Local hydrogen number density (or electron density n_e) in cm^-3.
+    log_xi_ion : float, optional
+        Ratio-based ionizing photon production efficiency in log10(erg^-1 Hz).
+        Default to 25.39.
+    epsilon : float, optional
+        Volume filling factor of the H II region (dimensionless). Default is 0.3.
+        
+    Returns:
+    --------
+    float
+        The base-10 logarithm of the ionization parameter U.
+    """
+    if sfr_pixel <= 0 or nH_local <= 0:
+        return -4.0 
+    
+    # Constant k derived from physical constants: (3 * alpha_B^2 / (16 * pi * c^3))^(1/3)
+    # Value: ~5.296e-20 cm * s^(1/3)
+    k = 5.296e-20
+    
+    # 1. Convert ratio-based xi_ion (erg^-1 Hz) to rate-based Q/SFR (photons/s per Msun/yr)
+    # Using the rescaled Kennicutt 1998 conversion for Chabrier IMF:
+    # L_uv / SFR = 1.28e28 (erg/s/Hz) / (Msun/yr)
+    l_uv_per_sfr = 1.28e28
+    xi_ion_ratio = 10**log_xi_ion
+    
+    # Q_per_sfr is the number of ionizing photons/s produced per 1 Msun/yr
+    q_per_sfr = xi_ion_ratio * l_uv_per_sfr
+    
+    # 2. Calculate the total ionizing photon rate Q (s^-1) for the pixel
+    Q = sfr_pixel * q_per_sfr
+    
+    # 3. Analytical calculation of U
+    # We use epsilon squared (epsilon**2) as defined in Reddy et al. (2023)
+    U = k * (nH_local * Q * (epsilon**2))**(1/3)
+    
+    # Returns log10(U), clipped to standard physical ranges found in high-z samples
+    return np.log10(np.clip(U, 1e-4, 1e-1))
 
 
 def rebin_map(data, factor, mode='sum'):
@@ -158,25 +213,23 @@ def _load_filter_transmission_from_paths(filters_list, filter_transmission_path_
         filter_wave_pivot_data[f_name] = np.sqrt(num / den) if den > 0 else np.nan
     return filter_transmission_data, filter_wave_pivot_data
 
-def init_worker(ssp_code_val, snap_z_val, pix_area_kpc2_val,  
-                filters_list_val, filter_transmission_path_val,
-                imf_type_val, imf_upper_limit_val, imf_lower_limit_val, 
-                imf1_val, imf2_val, imf3_val, vdmc_val, mdave_val,     
-                gas_logu_val, igm_type_val, dust_index_bc_val, 
-                dust_index_val, t_esc_val, dust_eta_val, precomputed_scale_dust_tau_val,
+def init_worker(ssp_code_val, snap_z_val, pix_area_kpc2_val, filters_list_val, filter_transmission_path_val,
+                imf_type_val, imf_upper_limit_val, imf_lower_limit_val, imf1_val, imf2_val, imf3_val, vdmc_val, mdave_val,     
+                igm_type_val, dust_index_bc_val, dust_index_val, t_esc_val, dust_eta_val, precomputed_scale_dust_tau_val,
                 cosmo_str_val, dust_law_val, bump_amp_val, bump_dwave_val,
                 salim_a0_val, salim_a1_val, salim_a2_val, salim_a3_val, salim_RV_val, salim_B_val, 
                 use_precomputed_ssp_val, stars_mass_arr, stars_age_arr, stars_zmet_arr, stars_init_mass_arr, 
                 stars_vel_los_proj_arr, stars_coords_arr, gas_mass_arr, gas_sfr_inst_arr, gas_zmet_arr, 
                 gas_log_temp_arr, gas_mass_H_arr, gas_vel_los_proj_arr, gas_coords_arr, ssp_filepath_val=None, 
                 ssp_interpolation_method_val='nearest', output_pixel_spectra_val=False, 
-                output_obs_wave_grid_val=None, dust_method_val='los', av_sfrden_relation_val=None, max_dist_neb_val=0.5): 
+                output_obs_wave_grid_val=None, dust_method_val='los', av_sfrden_relation_val=None, 
+                max_dist_neb_val=0.5, log_xi_ion_val=25.39, epsilon_val=0.3): 
     
-    global ssp_wave, ssp_ages_gyr, ssp_logzsol_grid, ssp_stellar_mass_grid, ssp_code_z_sun
+    global ssp_wave, ssp_ages_gyr, ssp_logzsol_grid, ssp_logu_grid, ssp_stellar_mass_grid, ssp_code_z_sun
     global ssp_stellar_continuum_grid, ssp_nebular_emission_grid 
     global _global_ssp_stellar_continuum_interpolator, _global_ssp_nebular_emission_interpolator, _global_ssp_stellar_mass_interpolator
     global sp_instance, igm_trans, snap_z, pix_area_kpc2
-    global gas_logu, igm_type, dust_index_bc, t_esc, dust_eta, dust_law
+    global igm_type, dust_index_bc, t_esc, dust_eta, dust_law
     global salim_a0, salim_a1, salim_a2, salim_a3, salim_RV, salim_B, dust_Alambda_per_AV
     global func_interp_dust_index, func_interp_bump_amp, func_interp_bump_dwave
     global use_precomputed_ssp, ssp_interpolation_method, output_pixel_spectra_flag, _worker_output_obs_wave_grid 
@@ -185,6 +238,7 @@ def init_worker(ssp_code_val, snap_z_val, pix_area_kpc2_val,
     global _worker_scale_dust_tau, _worker_stars_mass, _worker_stars_age, _worker_stars_zmet, _worker_stars_init_mass, _worker_stars_vel_los_proj, _worker_stars_coords
     global _worker_gas_mass, _worker_gas_sfr_inst, _worker_gas_zmet, _worker_gas_log_temp, _worker_gas_mass_H, _worker_gas_vel_los_proj, _worker_gas_coords
     global _worker_dust_method, func_interp_av_sfrden, _worker_max_dist_neb
+    global _worker_log_xi_ion, _worker_epsilon
 
     # Map worker arrays
     _worker_stars_mass, _worker_stars_age, _worker_stars_zmet = stars_mass_arr, stars_age_arr, stars_zmet_arr
@@ -192,6 +246,8 @@ def init_worker(ssp_code_val, snap_z_val, pix_area_kpc2_val,
     _worker_gas_mass, _worker_gas_sfr_inst, _worker_gas_zmet = gas_mass_arr, gas_sfr_inst_arr, gas_zmet_arr
     _worker_gas_log_temp, _worker_gas_mass_H, _worker_gas_vel_los_proj, _worker_gas_coords = gas_log_temp_arr, gas_mass_H_arr, gas_vel_los_proj_arr, gas_coords_arr
     _worker_max_dist_neb = max_dist_neb_val
+    _worker_log_xi_ion = log_xi_ion_val
+    _worker_epsilon = epsilon_val
 
     # Basic setup
     snap_z, pix_area_kpc2, _worker_imf_type = snap_z_val, pix_area_kpc2_val, imf_type_val
@@ -215,25 +271,31 @@ def init_worker(ssp_code_val, snap_z_val, pix_area_kpc2_val,
     if use_precomputed_ssp:
         with h5py.File(ssp_filepath_val, 'r') as f_ssp:
             ssp_wave = f_ssp['wavelength'][:]
-            ssp_ages_gyr, ssp_logzsol_grid = f_ssp['ages_gyr'][:], f_ssp['logzsol'][:]
+            ssp_ages_gyr = f_ssp['ages_gyr'][:]
+            ssp_logzsol_grid = f_ssp['logzsol'][:]
+            ssp_logu_grid = f_ssp['logu_grid'][:]
             ssp_stellar_mass_grid = f_ssp['stellar_mass'][:]
-            ssp_stellar_continuum_grid, ssp_nebular_emission_grid = f_ssp['stellar_continuum_spectra'][:], f_ssp['nebular_emission_spectra'][:]
+            ssp_stellar_continuum_grid = f_ssp['stellar_continuum_spectra'][:]
+            ssp_nebular_emission_grid = f_ssp['nebular_emission_spectra'][:]
             ssp_code_z_sun = f_ssp.attrs['z_sun'] 
             method = ssp_interpolation_method if ssp_interpolation_method in ['linear', 'cubic'] else None
             if method:
-                _global_ssp_stellar_continuum_interpolator = RegularGridInterpolator((ssp_ages_gyr, ssp_logzsol_grid), ssp_stellar_continuum_grid, method=method, bounds_error=False, fill_value=0.0)
-                _global_ssp_nebular_emission_interpolator = RegularGridInterpolator((ssp_ages_gyr, ssp_logzsol_grid), ssp_nebular_emission_grid, method=method, bounds_error=False, fill_value=0.0)
-                _global_ssp_stellar_mass_interpolator = RegularGridInterpolator((ssp_ages_gyr, ssp_logzsol_grid), ssp_stellar_mass_grid, method=method, bounds_error=False, fill_value=0.0)
+                # Define 3D grid coordinates: (Age, logZ_star, logU)
+                grid_coords = (ssp_ages_gyr, ssp_logzsol_grid, ssp_logu_grid)
+                _global_ssp_stellar_continuum_interpolator = RegularGridInterpolator(grid_coords, ssp_stellar_continuum_grid, method=method, bounds_error=False, fill_value=0.0)
+                _global_ssp_nebular_emission_interpolator = RegularGridInterpolator(grid_coords, ssp_nebular_emission_grid, method=method, bounds_error=False, fill_value=0.0)
+                _global_ssp_stellar_mass_interpolator = RegularGridInterpolator(grid_coords, ssp_stellar_mass_grid, method=method, bounds_error=False, fill_value=0.0)
+
     else:
         sp_instance = fsps.StellarPopulation(zcontinuous=1)
-        sp_instance.params['imf_type'] = _worker_imf_type
-        sp_instance.params['imf_upper_limit'] = _worker_imf_upper_limit
-        sp_instance.params['imf_lower_limit'] = _worker_imf_lower_limit
-        sp_instance.params['imf1'] = imf1_val 
-        sp_instance.params['imf2'] = imf2_val 
-        sp_instance.params['imf3'] = imf3_val 
-        sp_instance.params['vdmc'] = vdmc_val 
-        sp_instance.params['mdave'] = mdave_val 
+        sp_instance.params['imf_type'] = int(imf_type_val)
+        sp_instance.params['imf_upper_limit'] = float(imf_upper_limit_val)
+        sp_instance.params['imf_lower_limit'] = float(imf_lower_limit_val)
+        sp_instance.params['imf1'] = float(imf1_val) 
+        sp_instance.params['imf2'] = float(imf2_val) 
+        sp_instance.params['imf3'] = float(imf3_val) 
+        sp_instance.params['vdmc'] = float(vdmc_val) 
+        sp_instance.params['mdave'] = float(mdave_val) 
         sp_instance.params["add_dust_emission"] = False
         sp_instance.params["fagn"] = 0
         sp_instance.params["sfh"] = 0
@@ -302,7 +364,7 @@ def _process_pixel_data(ii, jj, star_particle_membership_list, gas_particle_memb
         'map_gas_mw_zsol': 0.0, 'map_dust_mean_tauV': 0.0, 'map_dust_mean_AV': 0.0,
         'map_flux': np.zeros(len(_worker_filters)), 'map_flux_dust': np.zeros(len(_worker_filters)),
         'obs_spectra_nodust_igm': np.zeros(current_num_obs_wave_points),
-        'obs_spectra_dust_igm': np.zeros(current_num_obs_wave_points),
+        'obs_spectra_dust_igm': np.zeros(current_num_obs_wave_points), 'map_gas_logu': np.nan,
         'map_lw_age_nodust': np.nan, 'map_lw_age_dust': np.nan, 'map_lw_zsol_nodust': np.nan, 'map_lw_zsol_dust': np.nan,
         'map_stars_mw_vel_los': np.nan, 'map_gas_mw_vel_los': np.nan, 'map_stars_vel_disp_los': np.nan,
         'map_gas_vel_disp_los': np.nan, 'map_lw_vel_los_nodust': np.nan, 'map_lw_vel_los_dust': np.nan, 'map_lw_vel_los_nebular': np.nan 
@@ -320,6 +382,7 @@ def _process_pixel_data(ii, jj, star_particle_membership_list, gas_particle_memb
 
     m_sum = np.nansum(_worker_stars_mass[star_ids])
     pixel_results['map_stars_mass'] = m_sum
+
     if m_sum > 0:
         pixel_results['map_mw_age'] = np.nansum(_worker_stars_mass[star_ids] * _worker_stars_age[star_ids]) / m_sum
         pixel_results['map_stars_mw_zsol'] = np.nansum(_worker_stars_mass[star_ids] * _worker_stars_zmet[star_ids] / FSPS_Z_SUN) / m_sum
@@ -332,6 +395,7 @@ def _process_pixel_data(ii, jj, star_particle_membership_list, gas_particle_memb
     
     g_sum = np.nansum(_worker_gas_mass[gas_ids])
     pixel_results['map_gas_mass'], pixel_results['map_sfr_inst'] = g_sum, np.nansum(_worker_gas_sfr_inst[gas_ids])
+
     if g_sum > 0:
         pixel_results['map_gas_mw_zsol'] = np.nansum(_worker_gas_mass[gas_ids] * _worker_gas_zmet[gas_ids] / FSPS_Z_SUN) / g_sum
         pixel_results['map_gas_mw_vel_los'] = np.nansum(_worker_gas_mass[gas_ids] * _worker_gas_vel_los_proj[gas_ids]) / g_sum
@@ -346,26 +410,54 @@ def _process_pixel_data(ii, jj, star_particle_membership_list, gas_particle_memb
 
     if len(star_ids) > 0:
         array_spec, array_spec_dust, array_AV, array_tauV, array_L_nodust, array_L_dust = [], [], [], [], [], []
-        if output_pixel_spectra_flag: array_vel_los, array_L_nebular, array_vel_los_nebular_weighted = [], [], []
         
+        if output_pixel_spectra_flag: 
+            array_vel_los, array_L_nebular, array_vel_los_nebular_weighted = [], [], []
+
+        m_H_pixel = np.nansum(_worker_gas_mass_H[gas_ids])
+        if gas_los_dist.size > 0 and (np.max(gas_los_dist) - np.min(gas_los_dist)) > 0:
+            volume_kpc3 = pix_area_kpc2 * (np.max(gas_los_dist) - np.min(gas_los_dist))
+            nH_local = (m_H_pixel / volume_kpc3) * MASS_VOL_TO_NH
+        else:
+            # Fallback to a tiny density or zero to avoid the crash
+            nH_local = 0.0
+            
+        sfr_pixel = pixel_results['map_sfr_inst']
+        dynamic_logu = calculate_local_logu(sfr_pixel, nH_local, log_xi_ion=_worker_log_xi_ion, epsilon=_worker_epsilon)
+        pixel_results['map_gas_logu'] = dynamic_logu
+
         lw_wave_idx = np.where((ssp_wave >= _lw_wave_min_rest) & (ssp_wave <= _lw_wave_max_rest))[0]
 
         for i_sid in range(len(star_ids)):
             star_id = star_ids[i_sid]
+            particle_logzsol = np.log10(_worker_stars_zmet[star_id] / FSPS_Z_SUN)
+
             if use_precomputed_ssp:
-                particle_logzsol = np.log10(_worker_stars_zmet[star_id]/ssp_code_z_sun)
-                pts = np.array([[ _worker_stars_age[star_id], particle_logzsol]])
-                if ssp_interpolation_method in ['linear', 'cubic']:
+
+                # 3D lookup point: (Age, logZ_star, logU)
+                pts = np.array([[ _worker_stars_age[star_id], particle_logzsol, dynamic_logu ]])
+                
+                if _global_ssp_stellar_continuum_interpolator is not None:
                     s_cont = _global_ssp_stellar_continuum_interpolator(pts)[0]
                     n_em = _global_ssp_nebular_emission_interpolator(pts)[0]
                     s_mass = _global_ssp_stellar_mass_interpolator(pts)[0]
                 else:
-                    a_idx, z_idx = np.argmin(np.abs(ssp_ages_gyr - _worker_stars_age[star_id])), np.argmin(np.abs(ssp_logzsol_grid - particle_logzsol))
-                    s_cont, n_em, s_mass = ssp_stellar_continuum_grid[a_idx, z_idx, :], ssp_nebular_emission_grid[a_idx, z_idx, :], ssp_stellar_mass_grid[a_idx, z_idx]
+                    # Nearest neighbor logic for 3D
+                    ia = np.argmin(np.abs(ssp_ages_gyr - _worker_stars_age[star_id]))
+                    iz = np.argmin(np.abs(ssp_logzsol_grid - particle_logzsol))
+                    iu = np.argmin(np.abs(ssp_logu_grid - dynamic_logu))
+                    s_cont = ssp_stellar_continuum_grid[ia, iz, iu, :]
+                    n_em = ssp_nebular_emission_grid[ia, iz, iu, :]
+                    s_mass = ssp_stellar_mass_grid[ia, iz, iu]
+            
             else:
                 # FSPS on-the-fly logic
-                logzsol = np.log10(_worker_stars_zmet[star_id]/FSPS_Z_SUN)
-                sp_instance.params["logzsol"], sp_instance.params['gas_logz'] = logzsol, logzsol
+                sp_instance.params['gas_logu'] = np.round(pixel_results['map_gas_logu'], 1)
+
+                with np.errstate(divide='ignore'):
+                    sp_instance.params["logzsol"], sp_instance.params['gas_logz'] = particle_logzsol, np.log10(pixel_results['map_gas_mw_zsol'])
+                
+                # Standard nebular modeling
                 sp_instance.params["add_neb_emission"] = 1
                 _, s_tot = sp_instance.get_spectrum(peraa=True, tage=_worker_stars_age[star_id])
                 sp_instance.params["add_neb_emission"] = 0
@@ -373,16 +465,20 @@ def _process_pixel_data(ii, jj, star_particle_membership_list, gas_particle_memb
                 n_em, s_mass = s_tot - s_cont, sp_instance.stellar_mass
 
             norm = _worker_stars_mass[star_id] / s_mass
+
             if output_pixel_spectra_flag:
+
                 w_d_s, s_c_d = doppler_shift_spectrum(ssp_wave, s_cont, _worker_stars_vel_los_proj[star_id])
                 s_c_i = interp1d(w_d_s, s_c_d, kind='linear', bounds_error=False, fill_value=0.0)(ssp_wave)
                 g_v_neb, idxg_f = 0.0, np.where(gas_los_dist < star_los_dist[i_sid])[0]
                 sf_g = gas_ids[idxg_f][_worker_gas_sfr_inst[gas_ids[idxg_f]] > 0.0]
+
                 if sf_g.size > 0:
                     d3d = np.linalg.norm(_worker_stars_coords[star_id] - _worker_gas_coords[sf_g], axis=1)
                     sf_g_near = sf_g[d3d < _worker_max_dist_neb]
                     if sf_g_near.size > 0 and np.nansum(_worker_gas_mass[sf_g_near]) > 0:
                         g_v_neb = np.nansum(_worker_gas_mass[sf_g_near] * _worker_gas_vel_los_proj[sf_g_near]) / np.nansum(_worker_gas_mass[sf_g_near])
+                
                 w_d_n, n_e_d = doppler_shift_spectrum(ssp_wave, n_em, g_v_neb)
                 n_e_i = interp1d(w_d_n, n_e_d, kind='linear', bounds_error=False, fill_value=0.0)(ssp_wave)
                 spec = s_c_i + n_e_i
@@ -463,14 +559,14 @@ def _process_pixel_data(ii, jj, star_particle_membership_list, gas_particle_memb
 def generate_images(sim_file, z, filters, filter_transmission_path, dim_kpc=None, smoothing_length=0.15, 
                     pix_arcsec=0.1, pix_kpc=None, flux_unit='MJy/sr', polar_angle_deg=0, azimuth_angle_deg=0,
                     name_out_img=None, n_jobs=-1, ssp_code='FSPS', imf_type=1, imf_upper_limit=120.0, 
-                    imf_lower_limit=0.08, imf1=1.3, imf2=2.3, imf3=2.3, vdmc=0.08, mdave=0.5, gas_logu=-2.0,
+                    imf_lower_limit=0.08, imf1=1.3, imf2=2.3, imf3=2.3, vdmc=0.08, mdave=0.5,
                     igm_type=0, dust_index_bc=-0.7, dust_index=0.0, t_esc=0.01, dust_eta=1.0, 
                     scale_dust_redshift="Vogelsberger20", cosmo_str='Planck18', dust_method='los', 
                     av_sfrden_relation=None, dust_law=0, bump_amp=0.85, bump_dwave=0.035, salim_a0=-4.30, 
                     salim_a1=2.71, salim_a2= -0.191, salim_a3=0.0121, salim_RV=3.15, salim_B=3.15, 
                     initdim_kpc=200, initdim_mass_fraction=0.99, use_precomputed_ssp=True, ssp_filepath=None, 
                     ssp_interpolation_method='nearest', output_pixel_spectra=False, rest_wave_min=1000.0, 
-                    rest_wave_max=30000.0, rest_delta_wave=5.0, max_dist_neb=0.5):
+                    rest_wave_max=30000.0, rest_delta_wave=5.0, max_dist_neb=0.5, log_xi_ion=25.39, epsilon=0.3):
     """
     Generates astrophysical images from HDF5 simulation data with parallelized pixel calculations.
     Allows choice between using pre-computed SSP spectra from an HDF5 file or
@@ -502,7 +598,6 @@ def generate_images(sim_file, z, filters, filter_transmission_path, dim_kpc=None
         imf3 (float, optional): Logarithmic slope of the IMF over the range. Only used if `imf_type=2`. Only used if `use_precomputed_ssp` is False or for consistency check if `use_precomputed_ssp` is True. Defaults to 2.3.
         vdmc (float, optional): IMF parameter defined in van Dokkum (2008). Only used if `imf_type=3`. Only used if `use_precomputed_ssp` is False or for consistency check if `use_precomputed_ssp` is True. Defaults to 0.08.
         mdave (float, optional): IMF parameter defined in Dave (2008). Only used if `imf_type=4`. Only used if `use_precomputed_ssp` is False or for consistency check if `use_precomputed_ssp` is True. Defaults to 0.5.
-        gas_logu (float, optional): Log ionization parameter (must match SSP grid if pre-computed). Defaults to -2.0.
         igm_type (int, optional): IGM absorption model type. Defaults to 0.
         dust_index_bc (float, optional): Dust index for birth clouds. Defaults to -0.7.
         dust_index (float, optional): Dust index for diffuse ISM (if applicable). Defaults to 0.0.
@@ -537,6 +632,8 @@ def generate_images(sim_file, z, filters, filter_transmission_path, dim_kpc=None
         rest_wave_max (float, optional): Maximum rest-frame wavelength for output spectra (Angstrom). Defaults to 30000.0.
         rest_delta_wave (float, optional): Incremental wavelength in rest-frame for output spectra (Angstrom). Defaults to 5.0.
         max_dist_neb (float, optional): Max distance (kpc) to search for gas particles for nebular Doppler shifting. Default to 0.5.
+        log_xi_ion (float, optional): Ionizing photon production efficiency log10(xi_ion [Hz/erg]) used for dynamic logU calculation. Default to 25.39.
+        epsilon (float, optional): Filling factor used for dynamic logU calculation. Default to 0.3.
     """ 
     cosmo = define_cosmo(cosmo_str)
     print ('Processing '+sim_file)
@@ -598,6 +695,7 @@ def generate_images(sim_file, z, filters, filter_transmission_path, dim_kpc=None
     w_map_flux, w_map_flux_dust = np.zeros((dimy,dimx,len(filters))), np.zeros((dimy,dimx,len(filters)))
     w_map_spec_n, w_map_spec_d = (np.zeros((dimy, dimx, num_w)), np.zeros((dimy, dimx, num_w))) if output_pixel_spectra else (None, None)
     w_map_lw = {k: np.full((dimy, dimx), np.nan) for k in ['age_n', 'age_d', 'z_n', 'z_d', 'v_n', 'v_d', 'v_neb', 'v_s_mw', 'v_g_mw', 'v_s_disp', 'v_g_disp']}
+    w_map_gas_logu = np.full((dimy, dimx), np.nan)
 
     tasks = [(ii, jj, s_mem[ii][jj], g_mem[ii][jj]) for ii in range(dimy) for jj in range(dimx)]
     tasks.sort(key=lambda x: len(x[2]) + len(x[3]), reverse=True)
@@ -607,7 +705,7 @@ def generate_images(sim_file, z, filters, filter_transmission_path, dim_kpc=None
                            initargs=(ssp_code, snap_z, pix_area_kpc2_working, 
                                      filters, filter_transmission_path, 
                                      imf_type, imf_upper_limit, imf_lower_limit, 
-                                     imf1, imf2, imf3, vdmc, mdave, gas_logu, 
+                                     imf1, imf2, imf3, vdmc, mdave, 
                                      igm_type, dust_index_bc, dust_index, 
                                      t_esc, dust_eta, s_d_t, cosmo_str, 
                                      dust_law, bump_amp, bump_dwave, 
@@ -618,7 +716,7 @@ def generate_images(sim_file, z, filters, filter_transmission_path, dim_kpc=None
                                      ssp_filepath, ssp_interpolation_method, 
                                      output_pixel_spectra, f_g_o_w.tolist(),
                                      dust_method, av_sfrden_relation,
-                                     max_dist_neb))(delayed(_process_pixel_data)(*t) for t in tasks)
+                                     max_dist_neb, log_xi_ion, epsilon))(delayed(_process_pixel_data)(*t) for t in tasks)
 
     for ii, jj, pd in results:
         w_map_stars_mass[ii,jj], w_map_mw_age[ii,jj], w_map_stars_mw_zsol[ii,jj] = pd['map_stars_mass'], pd['map_mw_age'], pd['map_stars_mw_zsol']
@@ -626,8 +724,11 @@ def generate_images(sim_file, z, filters, filter_transmission_path, dim_kpc=None
         w_map_gas_mass[ii,jj], w_map_sfr_inst[ii,jj], w_map_gas_mw_zsol[ii,jj] = pd['map_gas_mass'], pd['map_sfr_inst'], pd['map_gas_mw_zsol']
         w_map_dust_mean_tauV[ii,jj], w_map_dust_mean_AV[ii,jj] = pd['map_dust_mean_tauV'], pd['map_dust_mean_AV']
         w_map_flux[ii,jj], w_map_flux_dust[ii,jj] = pd['map_flux'], pd['map_flux_dust']
+        w_map_gas_logu[ii, jj] = pd['map_gas_logu']
+
         if output_pixel_spectra: 
             w_map_spec_n[ii,jj], w_map_spec_d[ii,jj] = pd['obs_spectra_nodust_igm'], pd['obs_spectra_dust_igm']
+        
         w_map_lw['age_n'][ii,jj], w_map_lw['age_d'][ii,jj], w_map_lw['z_n'][ii,jj], w_map_lw['z_d'][ii,jj] = pd['map_lw_age_nodust'], pd['map_lw_age_dust'], pd['map_lw_zsol_nodust'], pd['map_lw_zsol_dust']
         w_map_lw['v_s_mw'][ii,jj], w_map_lw['v_g_mw'][ii,jj], w_map_lw['v_s_disp'][ii,jj], w_map_lw['v_g_disp'][ii,jj] = pd['map_stars_mw_vel_los'], pd['map_gas_mw_vel_los'], pd['map_stars_vel_disp_los'], pd['map_gas_vel_disp_los']
         w_map_lw['v_n'][ii,jj], w_map_lw['v_d'][ii,jj], w_map_lw['v_neb'][ii,jj] = pd['map_lw_vel_los_nodust'], pd['map_lw_vel_los_dust'], pd['map_lw_vel_los_nebular']
@@ -651,6 +752,7 @@ def generate_images(sim_file, z, filters, filter_transmission_path, dim_kpc=None
     map_gas_mw_zsol = rebin_map(w_map_gas_mw_zsol, rebin_factor, mode='mean')
     map_dust_mean_tauV = rebin_map(w_map_dust_mean_tauV, rebin_factor, mode='mean')
     map_dust_mean_AV = rebin_map(w_map_dust_mean_AV, rebin_factor, mode='mean')
+    map_gas_logu = rebin_map(w_map_gas_logu, rebin_factor, mode='mean')
 
     map_lw_final = {k: rebin_map(v, rebin_factor, mode='mean') for k, v in w_map_lw.items()}
     
@@ -731,6 +833,7 @@ def generate_images(sim_file, z, filters, filter_transmission_path, dim_kpc=None
                 'GAS_MW_ZSOL': map_gas_mw_zsol,
                 'DUST_MEAN_TAUV': map_dust_mean_tauV,
                 'DUST_MEAN_AV': map_dust_mean_AV,
+                'GAS_LOGU': map_gas_logu,
                 'LW_AGE_NODUST': map_lw_final['age_n'],
                 'LW_AGE_DUST': map_lw_final['age_d'],
                 'LW_ZSOL_NODUST': map_lw_final['z_n'],

@@ -63,6 +63,8 @@ class GalaxySynthesizer:
         self._rest_delta_wave = 5.0
         self._ssp_code = 'FSPS'
         self._max_dist_neb = 0.5   # Max distance (kpc) to search for gas particles for nebular Doppler shifting
+        self._log_xi_ion = 25.39
+        self._epsilon = 0.3
 
     def _load_config_defaults(self):
         """
@@ -81,8 +83,9 @@ class GalaxySynthesizer:
         self._vdmc = getattr(config, 'VDMC', 0.08)
         self._mdave = getattr(config, 'MDAVE', 0.5)
 
-        # nebular emission
-        self._gas_logu = getattr(config, 'GAS_LOGU', -2.0)
+        # Nebular emission
+        self._log_xi_ion = getattr(config, 'LOG_XI_ION', 25.39)
+        self._epsilon = getattr(config, 'EPSILON', 0.3)
 
         # IGM absorption
         self._igm_type = getattr(config, 'IGM_TYPE', 0)
@@ -313,7 +316,7 @@ class GalaxySynthesizer:
     def imf_upper_limit(self, value):
         if not isinstance(value, (int, float)) or value <= 0:
             raise ValueError("imf_upper_limit must be a positive number.")
-        self._imf_upper_limit = value
+        self._imf_upper_limit = float(value)
 
     @property
     def imf_lower_limit(self):
@@ -395,17 +398,6 @@ class GalaxySynthesizer:
         if not isinstance(value, (int, float)):
             raise ValueError("mdave must be a number.")
         self._mdave = value
-
-    @property
-    def gas_logu(self):
-        """float: The gas ionization parameter for nebular emission modeling."""
-        return self._gas_logu
-
-    @gas_logu.setter
-    def gas_logu(self, value):
-        if not isinstance(value, (int, float)):
-            raise ValueError("gas_logu must be a number.")
-        self._gas_logu = value
 
     @property
     def igm_type(self):
@@ -640,9 +632,7 @@ class GalaxySynthesizer:
     @property
     def ssp_filepath(self):
         """str or None: Path to a pre-computed SSP grid HDF5 file.
-
-        If None, the default SSP grid packaged with galsyn will be used,
-        selected based on the `ssp_code` ('FSPS' or 'BAGPIPES').
+        This file should be provided when `use_precomputed_ssp` is True.
         """
         return self._ssp_filepath
 
@@ -731,6 +721,24 @@ class GalaxySynthesizer:
             raise ValueError("max_dist_neb must be a positive number.")
         self._max_dist_neb = float(value)
 
+    @property
+    def log_xi_ion(self):
+        """float: Ionizing photon production efficiency log10(xi_ion [Hz/erg])."""
+        return self._log_xi_ion
+
+    @log_xi_ion.setter
+    def log_xi_ion(self, value):
+        self._log_xi_ion = float(value)
+
+    @property
+    def epsilon(self):
+        """float: Volume filling factor of the H II region."""
+        return self._epsilon
+
+    @epsilon.setter
+    def epsilon(self, value):
+        self._epsilon = float(value)
+
     # Convenience method for setting multiple parameters
     def set_params(self, **kwargs):
         """
@@ -773,59 +781,17 @@ class GalaxySynthesizer:
                     pass
         return f"GalaxySynthesizer({', '.join(params_list)})"
 
-    def generate_ssp_data(self):
+    def check_ssp_filepath(self):
         """
-        Checks for and resolves the path to the required SSP grid file.
-
-        If `use_precomputed_ssp` is True, this method verifies that the SSP data
-        file exists. If `ssp_filepath` is not specified, it defaults to the
-        packaged data file corresponding to the selected `ssp_code`.
+        Check consistency of the specified SSP file path and `use_precomputed_ssp`.
 
         Raises:
-            FileNotFoundError: If the required SSP file cannot be found.
+            FileNotFoundError: If the specified SSP file does not exist.
         """
-        if not self.use_precomputed_ssp:
-            print("SSP grid generation will be done on-the-fly. Skipping pre-computed SSP grid check.")
-            return
-
-        # Determine the effective SSP filepath based on ssp_code
-        if self._ssp_filepath is None:
-            try:
-                if self.ssp_code == 'FSPS':
-                    effective_ssp_filepath = str(importlib.resources.files('galsyn.data').joinpath('ssp_spectra.hdf5'))
-                    print("Using packaged FSPS SSP data (Chabrier et al. 2003 IMF, MIST isochrone, MILES spectral library, Cloudy nebular emission).")
-                elif self.ssp_code == 'BAGPIPES':
-                    effective_ssp_filepath = str(importlib.resources.files('galsyn.data').joinpath('ssp_spectra_bagpipes.hdf5'))
-                    print("Using packaged Bagpipes SSP data (Kroupa 2001 IMF).")
-                else:
-                    raise ValueError(f"Unknown ssp_code: {self.ssp_code}. Cannot determine default SSP filepath.")
-            except Exception as e:
-                print(f"Warning: Could not locate packaged SSP data via importlib.resources. Error: {e}. Falling back to a direct filename check.")
-                # Fallback to current directory if packaged data path cannot be determined
-                if self.ssp_code == 'FSPS':
-                    effective_ssp_filepath = "ssp_spectra.hdf5"
-                elif self.ssp_code == 'BAGPIPES':
-                    effective_ssp_filepath = "ssp_spectra_bagpipes.hdf5"
-                else: # Should not happen due to earlier check, but for safety
-                    raise ValueError(f"Unknown ssp_code: {self.ssp_code}. Cannot determine default SSP filepath.")
-        else:
-            effective_ssp_filepath = self._ssp_filepath
-            print(f"Using specified SSP filepath: {effective_ssp_filepath}")
-
-        # Check if the SSP file exists
-        if not os.path.exists(effective_ssp_filepath):
-            raise FileNotFoundError(
-                f"SSP file not found at '{effective_ssp_filepath}'. "
-                f"Please ensure the SSP data file exists at this path or is correctly packaged within 'galsyn.data'. "
-                f"Alternatively, set use_precomputed_ssp=False to generate SSPs on-the-fly."
-            )
-        else:
-            # Ensure _ssp_filepath is set to the resolved path if it was initially None
-            if self._ssp_filepath is None:
-                self._ssp_filepath = effective_ssp_filepath
-        
+        if self.use_precomputed_ssp:
+            if self._ssp_filepath is not None and not os.path.exists(self._ssp_filepath):
+                raise FileNotFoundError(f"SSP file not found at specified path: {self._ssp_filepath}")
         pass
-
 
     # Method to run the synthesis process
     def run_synthesis(self):
@@ -837,8 +803,8 @@ class GalaxySynthesizer:
         corresponding engine to perform the synthesis, and saves the resulting
         FITS file.
         """
-        # Ensure SSP data is ready (checks file existence if pre-computed)
-        self.generate_ssp_data()
+
+        self.check_ssp_filepath()
 
         try:
             if self.ssp_code == 'FSPS':
@@ -883,7 +849,6 @@ class GalaxySynthesizer:
                 'name_out_img': self.name_out_img,
                 'n_jobs': self.ncpu,
                 'ssp_code': self.ssp_code, # Pass ssp_code to the run module for FITS header
-                'gas_logu': self.gas_logu,
                 'igm_type': self.igm_type,
                 'dust_index_bc': self.dust_index_bc,
                 'dust_index': self.dust_index,
@@ -911,7 +876,9 @@ class GalaxySynthesizer:
                 'rest_wave_min': self.rest_wave_min, 
                 'rest_wave_max': self.rest_wave_max,
                 'rest_delta_wave': self.rest_delta_wave,
-                'max_dist_neb': self.max_dist_neb
+                'max_dist_neb': self.max_dist_neb,
+                'log_xi_ion': self.log_xi_ion,
+                'epsilon': self.epsilon
             }
             
             # Merge SSP-specific parameters with common parameters

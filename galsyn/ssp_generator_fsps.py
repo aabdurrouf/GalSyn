@@ -7,8 +7,6 @@ from joblib import Parallel, delayed
 from tqdm_joblib import tqdm_joblib
 import multiprocessing
 
-# Constants for solar metallicity (from FSPS documentation or common usage)
-# Z_sun = 0.019 (solar metallicity in FSPS for default BaSeL models)
 # FSPS logzsol is log10(Z/Z_sun)
 FSPS_Z_SUN = 0.019
 
@@ -16,8 +14,7 @@ FSPS_Z_SUN = 0.019
 # This will be initialized once per worker by the initializer function.
 _ssp_worker_sp_instance = None
 
-def init_ssp_worker(imf_type_val, gas_logu_val,
-                    imf_upper_limit_val, imf_lower_limit_val,
+def init_ssp_worker(imf_type_val, imf_upper_limit_val, imf_lower_limit_val,
                     imf1_val, imf2_val, imf3_val, vdmc_val, mdave_val):
     """
     Initializer function for each worker process in the SSP generation.
@@ -27,9 +24,8 @@ def init_ssp_worker(imf_type_val, gas_logu_val,
     _ssp_worker_sp_instance = fsps.StellarPopulation(zcontinuous=1)
     _ssp_worker_sp_instance.params['imf_type'] = imf_type_val
     _ssp_worker_sp_instance.params["add_dust_emission"] = False
-    _ssp_worker_sp_instance.params['gas_logu'] = gas_logu_val
     _ssp_worker_sp_instance.params["fagn"] = 0
-    _ssp_worker_sp_instance.params["sfh"] = 0   # SSP
+    _ssp_worker_sp_instance.params["sfh"] = 0       # SSP
     _ssp_worker_sp_instance.params["dust1"] = 0.0
     _ssp_worker_sp_instance.params["dust2"] = 0.0   # optical depth
 
@@ -42,7 +38,7 @@ def init_ssp_worker(imf_type_val, gas_logu_val,
     _ssp_worker_sp_instance.params['mdave'] = mdave_val
 
 
-def _generate_single_ssp(age, logzsol):
+def _generate_single_ssp(age, logzsol, logu, log_zratio):
     """
     Helper function to generate a single SSP spectrum (stellar continuum only and nebular emission only)
     and its surviving stellar mass.
@@ -54,6 +50,10 @@ def _generate_single_ssp(age, logzsol):
         Age of the SSP in Gyr.
     logzsol : float
         Logarithm of metallicity relative to solar (log10(Z/Z_sun)).
+    logu : float
+        The logarithm of the dimensionless ionization parameter (log(U)), which characterizes the intensity of the ionizing radiation field.
+    log_zratio : float
+        The fixed logarithmic ratio between gas-phase metallicity and stellar metallicity in units of dex, used to calculate the gas metallicity for nebular emission models.
 
     Returns:
     --------
@@ -67,9 +67,13 @@ def _generate_single_ssp(age, logzsol):
     """
     global _ssp_worker_sp_instance
 
+    # Calculate gas metallicity: log10(Z_gas/Z_sun) = log10(Z_star/Z_sun) + log10(Z_gas/Z_star)
+    logzsol_gas = logzsol + log_zratio
+
     # Set parameters for the current SSP
     _ssp_worker_sp_instance.params["logzsol"] = logzsol
-    _ssp_worker_sp_instance.params['gas_logz'] = logzsol # Ensure gas_logz is also set for nebular emission consistency
+    _ssp_worker_sp_instance.params['gas_logz'] = logzsol_gas # Ensure gas_logz is also set for nebular emission consistency
+    _ssp_worker_sp_instance.params['gas_logu'] = logu
 
     # 1. Generate SSP spectrum including nebular emission
     _ssp_worker_sp_instance.params["add_neb_emission"] = 1
@@ -83,7 +87,7 @@ def _generate_single_ssp(age, logzsol):
     spec_nebular_emission = spec_total - spec_stellar_continuum
 
     # Get the surviving stellar mass for this SSP
-    stellar_mass = _ssp_worker_sp_instance.stellar_mass # This is the surviving stellar mass
+    stellar_mass = _ssp_worker_sp_instance.stellar_mass
 
     return spec_stellar_continuum, spec_nebular_emission, stellar_mass
 
@@ -91,8 +95,9 @@ def _generate_single_ssp(age, logzsol):
 def generate_ssp_grid(output_filename="ssp_spectra.hdf5",
                       ages_gyr=None,
                       logzsol_grid=None,
+                      logu_grid=None,
+                      log_zratio=0.4,
                       imf_type=1,
-                      gas_logu=-2.0,
                       imf_upper_limit=120.0,
                       imf_lower_limit=0.08,
                       imf1=1.3,
@@ -120,6 +125,11 @@ def generate_ssp_grid(output_filename="ssp_spectra.hdf5",
     logzsol_grid : np.ndarray, optional
         A 1D numpy array of log10(Z/Z_sun) values for which to generate SSP spectra.
         If None, a default linear grid from -2.0 to 0.2 is used.
+    logu_grid : np.ndarray, optional
+        A 1D numpy array of log(U) values for which to generate SSP spectra.
+    log_zratio : float, optional
+        The fixed logarithmic ratio between gas-phase metallicity and stellar metallicity in units of dex.
+        This is used to calculate the gas metallicity for nebular emission models.
     imf_type : int, optional
         Initial Mass Function (IMF) type for FSPS. Defaults to 1 (Chabrier).
     gas_logu : float, optional
@@ -160,15 +170,14 @@ def generate_ssp_grid(output_filename="ssp_spectra.hdf5",
 
     print(f"Generating SSP grid and saving to {output_filename}...")
 
-    # Define default age grid if not provided
     if ages_gyr is None:
-        # Logarithmic grid from 1 Myr to 13.8 Gyr (approx age of universe)
-        ages_gyr = np.logspace(np.log10(0.001), np.log10(13.8), 100) # 100 ages
+        ages_gyr = np.logspace(np.log10(0.001), np.log10(13.8), 100)
 
-    # Define default metallicity grid if not provided
     if logzsol_grid is None:
-        # Linear grid for log10(Z/Z_sun)
-        logzsol_grid = np.linspace(-2.0, 0.2, 20) # 20 metallicities
+        logzsol_grid = np.linspace(-2.0, 0.2, 20)
+
+    if logu_grid is None: 
+        logu_grid = np.linspace(-4.0, -1.0, 10)
 
     # Get the wavelength array once (it's constant for all SSPs)
     # Use a dummy FSPS instance just to get the wavelength grid
@@ -180,73 +189,56 @@ def generate_ssp_grid(output_filename="ssp_spectra.hdf5",
     wave_mask = (full_wave >= rest_wave_min) & (full_wave <= rest_wave_max)
     wave = full_wave[wave_mask]
 
-    # Initialize arrays to store spectra and surviving stellar masses
-    # Dimensions: (num_ages, num_metallicities, num_wavelengths) for spectra
-    # Dimensions: (num_ages, num_metallicities) for stellar_mass
-    ssp_stellar_continuum_spectra = np.zeros((len(ages_gyr), len(logzsol_grid), len(wave)), dtype=np.float32)
-    ssp_nebular_emission_spectra = np.zeros((len(ages_gyr), len(logzsol_grid), len(wave)), dtype=np.float32)
-    ssp_stellar_masses = np.zeros((len(ages_gyr), len(logzsol_grid)), dtype=np.float32)
+    # Initialize 4D spectra: (age, zstar, logu, wave)
+    s_cont_cube = np.zeros((len(ages_gyr), len(logzsol_grid), len(logu_grid), len(wave)), dtype=np.float32)
+    n_em_cube = np.zeros_like(s_cont_cube)
+    s_mass_cube = np.zeros((len(ages_gyr), len(logzsol_grid), len(logu_grid)), dtype=np.float32)
 
-    # Determine the number of CPU cores to use
+    tasks = [(a, z, u, log_zratio) for a in ages_gyr for z in logzsol_grid for u in logu_grid]
+    
     num_cores = n_jobs
     if num_cores == -1:
-        num_cores = multiprocessing.cpu_count() # Use all available cores
+        num_cores = multiprocessing.cpu_count()
+        
+    print(f"Generating 3D SSP grid on {num_cores} cores...")
 
-    print(f"Generating SSP spectra and surviving stellar masses on {num_cores} cores...")
-
-    # Create a list of tasks for parallel processing
-    tasks = []
-    for age in ages_gyr:
-        for logzsol in logzsol_grid:
-            tasks.append((age, logzsol))
-
-    # Execute tasks in parallel, with FSPS initialized once per worker
-    with tqdm_joblib(total=len(tasks), desc="Generating SSPs") as progress_bar:
-        results = Parallel(n_jobs=num_cores, verbose=0, initializer=init_ssp_worker,
-                           initargs=(imf_type, gas_logu,
-                                     imf_upper_limit, imf_lower_limit,
+    with tqdm_joblib(total=len(tasks), desc="Generating 3D SSPs") as progress_bar:
+        results = Parallel(n_jobs=num_cores, initializer=init_ssp_worker,
+                           initargs=(imf_type, imf_upper_limit, imf_lower_limit, 
                                      imf1, imf2, imf3, vdmc, mdave))(
-            delayed(_generate_single_ssp)(age, logzsol)
-            for age, logzsol in tasks
+            delayed(_generate_single_ssp)(*t) for t in tasks
         )
 
-    # Populate the ssp_stellar_continuum_spectra, ssp_nebular_emission_spectra, and ssp_stellar_masses arrays from results
-    # We need to map results back to their original grid positions
+    # Map results back to the 3D grid
     k = 0
-    for i_age, age in enumerate(ages_gyr):
-        for i_z, logzsol in enumerate(logzsol_grid):
-            spec_stellar_continuum_full, spec_nebular_emission_full, stellar_mass = results[k]
-            # Apply the wavelength mask to the generated spectra
-            ssp_stellar_continuum_spectra[i_age, i_z, :] = spec_stellar_continuum_full[wave_mask]
-            ssp_nebular_emission_spectra[i_age, i_z, :] = spec_nebular_emission_full[wave_mask]
-            ssp_stellar_masses[i_age, i_z] = stellar_mass
-            k += 1
+    for i_a in range(len(ages_gyr)):
+        for i_z in range(len(logzsol_grid)):
+            for i_u in range(len(logu_grid)):
+                res_s, res_n, res_m = results[k]
+                s_cont_cube[i_a, i_z, i_u, :] = res_s[wave_mask]
+                n_em_cube[i_a, i_z, i_u, :] = res_n[wave_mask]
+                s_mass_cube[i_a, i_z, i_u] = res_m
+                k += 1
 
-    # Save to HDF5 file
+    # Save with relevant IMF attributes
     with h5py.File(output_filename, 'w') as f:
         f.create_dataset('wavelength', data=wave, compression="gzip")
-        f.create_dataset('ages_gyr', data=ages_gyr, compression="gzip")
-        f.create_dataset('logzsol', data=logzsol_grid, compression="gzip")
-        f.create_dataset('stellar_continuum_spectra', data=ssp_stellar_continuum_spectra, compression="gzip")
-        f.create_dataset('nebular_emission_spectra', data=ssp_nebular_emission_spectra, compression="gzip")
-        f.create_dataset('stellar_mass', data=ssp_stellar_masses, compression="gzip")
+        f.create_dataset('ages_gyr', data=ages_gyr)
+        f.create_dataset('logzsol', data=logzsol_grid)
+        f.create_dataset('logu_grid', data=logu_grid)
+        f.create_dataset('stellar_continuum_spectra', data=s_cont_cube, compression="gzip")
+        f.create_dataset('nebular_emission_spectra', data=n_em_cube, compression="gzip")
+        f.create_dataset('stellar_mass', data=s_mass_cube, compression="gzip")
+        
+        # Meta-data
+        f.attrs['log_zratio'] = log_zratio
+        f.attrs['z_sun'] = FSPS_Z_SUN
         f.attrs['imf_type'] = imf_type
-        f.attrs['gas_logu'] = gas_logu
         f.attrs['imf_upper_limit'] = imf_upper_limit
         f.attrs['imf_lower_limit'] = imf_lower_limit
+        # Conditional IMF slopes
         if imf_type == 2:
-            f.attrs['imf1'] = imf1
-            f.attrs['imf2'] = imf2
-            f.attrs['imf3'] = imf3
-        if imf_type == 3:
-            f.attrs['vdmc'] = vdmc
-        if imf_type == 4:
-            f.attrs['mdave'] = mdave
-        f.attrs['z_sun'] = FSPS_Z_SUN
-        f.attrs['flux_unit'] = 'L_sun/Angstrom'
-        f.attrs['code'] = 'FSPS'
-        f.attrs['rest_wave_min'] = rest_wave_min
-        f.attrs['rest_wave_max'] = rest_wave_max
-
+            f.attrs['imf1'], f.attrs['imf2'], f.attrs['imf3'] = imf1, imf2, imf3
+        
     print(f"SSP grid generation complete. Saved to '{output_filename}'.")
     return output_filename
