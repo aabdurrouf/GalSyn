@@ -706,6 +706,7 @@ def generate_images(sim_file, z, filters, filter_transmission_path, dim_kpc=None
         dim_kpc = determine_image_size(s_c, s_m, working_pix_kpc, (initdim_kpc, initdim_kpc), 
                                        polar_angle_deg, azimuth_angle_deg, g_c, g_m, 
                                        mass_percentage=initdim_mass_fraction, max_img_dim=initdim_kpc)
+        print ('Set spatial dimension: %d x %d' % (dim_kpc,dim_kpc))
     
     # Grid info for high-res working grid
     s_mem, _, _, g_inf, g_mem, _, s_v_los, g_v_los = get_2d_density_projection_no_los_binning(s_c, s_m, working_pix_kpc, 
