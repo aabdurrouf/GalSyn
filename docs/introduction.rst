@@ -81,12 +81,12 @@ Once the :math:`A_V` is determined, GalSyn applies a specific attenuation curve 
      - Description / Relevant Parameters
    * - **0**
      - **Modified Calzetti**
-     - Variable slope and bump[cite: 817]. Uses ``dust_index`` (:math:`\delta`), ``bump_amp``, and ``bump_dwave``
+     - Variable slope and bump. Uses ``dust_index`` (:math:`\delta`), ``bump_amp``, and ``bump_dwave``
    * - **1**
      - **Salim et al. (2018)**
-     - Custom polynomial curve[cite: 858]. Uses ``salim_a0`` to ``salim_a3``, ``salim_B``, and ``salim_RV``.
+     - Custom polynomial curve. Uses ``salim_a0`` to ``salim_a3``, ``salim_B``, and ``salim_RV``.
    * - **2**
-     - **Original Calzetti**
+     - **Calzetti**
      - Standard starburst attenuation law from Calzetti et al. (2000).
    * - **3**
      - **SMC Gordon**
