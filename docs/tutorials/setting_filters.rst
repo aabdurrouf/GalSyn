@@ -13,11 +13,10 @@ Below is an example script for this:
 
     from galsyn.utils import make_filter_transmission_text_pixedfit
 
-    filters = ['hst_acs_f435w', 'hst_acs_f606w', 'hst_acs_f814w', 'hst_wfc3_ir_f110w', 'hst_wfc3_ir_f125w',
-                'hst_wfc3_ir_f140w', 'hst_wfc3_ir_f160w', 'jwst_nircam_f090w', 'jwst_nircam_f115w',
-                'jwst_nircam_f140m', 'jwst_nircam_f150w', 'jwst_nircam_f200w', 'jwst_nircam_f250m',
-                'jwst_nircam_f277w', 'jwst_nircam_f300m', 'jwst_nircam_f356w', 'jwst_nircam_f410m',
-                'jwst_nircam_f444w', 'jwst_nircam_f460m', 'jwst_nircam_f480m']
+    filters = ['hst_acs_f435w', 'hst_acs_f606w', 'hst_acs_f814w', 'hst_wfc3_ir_f110w', 'hst_wfc3_ir_f125w', 
+            'hst_wfc3_ir_f160w', 'jwst_nircam_f090w', 'jwst_nircam_f115w', 'jwst_nircam_f140m', 'jwst_nircam_f150w', 
+            'jwst_nircam_f200w', 'jwst_nircam_f250m', 'jwst_nircam_f277w', 'jwst_nircam_f335m', 'jwst_nircam_f356w', 
+            'jwst_nircam_f410m', 'jwst_nircam_f444w', 'jwst_nircam_f460m', 'jwst_nircam_f480m']
 
     filter_transmission_path = make_filter_transmission_text_pixedfit(filters, output_dir="filters")
 

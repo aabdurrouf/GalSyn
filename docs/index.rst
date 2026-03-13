@@ -3,12 +3,12 @@
 GalSyn: Synthetic Observations from Hydrodynamical Simulations 
 ==============================================================
 
-.. image:: figures/stamp_img1.png
+.. image:: figures/idealized_images1.png
    :alt: image
    :align: center
-   :width: 600px
+   :width: 700px
 
-.. image:: figures/stamp_ifu2.png
+.. image:: figures/plot_mockobs_ifu.png
    :alt: IFU
    :align: center
    :width: 600px
