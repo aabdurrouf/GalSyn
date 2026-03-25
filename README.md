@@ -29,4 +29,4 @@ highly flexible user control, allowing for large-scale population studies and sy
 physical assumptions (like IMF or dust laws) impact emergent galaxy light.
 
 Check out the sections below to learn more about GalSyn's capabilities, how to use it, and its API. 
-For more detailed information about the physical ingredients and algorithms, please see **Abdurro'uf et al. (2026, in prep.)**.
+For more detailed information about the physical ingredients and algorithms, please see **Abdurro'uf et al. (2026)**.
