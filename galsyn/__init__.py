@@ -12,4 +12,4 @@ from .observe import GalSynMockObservation_imaging, GalSynMockObservation_ifu
 __all__ = ['config', 'utils', 'imgutils', 'simutils_tng', 'galsyn_run_fsps', 
            'galsyn_run_bagpipes', 'galsyn', 'sfh', 'observe', 'galsyn_run_fsps', 'galsyn_run_bagpipes']
 
-__version__ = "0.1.0"
+__version__ = "0.1.1"
