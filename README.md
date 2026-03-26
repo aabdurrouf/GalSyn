@@ -28,7 +28,6 @@ offer limited flexibility regarding stellar population choices. GalSyn is built 
 highly flexible user control, allowing for large-scale population studies and systematic exploration of how different 
 physical assumptions (like IMF or dust laws) impact emergent galaxy light.
 
-Check out the sections below to learn more about GalSyn's capabilities, how to use it, and its API. 
 For more detailed information about the physical ingredients and algorithms, please see [Abdurro'uf et al. (2026)](https://ui.adsabs.harvard.edu/abs/2026arXiv260323986A/abstract).
 
 
