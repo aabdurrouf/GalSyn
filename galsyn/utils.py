@@ -67,10 +67,11 @@ def interp_age_univ_from_z(z, cosmo):
     
     from scipy.interpolate import interp1d
     
-    arr_z = np.linspace(0.0, 12.0, 100)
+    arr_z = np.linspace(0.0, 40.0, 1000)
+    # arr_z = np.linspace(0.0, 10.0, 100)
     age_univ = cosmo.age(arr_z).value
 
-    f = interp1d(arr_z, age_univ, fill_value="extrapolate")
+    f = interp1d(arr_z, age_univ)#, fill_value="extrapolate")
     return f(z)
 
 def cosmo_redshifting(wave_rest, L_lambda_rest, z, cosmo):
@@ -998,7 +999,7 @@ def create_hdf5_file(filename, stars_init_mass, stars_form_z, stars_mass, stars_
         star_group.create_dataset('zmet', data=stars_zmet, compression="gzip")
         star_group.create_dataset('coords', data=stars_coords, compression="gzip")
         star_group.create_dataset('vel', data=stars_vel, compression="gzip")
-
+        
         # Create the 'gas' group
         gas_group = f.create_group('gas')
         gas_group.create_dataset('mass', data=gas_mass, compression="gzip")
@@ -1010,3 +1011,5 @@ def create_hdf5_file(filename, stars_init_mass, stars_form_z, stars_mass, stars_
         gas_group.create_dataset('mass_H', data=gas_mass_H, compression="gzip")
 
         print(f"HDF5 file '{filename}' created successfully.")
+    
+    

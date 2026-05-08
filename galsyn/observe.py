@@ -2,7 +2,7 @@ import os
 import numpy as np
 from astropy.io import fits
 from astropy.convolution import convolve_fft, Gaussian1DKernel
-from photutils.psf.matching import resize_psf
+from photutils.psf_matching import resize_psf
 from scipy.integrate import simpson
 from scipy import stats
 from scipy.interpolate import interp1d
