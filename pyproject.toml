@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "galsyn"
-version = "0.1.4"
+version = "0.1.5"
 description = "A Python package for generating astrophysical images of galaxies from hydrodynamical simulations."
 readme = "README.md"
 requires-python = ">=3.8"
