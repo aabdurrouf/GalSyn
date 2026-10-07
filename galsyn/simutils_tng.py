@@ -4,28 +4,92 @@ from astropy.io import fits
 from .imgutils import *
 from .utils import *
 
-baseUrl_tng = 'http://www.tng-project.org/api/'
+baseUrl_tng = 'https://www.tng-project.org/api/'
 headers = {}
 
-def get(path, params=None):
+# Particle types and fields needed by make_sim_file_from_tng_data. Skipping dark
+# matter and black holes (and unused fields) greatly reduces the size of the
+# download and avoids server-side 504 time-outs for massive subhalos.
+CUTOUT_PARAMS_STARS_GAS = {
+    "gas": "Coordinates,Masses,Velocities,GFM_Metallicity,StarFormationRate,InternalEnergy,ElectronAbundance",
+    "stars": "Coordinates,Masses,Velocities,GFM_InitialMass,GFM_StellarFormationTime,GFM_Metallicity",
+}
+
+# Maps the TNG API particle-type query keys to their HDF5 group names.
+PARTTYPE_GROUP = {
+    "gas": "PartType0",
+    "dm": "PartType1",
+    "tracers": "PartType3",
+    "stars": "PartType4",
+    "bhs": "PartType5",
+}
+
+def get(path, params=None, api_key=None, max_retries=8, out_dir=".", max_wait=180, filename=None):
+    """
+    Handles TNG API requests for JSON metadata and HDF5 cutouts.
+
+    Downloads are streamed to a temporary file in `out_dir` and atomically renamed
+    on success. Failed requests (including 504 time-outs) are retried with
+    exponential back-off. `filename`, if given, overrides the name suggested by the
+    server; this is required when several requests for the same subhalo are made
+    into one directory, since the server suggests the same name for all of them.
+    If `api_key` is None, the module-level `headers` is used.
+    """
+    import time
     import requests
 
-    # make HTTP GET request to path
-    r = requests.get(path, params=params, headers=headers)
+    hdrs = {"api-key": api_key} if api_key is not None else headers
 
-    # raise exception if response code is not HTTP SUCCESS (200)
-    r.raise_for_status()
+    for attempt in range(max_retries):
+        try:
+            r = requests.get(path, params=params, headers=hdrs, stream=True, timeout=(15, 300))
+            r.raise_for_status()
 
-    if r.headers['content-type'] == 'application/json':
-        return r.json() # parse json responses automatically
+            if "json" in r.headers.get("content-type", "").lower():
+                return r.json()
 
-    if 'content-disposition' in r.headers:
-        filename = r.headers['content-disposition'].split("filename=")[1]
-        with open(filename, 'wb') as f:
-            f.write(r.content)
-        return filename # return the filename string
+            dest = filename
+            disp = r.headers.get("content-disposition", "")
+            if not dest and "filename=" in disp:
+                dest = disp.split("filename=")[1].strip('" \t')
 
-    return r
+            if not dest:
+                return r
+
+            final_path = os.path.join(out_dir, dest)
+            part_path = f"{final_path}.tmp_{os.getpid()}"
+            with open(part_path, "wb") as f:
+                for chunk in r.iter_content(chunk_size=4 * 1024 * 1024):
+                    if chunk:
+                        f.write(chunk)
+            os.replace(part_path, final_path)
+            return final_path
+
+        except requests.exceptions.RequestException as e:
+            if attempt == max_retries - 1:
+                break
+            wait = min(5 * (2 ** attempt), max_wait)
+            print(f"[Retry {attempt+1}/{max_retries}] Failed for {path}: {e}. Retrying in {wait}s...")
+            time.sleep(wait)
+
+    raise RuntimeError(f"Failed to fetch data from {path} after {max_retries} attempts.")
+
+def _merge_particle_cutouts(file_paths_by_ptype, target_path):
+    """
+    Merges single-particle-type cutout files into one HDF5 file at `target_path`,
+    each under its normal PartTypeN group. Particle types absent from the subhalo
+    (e.g. gas in a gas-free galaxy) are skipped with a note.
+    """
+    import h5py
+
+    with h5py.File(target_path, "w") as fout:
+        for ptype, path in file_paths_by_ptype.items():
+            group_name = PARTTYPE_GROUP[ptype]
+            with h5py.File(path, "r") as fin:
+                if group_name in fin:
+                    fin.copy(fin[group_name], fout, name=group_name)
+                else:
+                    print(f"Note: no {group_name} ({ptype}) data found for this subhalo.")
 
 def get_tng_snaps_info(sim='TNG50-1', api_key="api-key"):
     """
@@ -150,56 +214,97 @@ def cosmic_times_of_snapshots(snaps, sim='TNG50-1', snaps_info=None, cosmo='Plan
 
     return np.asarray(cosmic_times)
 
-def download_cutout_subhalo_hdf5(snap_number, subhalo_id, api_key="api-key", sim='TNG50-1', params=None, name=None):
+def _download_cutout(cutout_url, name, tag, api_key, params, split_requests):
+    """
+    Shared download logic: fetches `cutout_url` to `name`, optionally one particle
+    type per request (merged locally). `tag` labels temporary files.
+    """
+    out_dir = os.path.dirname(name) or "."
+    os.makedirs(out_dir, exist_ok=True)
+
+    if split_requests and params and len(params) > 1:
+        temp_paths = {}
+        try:
+            for ptype, fields in params.items():
+                print(f"Fetching {ptype} particles for {tag}...")
+                temp_paths[ptype] = get(cutout_url, params={ptype: fields}, api_key=api_key,
+                                        out_dir=out_dir,
+                                        filename=f"_split_{ptype}_{tag}_{os.getpid()}.hdf5")
+            _merge_particle_cutouts(temp_paths, name)
+        finally:
+            for path in temp_paths.values():
+                if path and os.path.exists(path):
+                    os.remove(path)
+        return name
+
+    tmp = get(cutout_url, params=params, api_key=api_key, out_dir=out_dir,
+              filename=f"_tmp_{tag}_{os.getpid()}.hdf5")
+    os.replace(tmp, name)
+    return name
+
+def download_cutout_subhalo_hdf5(snap_number, subhalo_id, api_key="api-key", sim='TNG50-1',
+                                 params=CUTOUT_PARAMS_STARS_GAS, name=None, split_requests=True):
     """
     Downloads the HDF5 data cutout for a specific subhalo.
+
+    By default only the star and gas particles, and only the fields required by
+    `make_sim_file_from_tng_data`, are requested (see CUTOUT_PARAMS_STARS_GAS). This
+    keeps the download small and avoids time-outs for massive galaxies.
 
     Args:
         snap_number (int): The snapshot number.
         subhalo_id (int): The ID of the target subhalo.
         api_key (str): Your TNG API key.
         sim (str): The name of the TNG simulation.
-        params (dict, optional): Additional parameters for the API request,
-                                 e.g., {'gas':'all', 'stars':'all'}.
+        params (dict, optional): Particle-type -> comma-separated fields (or 'all'),
+                                 e.g., {'gas':'Coordinates,Masses', 'stars':'all'}.
+                                 Pass None to download the full cutout.
         name (str, optional): Desired output name.
+        split_requests (bool): If True and `params` has several particle types, each
+                               type is requested separately and merged locally,
+                               which lowers the load on the server per request.
 
     Returns:
-        str: The filename of the downloaded and renamed HDF5 file.
+        str: The filename of the downloaded HDF5 file.
     """
-    global headers
-    headers = {"api-key":api_key}
-    url = "http://www.tng-project.org/api/" + sim + "/snapshots/" + str(int(snap_number)) + "/subhalos/" + str(int(subhalo_id))
-    sub = get(url, params=params)
-    name0 = get(sub['cutouts']['subhalo'],params)
-    if name is None:
-        name = 'cutout_shalo_'+str(int(snap_number))+'_'+str(int(subhalo_id))+'.hdf5'
-    os.rename(name0, name)
-    return name 
+    snap_number, subhalo_id = int(snap_number), int(subhalo_id)
+    url = f"{baseUrl_tng}{sim}/snapshots/{snap_number}/subhalos/{subhalo_id}/"
+    sub = get(url, api_key=api_key)
+    cutout_url = sub['cutouts']['subhalo']
 
-def download_cutout_parent_halo_hdf5(snap_number, subhalo_id, api_key="api-key", sim='TNG50-1', params=None, name=None):
+    if name is None:
+        name = f'cutout_shalo_{snap_number}_{subhalo_id}.hdf5'
+    return _download_cutout(cutout_url, name, f"{snap_number}_{subhalo_id}", api_key, params, split_requests)
+
+def download_cutout_parent_halo_hdf5(snap_number, subhalo_id, api_key="api-key", sim='TNG50-1',
+                                     params=CUTOUT_PARAMS_STARS_GAS, name=None, split_requests=True):
     """
     Downloads the HDF5 data cutout for the parent halo of a specified subhalo.
+
+    Parent halos are much larger than subhalos, so by default only star and gas
+    particles with the fields in CUTOUT_PARAMS_STARS_GAS are requested, one particle
+    type per request (merged locally), with retries on time-outs.
 
     Args:
         snap_number (int): The snapshot number of the subhalo.
         subhalo_id (int): The ID of the target subhalo.
         api_key (str): Your TNG API key.
         sim (str): The name of the TNG simulation.
-        params (dict, optional): Additional parameters for the API request.
+        params (dict, optional): Particle-type -> comma-separated fields (or 'all').
+                                 Pass None to download the full cutout.
         name (str, optional): Desired output name.
+        split_requests (bool): Request each particle type separately and merge locally.
 
     Returns:
-        str: The filename of the downloaded and renamed HDF5 file.
+        str: The filename of the downloaded HDF5 file.
     """
-    global headers
-    headers = {"api-key":api_key}
-    url = "http://www.tng-project.org/api/" + sim + "/snapshots/" + str(int(snap_number)) + "/subhalos/" + str(int(subhalo_id))
-    sub = get(url, params=params)
-    name0 = get(sub['cutouts']['parent_halo'],params)
+    snap_number, subhalo_id = int(snap_number), int(subhalo_id)
+    url = f"{baseUrl_tng}{sim}/snapshots/{snap_number}/subhalos/{subhalo_id}/"
+    sub = get(url, api_key=api_key)
     if name is None:
-        name = 'cutout_phalo_'+str(int(snap_number))+'_'+str(int(subhalo_id))+'.hdf5'
-    os.rename(name0, name)
-    return name
+        name = f'cutout_phalo_{snap_number}_{subhalo_id}.hdf5'
+    return _download_cutout(sub['cutouts']['parent_halo'], name, f"phalo_{snap_number}_{subhalo_id}",
+                            api_key, params, split_requests)
 
 def get_basic_subhalo_properties(snap_number, subhalo_id, api_key="api-key", sim='TNG50-1', params=None):
     """
