@@ -60,6 +60,7 @@ For the dust attenuation curve, we will use the modified Calzetti law (option 0)
     from galsyn.dust import bump_amp_from_dust_index
     bump_amp = bump_amp_from_dust_index(dict_AV_slope["dust_index"])
     dict_AV_bump_amp = {'AV':dict_AV_slope["AV"], 'bump_amp':bump_amp}
+    gs.bump_amp = dict_AV_bump_amp
 
     # Apply fixed Bump width
     gs.bump_dwave = 0.035
@@ -140,6 +141,7 @@ the modified Calzetti dust law with a dynamic slope and bump strength that depen
     from galsyn.dust import bump_amp_from_dust_index
     bump_amp = bump_amp_from_dust_index(dict_AV_slope["dust_index"])
     dict_AV_bump_amp = {'AV':dict_AV_slope["AV"], 'bump_amp':bump_amp}
+    gs.bump_amp = dict_AV_bump_amp
 
     # Apply fixed Bump width
     gs.bump_dwave = 0.035
