@@ -1,2 +1,6 @@
 docs/_build/
 *.hdf5
+build/
+*.egg-info/
+__pycache__/
+.ipynb_checkpoints/
