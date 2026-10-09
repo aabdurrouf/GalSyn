@@ -1,3 +1,13 @@
 Sphinx
 sphinx-book-theme
 sphinx-argparse
+numpy
+scipy
+astropy
+h5py
+matplotlib
+joblib
+tqdm
+tqdm_joblib
+psutil
+ipywidgets

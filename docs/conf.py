@@ -5,7 +5,7 @@ import sys
 sys.path.insert(0, os.path.abspath('..'))
 
 project = 'GalSyn'
-copyright = '2025, Abdurrouf'
+copyright = '2026, Abdurrouf'
 author = 'Abdurrouf'
 release = '0.1.0'
 
@@ -19,6 +19,7 @@ extensions = [
 
 templates_path = ['_templates']
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
+autodoc_mock_imports = ['fsps', 'bagpipes', 'illustris_python']
 
 # -- Options for HTML output -------------------------------------------------
 
