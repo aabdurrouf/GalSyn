@@ -627,6 +627,14 @@ def get_2d_density_projection_no_los_binning(star_coords, particle_masses, pixel
     using polar and azimuth angles. The line-of-sight (LOS) direction is from the
     observer's position towards the origin (0,0,0).
 
+    Conventions: the unit vector from the origin towards the observer is
+    n = (sin(polar) cos(azimuth), sin(polar) sin(azimuth), cos(polar)). The new frame
+    (x', y', z') is right-handed with z' = n pointing towards the observer, and the x'-y'
+    plane is the plane of the sky. The LOS depth of each particle and its LOS velocity are
+    measured along w = -z', i.e. away from the observer, so the particle closest to the
+    observer has the smallest depth (0 after the normalization) and a particle moving away
+    from the observer has a positive LOS velocity (redshift).
+
     Args:
         star_coords (np.ndarray): A NumPy array of shape (N, 3) representing the
                                   (x, y, z) coordinates of N star particles.
@@ -767,24 +775,24 @@ def get_2d_density_projection_no_los_binning(star_coords, particle_masses, pixel
     stars_vel_los_proj = np.array([])
     if star_vels is not None:
         rotated_star_vels = np.dot(star_vels, rotation_matrix.T)
-        stars_vel_los_proj = rotated_star_vels[:, 2] # Z' component of velocity
+        stars_vel_los_proj = -rotated_star_vels[:, 2] # LOS velocity along w = -Z' (away from the observer): positive = receding
 
     gas_vel_los_proj = np.array([])
     if gas_coords is not None:
         rotated_gas_coords = np.dot(gas_coords, rotation_matrix.T)
         if gas_vels is not None:
             rotated_gas_vels = np.dot(gas_vels, rotation_matrix.T)
-            gas_vel_los_proj = rotated_gas_vels[:, 2] # Z' component of velocity
+            gas_vel_los_proj = -rotated_gas_vels[:, 2] # LOS velocity along w = -Z' (away from the observer): positive = receding
 
 
     # Extract projected 2D coordinates and raw line-of-sight distances for STARS
     projected_star_2d_coords = rotated_star_coords[:, :2] # X' and Y'
-    star_line_of_sight_distances_raw = rotated_star_coords[:, 2] # Z' (LOS)
+    star_line_of_sight_distances_raw = -rotated_star_coords[:, 2] # LOS depth w = -Z' (grows away from the observer, which sits on the +Z' side)
 
     # Determine the global minimum LOS distance for normalization (from all particles)
     all_los_distances = star_line_of_sight_distances_raw
     if gas_coords is not None:
-        gas_line_of_sight_distances_raw = rotated_gas_coords[:, 2]
+        gas_line_of_sight_distances_raw = -rotated_gas_coords[:, 2]   # LOS depth w = -Z'
         all_los_distances = np.concatenate((all_los_distances, gas_line_of_sight_distances_raw))
 
     # Handle case where all_los_distances might be empty (e.g., if both star_coords and gas_coords are empty after initial check)

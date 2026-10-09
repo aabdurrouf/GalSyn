@@ -13,23 +13,23 @@ The script below demonstrates how to visualize these spatially resolved phsyical
     from astropy.visualization import simple_norm, make_lupton_rgb
 
     # Input synthetic data cube
-    fits_filename = 'galsyn_39_107965_specphoto.fits'
+    fits_filename = 'galsyn_62_132810_specphoto.fits'
 
     # Your specific HDU names and labels
     hdu_names = [
         'STARS_MASS', 'MW_AGE', 'STARS_MW_ZSOL', 'SFR_100MYR', 'GAS_MASS', 'SFR_INST', 
-        'GAS_MW_ZSOL', 'DUST_MEAN_AV', 'LW_AGE_DUST', 'LW_ZSOL_DUST', 
-        'STARS_VEL_DISP_LOS', 'GAS_VEL_DISP_LOS', 'LW_VEL_LOS_DUST', 
-        'LW_VEL_LOS_NEBULAR'
+        'GAS_MW_ZSOL', 'EFF_A_REST_V', 'LW_AGE_DUST', 'LW_ZSOL_DUST', 
+        'STARS_VEL_DISP_LOS', 'GAS_VEL_DISP_LOS', 'STARS_MW_VEL_LOS', 
+        'GAS_MW_VEL_LOS'
     ]
 
     prop_labels = {
         'STARS_MASS':'Stellar mass', 'MW_AGE': 'MW Age', 'STARS_MW_ZSOL': 'MW Z_star', 
         'SFR_100MYR': 'SFR_100Myr', 'GAS_MASS': 'Gas mass', 'SFR_INST': 'Inst. SFR', 
-        'GAS_MW_ZSOL': 'Z_gas', 'DUST_MEAN_AV': 'Dust AV', 'LW_AGE_DUST': 'LW Age', 
+        'GAS_MW_ZSOL': 'Z_gas', 'EFF_A_REST_V': 'Eff. A_V', 'LW_AGE_DUST': 'LW Age', 
         'LW_ZSOL_DUST': 'LW Z_star', 'STARS_VEL_DISP_LOS': 'Star V disp', 
-        'GAS_VEL_DISP_LOS': 'Gas V disp', 'LW_VEL_LOS_DUST': 'Star LOS V', 
-        'LW_VEL_LOS_NEBULAR': 'Gas LOS V'
+        'GAS_VEL_DISP_LOS': 'Gas V disp', 'STARS_MW_VEL_LOS': 'Star LOS V', 
+        'GAS_MW_VEL_LOS': 'Gas LOS V'
     }
 
     # RGB Filters from your example
@@ -70,17 +70,34 @@ The script below demonstrates how to visualize these spatially resolved phsyical
 
         # Inside your loop, before calling ax.imshow:
         if 'VEL_LOS' in ext_name:
-            # 1. Create a mask for values that are exactly zero 
-            # (or very close to it, depending on your data)
-            masked_data = np.ma.masked_equal(data, 0.0)
-            
-            cmap = cm.get_cmap('bwr').copy()
-            cmap.set_bad(color='black')
-            
-            im = ax.imshow(masked_data, origin='lower', cmap=cmap, vmin=-300, vmax=300)
+            # NOTE: STARS_MW_VEL_LOS is the mass-weighted mean line-of-sight (LOS) velocity of the
+            # star particles in each pixel (positive = receding/redshifted, negative = approaching/
+            # blueshifted). It is a raw LOS velocity in the simulation frame, so it includes the
+            # galaxy's bulk (systemic) peculiar velocity projected along the viewing direction,
+            # on top of its internal motions (e.g., rotation). The offset can be much larger than
+            # the rotation signal, and its sign and size depend on the viewing angle.
+            # GalSyn does not remove it, so the maps stay consistent with the Doppler-shifted spectra
+            # in the data cube.
+            # To see the rotation pattern, we subtract the systemic velocity here, estimated as the
+            # mass-weighted mean LOS velocity over all valid pixels. Empty pixels (value = 0) are
+            # excluded from this estimate and shown in black.
+
+            mass = hdulist['STARS_MASS'].data
+            valid = (data != 0) & np.isfinite(data)
+ 
+            # systemic LOS velocity = mass-weighted mean over the galaxy
+            v_sys = np.nansum(mass[valid] * data[valid]) / np.nansum(mass[valid])
+            vmap = np.ma.masked_where(~valid, data - v_sys)
+            vmap = np.ma.masked_where(vmap == 0.0, vmap)   # also mask pixels whose final velocity is exactly zero
+
+            vmax = np.nanpercentile(np.abs(vmap.compressed()), 98)
+            cmap = plt.get_cmap('bwr').copy()
+            cmap.set_bad(color='black')   # masked pixels shown in black
+
+            im = ax.imshow(vmap, origin='lower', cmap=cmap, vmin=-vmax, vmax=vmax)
 
         else:
-            cmap = cm.get_cmap('inferno').copy()
+            cmap = plt.get_cmap('inferno').copy()
             cmap.set_bad(color='black')
             norm = simple_norm(data, 'sqrt', percent=98.0)
             im = ax.imshow(data, norm=norm, origin='lower', cmap=cmap)

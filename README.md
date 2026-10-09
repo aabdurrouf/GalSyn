@@ -71,3 +71,16 @@ archivePrefix = {arXiv},
       adsnote = {Provided by the SAO/NASA Astrophysics Data System}
 }
 ``` 
+
+## Updates 
+
+### 2026-10-08 (v0.1.7)
+- **Line-of-sight (LOS) convention.** The LOS depth and LOS velocity are now measured along the axis pointing *away* from the observer (w = −z′ in the projection frame of Fig. 2). The projection frame itself, the viewing angles (polar, azimuth), and the image orientation are unchanged. The particle closest to the observer has LOS distance 0, with distances increasing away from the observer, as described in the paper, and the dust-attenuation step uses this definition to identify the gas in front of each star. LOS velocities are positive for receding material, consistent with `doppler_shift_spectrum`. Outputs generated with earlier versions may differ in resolved dust-attenuation maps and in the sign of the LOS-velocity maps. In our tests the impact on integrated attenuation was small.
+- **New dust-attenuation maps** (FSPS and Bagpipes backends):
+  - `EFF_A_REST_V`: effective rest-frame V-band attenuation, A = −2.5 log10(ΣL_dust / ΣL_no-dust), summed over all stars in a pixel (unattenuated stars count as A = 0), using the total spectrum (stellar continuum + nebular emission).
+  - `EFF_A_REST_V_CONT`: the same quantity for the stellar continuum only.
+  - `DUST_MEAN_AV_ALLSTARS`: mean diffuse-dust A_V over all star particles in a pixel (unattenuated stars count as 0).
+  - Luminosities are summed before the ratio is taken when maps are rebinned.
+- **V-band filter.** The effective-attenuation maps use the Johnson–Cousins V transmission curve (`galsyn/data/johnson_cousins_V.txt`) with photon-counting weighting.
+- **Removed maps.** `DUST_MEAN_AV` and `DUST_MEAN_TAUV` are no longer written; `EFF_A_REST_V` and `DUST_MEAN_AV_ALLSTARS` replace them. The `analyze_props` tutorial and Example 8 were updated accordingly.
+- **Bagpipes backend.** Fixed an `UnboundLocalError` that occurred when a pixel in the working grid contained no star particles.

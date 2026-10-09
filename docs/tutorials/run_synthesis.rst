@@ -20,8 +20,8 @@ For the dust attenuation curve, we will use the modified Calzetti law (option 0)
 
     # Specify simulation parameters
     sim = 'TNG50-1'         # The TNG simulation run
-    snap_number = 39        # The snapshot index (e.g., z ~ 1.5 in IllustrisTNG)
-    subhalo_id = 107965     # The subhalo ID
+    snap_number = 62        # The snapshot index
+    subhalo_id = 132810     # The subhalo ID
 
     # Assign a redshift to the galaxy. This value can be arbitrary, provided it is reasonably close to the exact redshift of the snapshot index. 
     # In this example, we will fetch the precise redshift for the snapshot number using the TNG API.
@@ -42,8 +42,8 @@ For the dust attenuation curve, we will use the modified Calzetti law (option 0)
 
     gs.flux_unit = 'MJy/sr'        # Desired unit for the output FITS file
 
-    gs.polar_angle_deg = 0.0       # Polar angle or inclination
-    gs.azimuth_angle_deg = 0.0     # azimuth angle or rotation in the xy-plane
+    gs.polar_angle_deg = 45.0       # Polar angle or inclination
+    gs.azimuth_angle_deg = 45.0     # azimuth angle or rotation in the xy-plane
 
     # Dust attenuation modeling method
     gs.dust_method = 'los'             # line-of-sight method
@@ -101,8 +101,8 @@ the modified Calzetti dust law with a dynamic slope and bump strength that depen
 
     # Specify simulation parameters
     sim = 'TNG50-1'         # The TNG simulation run
-    snap_number = 39        # The snapshot index (e.g., z ~ 1.5 in IllustrisTNG)
-    subhalo_id = 107965     # The subhalo ID
+    snap_number = 62        # The snapshot index (e.g., z ~ 1.5 in IllustrisTNG)
+    subhalo_id = 132810     # The subhalo ID
 
     # Assign a redshift to the galaxy. This value can be arbitrary, provided it is reasonably close to the exact redshift of the snapshot index. 
     # In this example, we will fetch the precise redshift for the snapshot number using the TNG API.
@@ -123,8 +123,8 @@ the modified Calzetti dust law with a dynamic slope and bump strength that depen
 
     gs.flux_unit = 'MJy/sr'        # Desired unit for the output FITS file
 
-    gs.polar_angle_deg = 0.0       # Polar angle or inclination
-    gs.azimuth_angle_deg = 0.0     # azimuth angle or rotation in the xy-plane
+    gs.polar_angle_deg = 45.0       # Polar angle or inclination
+    gs.azimuth_angle_deg = 45.0     # azimuth angle or rotation in the xy-plane
 
     # Dust attenuation modeling method
     gs.dust_method = 'los'             # line-of-sight method
@@ -183,7 +183,7 @@ In the following scipt, we extract some images from the data cube, make RGB imag
     import matplotlib.pyplot as plt
     from astropy.visualization import simple_norm, make_lupton_rgb
 
-    cube = fits.open('galsyn_39_107965_specphoto.fits')
+    cube = fits.open('galsyn_62_132810_specphoto.fits')
 
     # Filter configuration
     fils = ['hst_acs_f606w', 'hst_acs_f814w', 'hst_wfc3_ir_f160w', 'jwst_nircam_f150w', 
@@ -285,7 +285,7 @@ Next, we check spectrum integrated within a circular aperture around the galaxy'
     # OIII map
     ax0 = plt.subplot(gs[0, 0])
 
-    cmap = cm.get_cmap('inferno').copy()
+    cmap = plt.get_cmap('inferno').copy()
     cmap.set_bad(color='black')
     norm = simple_norm(oiii_map, 'sqrt', percent=98.5)
     im0 = ax0.imshow(oiii_map, norm=norm, origin='lower', cmap=cmap)
@@ -307,7 +307,7 @@ Next, we check spectrum integrated within a circular aperture around the galaxy'
     # H-alpha map
     ax1 = plt.subplot(gs[0, 1])
 
-    cmap = cm.get_cmap('inferno').copy()
+    cmap = plt.get_cmap('inferno').copy()
     cmap.set_bad(color='black')
     norm = simple_norm(halpha_map, 'sqrt', percent=98.5)
     im1 = ax1.imshow(halpha_map, norm=norm, origin='lower', cmap=cmap)

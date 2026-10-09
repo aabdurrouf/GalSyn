@@ -2,12 +2,45 @@ import os
 import numpy as np
 from astropy.io import fits
 from astropy.convolution import convolve_fft, Gaussian1DKernel
-from photutils.psf_matching import resize_psf
+from scipy.ndimage import affine_transform
 from scipy.integrate import simpson
 from scipy import stats
 from scipy.interpolate import interp1d
 from .imgutils import convert_flux_map
 from astropy.wcs import WCS
+
+
+def resize_psf(psf, input_pixel_scale, output_pixel_scale, order=3):
+    """Resample a PSF to a new pixel scale, conserving total flux and centroid.
+
+    The output shape is forced to be odd so the kernel has a well-defined central pixel for convolution. 
+    The resampling uses the exact pixel-scale ratio (not out_shape / in_shape), and maps the
+    geometric center of the output grid onto that of the input grid.
+    """
+    psf = np.asarray(psf, dtype=float)
+    ratio = input_pixel_scale / output_pixel_scale
+    in_shape = np.array(psf.shape)
+
+    out_shape = np.maximum(1, np.ceil(in_shape * ratio).astype(int))
+    out_shape += (out_shape % 2 == 0)
+
+    center_in = (in_shape - 1) / 2.0
+    center_out = (out_shape - 1) / 2.0
+
+    # Output coordinate o maps to input coordinate o / ratio + offset, with
+    # center_out mapping exactly onto center_in.
+    transform_matrix = np.eye(psf.ndim) / ratio
+    offset = center_in - np.dot(transform_matrix, center_out)
+
+    result = affine_transform(
+        psf, transform_matrix, offset=offset, output_shape=tuple(out_shape),
+        order=order, mode='constant', cval=0.0
+    )
+
+    result_sum = result.sum()
+    if result_sum != 0:
+        result *= psf.sum() / result_sum
+    return result
 
 
 class GalSynMockObservation_imaging:

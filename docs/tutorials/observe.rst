@@ -74,7 +74,7 @@ PSF images used in the following scripts can be found in this `online folder <ht
     mag_zp = {ff: 28.086519392283982 for ff in filters}
 
     # Input idealized data cube
-    fits_file_path = 'galsyn_39_107965_photo.fits'
+    fits_file_path = 'galsyn_62_132810_photo.fits'
 
     # Initialize the mock observation object
     simg = GalSynMockObservation_imaging(fits_file_path, filters, psf_paths, psf_pixel_scales, mag_zp,
@@ -85,7 +85,7 @@ PSF images used in the following scripts can be found in this `online folder <ht
     simg.process_images(apply_noise_to_image=True, dust_attenuation=True)
 
     # Save the resulting science and RMS extensions to a new FITS file
-    output_fits_path = 'obsimg_galsyn_39_107965_photo_30mas.fits'
+    output_fits_path = 'obsimg_galsyn_62_132810_photo_30mas.fits'
     simg.save_results_to_fits(output_fits_path=output_fits_path)
 
 
@@ -412,6 +412,9 @@ First, we will model a flat input spectrum (i.e.,~constant in AB magnitude) acro
 
 
     # Run the simulation using the function
+    import numpy as np 
+    from astropy.io import fits
+
     exptime = 40000
     magnitudes = np.linspace(20.0, 30.0, 10)
 
@@ -466,6 +469,12 @@ Then we will use the derived S/N curves to estimate the magnitude limits at S/N=
     sensitivity_wave = sensitivity_dict['g140h/f100lp']['common_wave']
     sensitivity_mag_lims = sensitivity_dict['g140h/f100lp']['det2']
 
+    # We can save the result into text file for later use
+    file_out = open('sensitivity_g140h_f100lp.txt', 'w')
+    for i in range(len(sensitivity_wave)):
+        file_out.write('%e %e\n' % (sensitivity_wave[i],sensitivity_mag_lims[i]))
+    file_out.close()
+
     fig = plt.figure(figsize=(8,5))
     f1 = plt.subplot()
     #f1.set_yscale('log')
@@ -497,11 +506,15 @@ Additional notes:
 
 .. code-block:: python
 
+    data1 = np.loadtxt('sensitivity_g140h_f100lp.txt')
+    sensitivity_wave = data1[:,0]
+    sensitivity_mag_lims = data1[:,1]
+
     from scipy.interpolate import interp1d
     from galsyn import GalSynMockObservation_ifu
 
 
-    fits_file_path = 'galsyn_39_107965_specphoto.fits'
+    fits_file_path = 'galsyn_62_132810_specphoto.fits'
     desired_wave_grid = cube_psf_wave_um * 1e+4  # Convert microns to Angstroms
     psf_cube_path = 'psf_G140H_F100LP_standard.fits'
 
@@ -524,7 +537,7 @@ Additional notes:
     sifu.process_datacube(dust_attenuation=True, apply_noise_to_cube=True)
 
     # Save the final realistic IFU data cube
-    output_fits_path = 'obsifu_nirspec_g140h_f100lp_galsyn_39_107965_100mas.fits'
+    output_fits_path = 'obsifu_nirspec_g140h_f100lp_galsyn_62_132810_100mas.fits'
     sifu.save_results_to_fits(output_fits_path)
 
 
@@ -540,7 +553,7 @@ Let's check the output data cube.
     from astropy.cosmology import Planck18 as cosmo
     import astropy.units as u
 
-    cube = fits.open('obsifu_nirspec_g140h_f100lp_galsyn_39_107965_100mas.fits')
+    cube = fits.open('obsifu_nirspec_g140h_f100lp_galsyn_62_132810_100mas.fits')
 
     sci_data = cube['SCI_DUST'].data
     wavelength = cube['WAVELENGTH_GRID'].data['WAVELENGTH']
@@ -554,8 +567,8 @@ Let's check the output data cube.
     radius_pixels = radius_kpc / pix_kpc
 
     # Select wavelength grids around the OIII and H-alpha lines
-    oiii_wave_range = [5007*(1.0+z)-200, 5007*(1.0+z)+200]
-    halpha_wave_range = [6564*(1.0+z)-200, 6564*(1.0+z)+200]
+    oiii_wave_range = [5007*(1.0+z)-150, 5007*(1.0+z)+150]
+    halpha_wave_range = [6564*(1.0+z)-150, 6564*(1.0+z)+150]
     oiii_indices = np.where((wavelength >= oiii_wave_range[0]) & (wavelength <= oiii_wave_range[1]))[0]
     halpha_indices = np.where((wavelength >= halpha_wave_range[0]) & (wavelength <= halpha_wave_range[1]))[0]
 
@@ -585,7 +598,7 @@ Let's check the output data cube.
     # OIII map
     ax0 = plt.subplot(gs[0, 0])
 
-    cmap = cm.get_cmap('inferno').copy()
+    cmap = plt.get_cmap('inferno').copy()
     cmap.set_bad(color='black')
     norm = simple_norm(oiii_map, 'sqrt', percent=98.5)
     im0 = ax0.imshow(oiii_map, norm=norm, origin='lower', cmap=cmap)
@@ -607,7 +620,7 @@ Let's check the output data cube.
     # H-alpha map
     ax1 = plt.subplot(gs[0, 1])
 
-    cmap = cm.get_cmap('inferno').copy()
+    cmap = plt.get_cmap('inferno').copy()
     cmap.set_bad(color='black')
     norm = simple_norm(halpha_map, 'sqrt', percent=98.5)
     im1 = ax1.imshow(halpha_map, norm=norm, origin='lower', cmap=cmap)
@@ -627,12 +640,13 @@ Let's check the output data cube.
 
     # Integrated spectrum
     ax2 = plt.subplot(gs[1, :])
-    ax2.plot(wavelength, integrated_spectrum0, lw=1, color='black')
+    ax2.plot(wavelength, integrated_spectrum0, lw=1, color='black', label='JWST/NIRSpec IFU G140H/F100LP')
     ax2.set_title('Integrated Spectrum within 3 kpc radius', fontsize=15)
     ax2.set_xlabel(r'Observed wavelength [$\AA$]', fontsize=15)
     ax2.set_ylabel(r'$F_{\lambda}$ [erg $\rm{s}^{-1}\rm{cm}^{-2}\AA^{-1}$]', fontsize=15)
     plt.setp(ax2.get_yticklabels(), fontsize=11)
     plt.setp(ax2.get_xticklabels(), fontsize=11)
+    plt.legend(fontsize=16)
 
     plt.tight_layout()
 

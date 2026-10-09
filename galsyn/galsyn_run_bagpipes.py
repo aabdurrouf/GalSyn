@@ -20,6 +20,13 @@ import gc
 
 # Constants for solar metallicity
 BAGPIPES_Z_SUN = 0.02
+from functools import lru_cache
+
+@lru_cache(maxsize=1)
+def _load_eff_v_filter():
+    """Johnson-Cousins V transmission curve (Angstrom, shipped in galsyn/data) used for the effective A_V maps."""
+    d = np.loadtxt(str(importlib.resources.files('galsyn.data').joinpath('johnson_cousins_V.txt')))
+    return d[:, 0], d[:, 1]
 L_SUN_ERG_S = 3.828e33 # Solar luminosity in erg/s
 
 # Conversion factor: (Atoms per Msun) / (cm3 per kpc3)
@@ -322,7 +329,8 @@ def _process_pixel_data(ii, jj, star_particle_membership_list, gas_particle_memb
     pixel_results = {
         'map_stars_mass': 0.0, 'map_mw_age': 0.0, 'map_stars_mw_zsol': 0.0, 'map_sfr_100': 0.0,
         'map_sfr_30': 0.0, 'map_sfr_10': 0.0, 'map_gas_mass': 0.0, 'map_sfr_inst': 0.0,
-        'map_gas_mw_zsol': 0.0, 'map_dust_mean_tauV': 0.0, 'map_dust_mean_AV': 0.0,
+        'map_gas_mw_zsol': 0.0,
+        'map_effL': np.zeros(4), 'map_sum_dAV': 0.0, 'map_n_stars': 0.0,     # [L_nodust, L_dust, L_cont_nodust, L_cont_dust] in the V band
         'map_flux': np.zeros(len(_worker_filters)), 'map_flux_dust': np.zeros(len(_worker_filters)),
         'obs_spectra_nodust_igm': np.zeros(current_num_obs_wave_points), 'map_gas_logu': np.nan,
         'obs_spectra_dust_igm': np.zeros(current_num_obs_wave_points),
@@ -361,12 +369,14 @@ def _process_pixel_data(ii, jj, star_particle_membership_list, gas_particle_memb
         pixel_results['map_gas_vel_disp_los'] = np.sqrt(np.nansum(_worker_gas_mass[gas_ids] * (_worker_gas_vel_los_proj[gas_ids] - pixel_results['map_gas_mw_vel_los'])**2) / g_sum)
 
     effective_av = 0.0
+    eff_L, sum_dAV = np.zeros(4), 0.0       # defaults (overwritten for pixels with stars)
+    array_spec = []   # default for pixels without stars: it is used below, outside the `if len(star_ids) > 0` block
     if _worker_dust_method == 'sfr_AV' and func_interp_av_sfrden is not None:
         sfr_density = pixel_results['map_sfr_inst'] / pix_area_kpc2
         with np.errstate(divide='ignore'): effective_av = np.power(10.0, func_interp_av_sfrden(np.log10(sfr_density)))
 
     if len(star_ids) > 0:
-        array_spec, array_spec_dust, array_AV, array_tauV, array_L_nodust, array_L_dust = [], [], [], [], [], []
+        array_spec, array_spec_dust, array_L_nodust, array_L_dust = [], [], [], []
         if output_pixel_spectra_flag: array_vel_los, array_L_nebular, array_vel_los_nebular_weighted = [], [], []
 
         m_H_pixel = np.nansum(_worker_gas_mass_H[gas_ids])
@@ -378,6 +388,11 @@ def _process_pixel_data(ii, jj, star_particle_membership_list, gas_particle_memb
         dynamic_logu = calculate_local_logu(pixel_results['map_sfr_inst'], nH_local, log_xi_ion=_worker_log_xi_ion, epsilon=_worker_epsilon)
         pixel_results['map_gas_logu'] = dynamic_logu
         lw_wave_idx = np.where((ssp_wave >= _child_wave_min_rest) & (ssp_wave <= _child_wave_max_rest))[0]
+        fw, ft = _load_eff_v_filter()
+        eff_idx = np.where((ssp_wave >= fw.min()) & (ssp_wave <= fw.max()))[0]
+        eff_wv = ssp_wave[eff_idx]
+        eff_w = np.interp(eff_wv, fw, ft) * eff_wv      # photon-counting weight T(lambda)*lambda, as in GalSyn's own broadband photometry
+        eff_L, sum_dAV = np.zeros(4), 0.0
 
         for i_sid in range(len(star_ids)):
             star_id = star_ids[i_sid]
@@ -418,11 +433,15 @@ def _process_pixel_data(ii, jj, star_particle_membership_list, gas_particle_memb
                 w_d_n, n_e_d = doppler_shift_spectrum(ssp_wave, n_em, g_v_neb)
                 n_e_i = interp1d(w_d_n, n_e_d, kind='linear', bounds_error=False, fill_value=0.0)(ssp_wave)
                 spec = s_c_i + n_e_i
+                cont_arr = s_c_i
                 array_vel_los.append(_worker_stars_vel_los_proj[star_id]); array_vel_los_nebular_weighted.append(g_v_neb)
                 array_L_nebular.append(simpson(n_e_i[lw_wave_idx]*norm, ssp_wave[lw_wave_idx]) if lw_wave_idx.size > 1 else 0.0)
-            else: spec = s_cont + n_em
+            else:
+                spec = s_cont + n_em
+                cont_arr = s_cont
 
             spec_dust, d_AV = spec.copy(), 0.0
+            att_fac = np.ones(spec.shape[0])      # total attenuation factor applied to this star (needed for the continuum-only map)
             if _worker_dust_method == 'sfr_AV': d_AV = effective_av
             else:
                 idx_c = np.where((gas_los_dist < star_los_dist[i_sid]) & ((_worker_gas_sfr_inst[gas_ids] > 0.0) | (_worker_gas_log_temp[gas_ids] < 3.9)))[0]
@@ -437,19 +456,25 @@ def _process_pixel_data(ii, jj, star_particle_membership_list, gas_particle_memb
             if d_AV > 0:
                 al = dust_reddening_diffuse_ism(d_AV, ssp_wave, dust_law)
                 spec_dust *= 10.0**(-0.4*al)
-                array_tauV.append(d_AV * 0.921); array_AV.append(d_AV)
+                att_fac *= 10.0**(-0.4*al)
             
             if _worker_stars_age[star_id] <= t_esc and dust_eta != 0.0:
                 al_bc = unresolved_dust_birth_cloud_Alambda_per_AV(ssp_wave, dust_index_bc=dust_index_bc) * d_AV * dust_eta
                 spec_dust *= 10.0**(-0.4*al_bc)
+                att_fac *= 10.0**(-0.4*al_bc)
+
+            # effective attenuation: accumulate rest-frame V-band luminosities of ALL stars (total and continuum only)
+            if eff_idx.size > 1:
+                eff_L[0] += simpson(spec[eff_idx]*norm*eff_w, eff_wv);              eff_L[1] += simpson(spec_dust[eff_idx]*norm*eff_w, eff_wv)
+                eff_L[2] += simpson(cont_arr[eff_idx]*norm*eff_w, eff_wv);          eff_L[3] += simpson((cont_arr*att_fac)[eff_idx]*norm*eff_w, eff_wv)
+            sum_dAV += d_AV
 
             if spec.shape[0] != ssp_wave.shape[0]: raise ValueError(f"Shape Mismatch: spec {spec.shape[0]} != grid {ssp_wave.shape[0]}")
             array_spec.append(spec*norm); array_spec_dust.append(spec_dust*norm)
             array_L_nodust.append(simpson(spec[lw_wave_idx]*norm, ssp_wave[lw_wave_idx]) if lw_wave_idx.size > 1 else 0.0)
             array_L_dust.append(simpson(spec_dust[lw_wave_idx]*norm, ssp_wave[lw_wave_idx]) if lw_wave_idx.size > 1 else 0.0)
             
-    pixel_results['map_dust_mean_AV'] = np.nanmean(array_AV) if array_AV else np.nan
-    pixel_results['map_dust_mean_tauV'] = np.nanmean(array_tauV) if array_tauV else np.nan
+    pixel_results['map_effL'], pixel_results['map_sum_dAV'], pixel_results['map_n_stars'] = eff_L, sum_dAV, float(len(star_ids))
 
     if array_spec:
         s_lum, s_lum_d = np.nansum(array_spec, axis=0), np.nansum(array_spec_dust, axis=0)
@@ -634,7 +659,7 @@ def generate_images(sim_file, z, filters, filter_transmission_path, smoothing_le
     w_map_mw_age, w_map_stars_mw_zsol, w_map_stars_mass = np.zeros((dimy,dimx)), np.zeros((dimy,dimx)), np.zeros((dimy,dimx))
     w_map_sfr_100, w_map_sfr_30, w_map_sfr_10 = np.zeros((dimy,dimx)), np.zeros((dimy,dimx)), np.zeros((dimy,dimx))
     w_map_gas_mw_zsol, w_map_gas_mass, w_map_sfr_inst = np.zeros((dimy,dimx)), np.zeros((dimy,dimx)), np.zeros((dimy,dimx))
-    w_map_dust_mean_tauV, w_map_dust_mean_AV = np.zeros((dimy,dimx)), np.zeros((dimy,dimx))
+    w_map_effL, w_map_sum_dAV, w_map_n_stars = np.zeros((dimy,dimx,4)), np.zeros((dimy,dimx)), np.zeros((dimy,dimx))
     w_map_flux, w_map_flux_dust = np.zeros((dimy,dimx,len(filters))), np.zeros((dimy,dimx,len(filters)))
     w_map_spec_n, w_map_spec_d = (np.zeros((dimy, dimx, num_w)), np.zeros((dimy, dimx, num_w))) if output_pixel_spectra else (None, None)
     w_map_lw = {k: np.full((dimy, dimx), np.nan) for k in ['age_n', 'age_d', 'z_n', 'z_d', 'v_n', 'v_d', 'v_neb', 'v_s_mw', 'v_g_mw', 'v_s_disp', 'v_g_disp']}
@@ -665,7 +690,7 @@ def generate_images(sim_file, z, filters, filter_transmission_path, smoothing_le
             w_map_stars_mass[ii,jj], w_map_mw_age[ii,jj], w_map_stars_mw_zsol[ii,jj] = pd['map_stars_mass'], pd['map_mw_age'], pd['map_stars_mw_zsol']
             w_map_sfr_100[ii,jj], w_map_sfr_30[ii,jj], w_map_sfr_10[ii,jj] = pd['map_sfr_100'], pd['map_sfr_30'], pd['map_sfr_10']
             w_map_gas_mass[ii,jj], w_map_sfr_inst[ii,jj], w_map_gas_mw_zsol[ii,jj] = pd['map_gas_mass'], pd['map_sfr_inst'], pd['map_gas_mw_zsol']
-            w_map_dust_mean_tauV[ii,jj], w_map_dust_mean_AV[ii,jj] = pd['map_dust_mean_tauV'], pd['map_dust_mean_AV']
+            w_map_effL[ii,jj], w_map_sum_dAV[ii,jj], w_map_n_stars[ii,jj] = pd['map_effL'], pd['map_sum_dAV'], pd['map_n_stars']
             w_map_flux[ii,jj], w_map_flux_dust[ii,jj] = pd['map_flux'], pd['map_flux_dust']
             w_map_gas_logu[ii, jj] = pd['map_gas_logu']
             
@@ -690,8 +715,14 @@ def generate_images(sim_file, z, filters, filter_transmission_path, smoothing_le
     map_gas_mass = rebin_map(w_map_gas_mass, rebin_factor, mode='sum')
     map_sfr_inst = rebin_map(w_map_sfr_inst, rebin_factor, mode='sum')
     map_gas_mw_zsol = rebin_map(w_map_gas_mw_zsol, rebin_factor, mode='mean')
-    map_dust_mean_tauV = rebin_map(w_map_dust_mean_tauV, rebin_factor, mode='mean')
-    map_dust_mean_AV = rebin_map(w_map_dust_mean_AV, rebin_factor, mode='mean')
+    # effective attenuation: sum the luminosities (and counts) when rebinning, THEN take the ratio
+    map_effL = rebin_map(w_map_effL, rebin_factor, mode='sum')
+    map_sum_dAV = rebin_map(w_map_sum_dAV, rebin_factor, mode='sum')
+    map_n_stars = rebin_map(w_map_n_stars, rebin_factor, mode='sum')
+    with np.errstate(divide='ignore', invalid='ignore'):
+        map_eff_A_V = -2.5*np.log10(np.where(map_effL[:, :, 0] > 0, map_effL[:, :, 1]/map_effL[:, :, 0], np.nan))
+        map_eff_A_V_cont = -2.5*np.log10(np.where(map_effL[:, :, 2] > 0, map_effL[:, :, 3]/map_effL[:, :, 2], np.nan))
+        map_dust_mean_AV_all = np.where(map_n_stars > 0, map_sum_dAV/map_n_stars, np.nan)
     map_gas_logu = rebin_map(w_map_gas_logu, rebin_factor, mode='mean')
     
     map_lw_age_nodust = rebin_map(w_map_lw['age_n'], rebin_factor, mode='mean')
@@ -777,8 +808,9 @@ def generate_images(sim_file, z, filters, filter_transmission_path, smoothing_le
                 'GAS_MASS': map_gas_mass,
                 'SFR_INST': map_sfr_inst,
                 'GAS_MW_ZSOL': map_gas_mw_zsol,
-                'DUST_MEAN_TAUV': map_dust_mean_tauV,
-                'DUST_MEAN_AV': map_dust_mean_AV,
+                'DUST_MEAN_AV_ALLSTARS': map_dust_mean_AV_all,
+                'EFF_A_REST_V': map_eff_A_V,
+                'EFF_A_REST_V_CONT': map_eff_A_V_cont,
                 'GAS_LOGU': map_gas_logu,
                 'LW_AGE_NODUST': map_lw_age_nodust,
                 'LW_AGE_DUST': map_lw_age_dust,
@@ -798,7 +830,9 @@ def generate_images(sim_file, z, filters, filter_transmission_path, smoothing_le
                     ext_hdr = fits.Header()
                     ext_hdr['EXTNAME'] = map_name
                     ext_hdr['COMMENT'] = f'Map of {map_name.replace("_", " ").title()}'
-                    if 'AGE' in map_name:
+                    if map_name.startswith(('EFF_A_REST', 'DUST_MEAN_AV_ALLSTARS')):
+                        ext_hdr['BUNIT'] = 'mag'
+                    elif 'AGE' in map_name:
                         ext_hdr['BUNIT'] = 'Gyr'
                     elif 'ZSOL' in map_name:
                         ext_hdr['BUNIT'] = 'Z/Zsun'

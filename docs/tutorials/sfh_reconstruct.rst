@@ -18,8 +18,8 @@ Below, is an example script for reconstructing spatially resolved SFH of a simul
 
     # Specify simulation parameters
     sim = 'TNG50-1'         # The TNG simulation run
-    snap_number = 39        # The snapshot index (e.g., z ~ 1.5 in IllustrisTNG)
-    subhalo_id = 107965     # The subhalo ID
+    snap_number = 62        # The snapshot index (e.g., z ~ 1.5 in IllustrisTNG)
+    subhalo_id = 132810     # The subhalo ID
 
     # Retrieve the exact redshift for the given snapshot number using the TNG API
     z = get_snap_z(snap_number, api_key=api_key)
@@ -35,8 +35,8 @@ Below, is an example script for reconstructing spatially resolved SFH of a simul
     sfh.dim_kpc = 90                # Spatial side length of the grid in kpc
     sfh.pix_arcsec = 0.03           # Angular size of each pixel
 
-    sfh.polar_angle_deg = 0.0       # Polar angle or inclination
-    sfh.azimuth_angle_deg = 0.0     # azimuth angle or rotation in the xy-plane
+    sfh.polar_angle_deg = 45.0       # Polar angle or inclination
+    sfh.azimuth_angle_deg = 45.0     # azimuth angle or rotation in the xy-plane
 
     sfh.ncpu = 5                    # Number of CPU cores for parallel processing
     sfh.sfh_del_t = 0.05            # Lookback time bin width in Gyr
@@ -96,8 +96,8 @@ In the following script, we plot star formation and chemical eenrichment histori
     fig, axes = plt.subplots(1, 3, figsize=(18, 5))
 
     # Plotting config (shared across panels)
-    line_cfg = {'inner': {'color': 'b', 'lw': 3, 'label': 'Core (<3kpc)'},
-                'disk':  {'color': 'r', 'lw': 3, 'label': 'Disk (3-15kpc)'}}
+    line_cfg = {'inner': {'color': 'b', 'lw': 3, 'label': 'Core (R<3kpc)'},
+                'disk':  {'color': 'r', 'lw': 3, 'label': 'Disk (3<R<15kpc)'}}
 
     for ax, data_i, data_d, ylabel, is_log in zip(axes, 
         [sfr_i, cumul_i, met_i], [sfr_d, cumul_d, met_d],

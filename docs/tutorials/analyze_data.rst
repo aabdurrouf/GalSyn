@@ -48,7 +48,7 @@ More fields from the catalog can be seen at `this link <https://www.tng-project.
 
     # get half stellar mass radius and convert into kpc
     from galsyn.simutils_tng import get_snap_z
-    api_key = "7ae4d3ea8a7c808a0932e62abc69dde4"
+    api_key = "your_api_key"
     snap_z = get_snap_z(snap_number, sim='TNG50-1', api_key=api_key)
     snap_a = 1.0/(1.0 + snap_z)
     halfmass_rad = subhalos['SubhaloHalfmassRadType'][:,4] * snap_a / h  # in kpc

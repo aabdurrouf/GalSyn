@@ -25,8 +25,8 @@ To download a subhalo cutout of a specific galaxy (given snapshot number and sub
 
     # Specify simulation parameters
     sim = 'TNG50-1'         # The TNG simulation run
-    snap_number = 39        # The snapshot index (e.g., z ~ 1.5 in IllustrisTNG)
-    subhalo_id = 107965     # The subhalo ID
+    snap_number = 62        # The snapshot index (e.g., z ~ 1.5 in IllustrisTNG)
+    subhalo_id = 132810     # The subhalo ID
 
     # Downloads the particle data (gas and stars) for the specified subhalo
     cutout_name = f'cutout_shalo_{int(snap_number)}_{int(subhalo_id)}.hdf5'
