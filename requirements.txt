@@ -1,9 +1,8 @@
+numpy
 astropy
 scipy
-matplotlib
-illustris_python
-tqdm_joblib
+h5py
 joblib
-ipywidgets
-photutils
-bagpipes
+tqdm
+tqdm_joblib
+requests

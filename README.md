@@ -51,6 +51,17 @@ cd GalSyn
 python -m pip install .
 ```
 
+### Additional (optional) packages
+
+GalSyn requires Python 3.9 or newer. The core dependencies (NumPy, SciPy, Astropy, h5py, joblib, tqdm, tqdm_joblib, and requests) are installed automatically. The packages below are not installed by default because they are only needed for specific tasks:
+
+- **SPS engine** (needed to generate SSP grid files, or to run the synthesis with on-the-fly SPS calls when no precomputed SSP grid file is provided). Install at least one of them:
+  - [python-fsps](https://dfm.io/python-fsps/current/) for the FSPS engine: `pip install fsps`
+  - [Bagpipes](https://bagpipes.readthedocs.io/en/latest/) for the Bagpipes engine: `pip install bagpipes`
+- **Matplotlib** (plotting in the example notebooks and tutorials): `pip install matplotlib`
+- **Pandeia engine** (only for the JWST NIRSpec IFU sensitivity estimate in the IFU observation example)
+- **illustris_python** (only for the galaxy sample selection example)
+
 ## Citation
 If you use this code for your research, please reference [Abdurro'uf et al. (2026)](https://ui.adsabs.harvard.edu/abs/2026arXiv260323986A/abstract):
 

@@ -9,7 +9,7 @@ name = "galsyn"
 version = "0.1.7"
 description = "A Python package for generating astrophysical images of galaxies from hydrodynamical simulations."
 readme = "README.md"
-requires-python = ">=3.8"
+requires-python = ">=3.9"
 license = {text = "MIT"}
 authors = [
     {name = "Abdurrouf", email = "abdurroufastro@gmail.com"}
@@ -31,15 +31,11 @@ dependencies = [
     "numpy",
     "astropy",
     "scipy",
-    "matplotlib",
     "h5py",
     "joblib",
     "tqdm",
     "tqdm_joblib",
-    "fsps",
-    "psutil",
-    "ipywidgets",
-    "bagpipes",
+    "requests",
 ]
 
 [project.urls]
